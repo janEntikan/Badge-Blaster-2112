@@ -23,18 +23,20 @@ class Car():
 
         self.speed = Vec3()
         self.max_speed = 60
-        self.acceleration = 100
+        self.acceleration = 40
         self.steering = 200
         self.max_steering = 40
              
     def steer(self, x):
         self.speed.x += (x * self.steering) * base.dt
+        self.speed.x *= max((self.speed.y / self.max_speed) ** 0.25, 0.1)
         self.speed.x = clamp(
             self.speed.x, -self.max_steering, self.max_steering
         )
-        
+    
     def accelerate(self):
-        self.speed.y += self.acceleration * base.dt
+        accel = self.acceleration / (max(self.speed.y / self.max_speed ** 0.75, 0.1))
+        self.speed.y += accel * base.dt
         self.speed.y = clamp(
             self.speed.y, 0, self.max_speed
         )
