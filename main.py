@@ -16,7 +16,7 @@ class Base(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.device_listener = DeviceListener(SinglePlayerAssigner())
-
+        self.dt = 1
         self.models = {}
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
@@ -28,7 +28,11 @@ class Base(ShowBase):
             r = self.models["testroad"].copy_to(render)
             r.set_y(i*260)
         self.task_mgr.add(self.player.input)
+        self.task_mgr.add(self.tick)
 
+    def tick(self, task=None):    
+        self.dt = globalClock.get_dt()
+        return task.cont
 
 if __name__ == "__main__":
     base = Base()
