@@ -30,6 +30,10 @@ class Base(ShowBase):
         self.task_mgr.add(self.player.input)
         self.task_mgr.add(self.tick)
 
+        for light in render.find_all_matches("**/*light*"):
+            light.set_alpha_scale(0.1)
+            light.set_transparency(True)
+
     def tick(self, task=None):    
         self.dt = globalClock.get_dt()
         return task.cont
