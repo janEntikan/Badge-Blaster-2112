@@ -1,6 +1,6 @@
 from direct.showbase.ShowBase import ShowBase
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
-from vehicles import PlayerCar
+from game.vehicles import PlayerCar
 
 
 def child_dict(model):
@@ -25,7 +25,7 @@ class Base(ShowBase):
         # Attach camera to player car
         base.cam.reparent_to(self.player.root)
         base.cam.set_pos(0, 40, 40)
-        base.cam.look_at(self.player.root, (0,-20,0))        
+        base.cam.look_at(self.player.root, (0,-20,0))
         # Testroad
         self.models["testroad"] = loader.load_model("assets/models/testroad.bam")
         for i in range(20):
