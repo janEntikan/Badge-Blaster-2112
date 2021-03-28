@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 built_assets/
 *.blend1
+venv
+.vscode
