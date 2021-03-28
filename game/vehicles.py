@@ -1,26 +1,38 @@
 from panda3d.core import Vec3
 
 
+def clamp(n, mini, maxi):
+    return max(min(n, maxi), mini)
+
+
 class Car():
     def __init__(self, model):
         self.root = model
         self.root.reparent_to(render)
 
-        self.current_speed = Vec3()
-        self.acceleration = 0.05
-        self.steering = 1.0
+        self.acceleration = 0.03
+        self.speed = Vec3()
+        self.steering = 0.1
+        self.max_steering = 0.5
         self.max_speed = 1.0
              
     def steer(self, x):
-        self.current_speed.x += (x * self.steering)       
-
+        self.speed.x -= (x * self.steering) * self.speed.y       
+        self.speed.x = clamp(
+            self.speed.x, -self.max_steering, self.max_steering
+        )
+        
     def accelerate(self):
-        # TODO: increment exponentially so it takes longer and longer
-        self.current_speed.y += self.acceleration
+        self.speed.y += self.acceleration
+        self.speed.y = clamp(
+            self.speed.y, 0, self.max_speed
+        )
 
     def update(self):
-        self.root.set_y(self.root, -self.current_speed.y)
-
+        self.root.set_y(self.root, -self.speed.y)
+        self.root.set_x(self.root, self.speed.x*self.speed.y)
+        self.root.set_h(self.speed.x*25)
+    
 
 class TurboCar(Car):
     def __init__(self, model):
@@ -33,7 +45,7 @@ class TurboCar(Car):
 
     def handle_turbo(self, on=False):
         if on:
-            if self.current_speed > self.turbo_threshold:
+            if self.speed.y > self.turbo_threshold:
                 self.max_speed = self.max_speed_turbo
             else:
                 self.max_speed = self.max_speed_error
@@ -49,9 +61,13 @@ class PlayerCar(TurboCar):
         context = base.device_listener.read_context('player')
         if context['move']:
             self.steer(context['move'])
+        else:
+            self.speed.x /= 1.2
         if context['accelerate']:
             self.handle_turbo(context['turbo'])
             self.accelerate()                    
-        self.update()
+        else:
+            self.speed.y /= 1+(self.acceleration*2)
 
+        self.update()
         return task.cont
