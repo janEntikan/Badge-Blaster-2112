@@ -1,29 +1,30 @@
-[road]
-  [road.move]
+[player]
+  [player.move]
   _type = "axis"
   _device_order = ["gamepad", "keyboard"]
   gamepad = "left_x"
   keyboard = "arrow_left,arrow_right"
 
-  [road.accelerate]
+  [player.accelerate]
   _type = "button"
   _device_order = ["gamepad", "keyboard"]
   gamepad = "face_x"
   keyboard = "z"
 
-  [road.turbo]
+  [player.turbo]
   _type = "button"
   _device_order = ["gamepad", "keyboard"]
   gamepad = "face_y"
   keyboard = "x"
 
-  [road.select]
+[game]
+  [menu.select]
   _type = "trigger"
   _device_order = ["gamepad", "keyboard"]
   gamepad = "face_x"
   keyboard = "z"
 
-  [road.quit]
+  [game.quit]
   _type = "button"
   _device_order = ["keyboard"]
   keyboard = "escape"
