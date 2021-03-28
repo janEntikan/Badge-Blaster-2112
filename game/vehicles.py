@@ -12,12 +12,12 @@ class Car():
 
         self.acceleration = 0.03
         self.speed = Vec3()
-        self.steering = 0.1
-        self.max_steering = 0.5
+        self.steering = 0.05
+        self.max_steering = 0.3
         self.max_speed = 1.0
              
     def steer(self, x):
-        self.speed.x -= (x * self.steering) * self.speed.y       
+        self.speed.x += (x * self.steering) * self.speed.y       
         self.speed.x = clamp(
             self.speed.x, -self.max_steering, self.max_steering
         )
@@ -29,9 +29,9 @@ class Car():
         )
 
     def update(self):
-        self.root.set_y(self.root, -self.speed.y)
-        self.root.set_x(self.root, self.speed.x*self.speed.y)
-        self.root.set_h(self.speed.x*25)
+        self.root.set_y(self.root, self.speed.y)
+        self.root.set_x(self.root, self.speed.x)
+        self.root.set_h(-self.speed.x*25)
     
 
 class TurboCar(Car):
@@ -56,6 +56,9 @@ class TurboCar(Car):
 class PlayerCar(TurboCar):
     def __init__(self, model):
         TurboCar.__init__(self, model)
+        self.cam_height = 60
+        base.cam.set_pos(0, -self.cam_height, self.cam_height)
+        base.cam.look_at(render, (0, 20, 0))
     
     def input(self, task):
         context = base.device_listener.read_context('player')
@@ -67,7 +70,8 @@ class PlayerCar(TurboCar):
             self.handle_turbo(context['turbo'])
             self.accelerate()                    
         else:
-            self.speed.y /= 1+(self.acceleration*2)
+            self.speed.y /= 1+(self.acceleration*1.2)
 
         self.update()
+        base.cam.set_pos(0, -self.cam_height+self.root.get_y(), self.cam_height)
         return task.cont

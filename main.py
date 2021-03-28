@@ -22,16 +22,11 @@ class Base(ShowBase):
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
-        # Attach camera to player car
-        base.cam.reparent_to(self.player.root)
-        base.cam.set_pos(0, 40, 40)
-        base.cam.look_at(self.player.root, (0,-20,0))
-        base.cam.set_compass()
         # Testroad
         self.models["testroad"] = loader.load_model("assets/models/testroad.bam")
         for i in range(20):
             r = self.models["testroad"].copy_to(render)
-            r.set_y(i*-260)
+            r.set_y(i*260)
         self.task_mgr.add(self.player.input)
 
 
