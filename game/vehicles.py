@@ -2,6 +2,9 @@ from random import choice, randint
 from panda3d.core import Vec3
 
 
+SLIP_STRENGTH = 5
+
+
 def clamp(n, mini, maxi):
     return max(min(n, maxi), mini)
 
@@ -37,17 +40,17 @@ class Car():
                 distance = (enemy.root.get_pos()-self.root.get_pos()).length()
                 if distance <= 1.5:
                     if enemy.root.get_x() > self.root.get_x():
-                        self.slipping = 1
-                        enemy.slipping = -1
+                        self.slipping = SLIP_STRENGTH
+                        enemy.slipping = -SLIP_STRENGTH
                     else:
-                        self.slipping = -1
-                        enemy.slipping = 1
+                        self.slipping = -SLIP_STRENGTH
+                        enemy.slipping = SLIP_STRENGTH
 
     def slip(self, x):
-        self.speed.x = self.slipping*(self.max_steering)
-        if x == -self.slipping:
+        self.slipping -= (x*20) * base.dt
+        if self.slipping < 2 and self.slipping > -2:
             self.slipping = 0
-            self.speed.x
+        self.model.set_h(self.slipping*10)
 
     def steer(self, x):
         if self.speed.y > 0:
@@ -68,9 +71,7 @@ class Car():
     def update(self):
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
-        if self.slipping:
-            self.model.set_h(self.speed.x)
-        else:
+        if not self.slipping:
             self.model.set_h(-self.speed.x/2)
             self.bump()
 
@@ -145,12 +146,13 @@ class PlayerCar(TurboCar):
             smoothing = (self.steering/2) * base.dt
             self.speed.x = veer(self.speed.x, smoothing, smoothing)
 
-        if context['accelerate']:
-            self.handle_turbo(context['turbo'])
-            self.accelerate()
-        else:
-            amount = self.acceleration * base.dt
-            self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=20)
+        if not self.slipping:
+            if context['accelerate']:
+                self.handle_turbo(context['turbo'])
+                self.accelerate()
+            else:
+                amount = self.acceleration * base.dt
+                self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=20)
 
         self.update()
 
