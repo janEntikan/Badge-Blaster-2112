@@ -1,3 +1,4 @@
+from random import choice
 from panda3d.core import Vec3
 
 
@@ -24,6 +25,7 @@ class Car():
 
         self.speed = Vec3()
         self.max_speed = 60
+        self.max_speed_normal = self.max_speed
         self.acceleration = 40
         self.steering = 200
         self.max_steering = 40
@@ -31,7 +33,7 @@ class Car():
         self.slipping = 0 #-1 is slip left, 1 is slip right
 
     def slip(self, x):
-        self.speed.x = self.slipping*self.max_steering
+        self.speed.x = self.slipping*(self.max_steering)
         if x == -self.slipping:
             self.slipping = 0
             self.speed.x
@@ -39,14 +41,15 @@ class Car():
     def steer(self, x):
         if self.speed.y > 0:
             self.speed.x += (x * self.steering) * base.dt
-            self.speed.x *= max((self.speed.y / self.max_speed) ** 0.25, 0.1)
+            if self.speed.y < self.max_speed_normal:
+                self.speed.x *= max((self.speed.y / self.max_speed_normal) ** 0.25, 0.1)
             self.speed.x = clamp(self.speed.x, -self.max_steering, self.max_steering)
         else:
             self.speed.x = 0
     
     def accelerate(self):
         if self.speed.y < self.max_speed:
-            accel = self.acceleration / (max(self.speed.y / self.max_speed ** 0.75, 0.1))
+            accel = self.acceleration / (max(self.speed.y / self.max_speed_normal ** 0.75, 0.1))
             self.speed.y += accel * base.dt
         else:
             self.speed.y -= self.acceleration * base.dt
@@ -54,8 +57,11 @@ class Car():
     def update(self):
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
-        self.model.set_h(-self.speed.x/2)
-    
+        if self.slipping:
+            self.model.set_h(self.speed.x)    
+        else:
+            self.model.set_h(-self.speed.x/2)
+
 
 class TurboCar(Car):
     def __init__(self, model):
@@ -85,7 +91,7 @@ class PlayerCar(TurboCar):
     def input(self, task):
         context = base.device_listener.read_context('player')
         if context["slip_debug"]:
-            self.slipping = True
+            self.slipping = choice((-1, 1))
 
         if self.slipping:
             self.slip(context['move'])
