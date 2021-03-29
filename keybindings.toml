@@ -17,6 +17,13 @@
   gamepad = "face_y"
   keyboard = "x"
 
+  [player.slip_debug]
+  _type = "trigger"
+  _device_order = ["gamepad", "keyboard"]
+  gamepad = "face_z"
+  keyboard = "c"
+
+
 [game]
   [menu.select]
   _type = "trigger"
