@@ -1,6 +1,7 @@
 from direct.showbase.ShowBase import ShowBase
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
 from game.vehicles import PlayerCar
+from game.trackgen import DummyTrackGenerator
 
 
 def child_dict(model):
@@ -18,6 +19,8 @@ class Base(ShowBase):
         self.device_listener = DeviceListener(SinglePlayerAssigner())
         self.dt = 1
         self.models = {}
+        # Load track generator
+        self.trackgen = DummyTrackGenerator(None)
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
@@ -34,7 +37,7 @@ class Base(ShowBase):
             light.set_alpha_scale(0.1)
             light.set_transparency(True)
 
-    def tick(self, task=None):    
+    def tick(self, task=None):
         self.dt = globalClock.get_dt()
         return task.cont
 
