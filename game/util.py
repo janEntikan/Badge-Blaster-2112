@@ -11,7 +11,7 @@ def noise1D(num, bounds, max_delta, start=None):
     Noise of `num` values inside `bounds` with `max_delta` between any two
     neighboring points.
     """
-    n = [start if start is not None else 0]
+    n = [start if start is not None else sum(bounds) / 2]
     while len(n) < num:
         t_bounds = (max(n[-1] - max_delta, bounds[0]),
                     min(n[-1] + max_delta, bounds[1]))
