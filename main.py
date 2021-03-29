@@ -2,7 +2,8 @@ from direct.showbase.ShowBase import ShowBase
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
 from game.gui import Gui
 from game.vehicles import PlayerCar, spawn
-from game.trackgen import DummyTrackGenerator
+from game import part
+from game.trackgen import TrackGenerator
 
 
 def set_faux_lights(node):
@@ -28,19 +29,23 @@ class Base(ShowBase):
         self.dt = 1
         self.enemies = []
         self.models = {}
-        # Load track generator
-        self.trackgen = DummyTrackGenerator()
+        self.set_background_color(0, 0, 0, 0)
+        # Setup track generator
+        road_model = loader.load_model("assets/models/testparts-b.bam")
+        self.part_mgr = part.PartMgr({"testparts-b": road_model}, ('test', ))
+        self.trackgen = TrackGenerator()
         self.trackgen.register_spawn_callback(spawn)
+        self.trackgen.set_difficulty(1)  # Adjust from 0..1
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
         # Testroad
-        self.models["testroad"] = loader.load_model("assets/models/testroad.bam")
-        set_faux_lights(self.models["testroad"])
-        for i in range(20):
-            r = self.models["testroad"].copy_to(render)
-            r.set_y(i*260)
+        # self.models["testroad"] = loader.load_model("assets/models/testroad.bam")
+        # set_faux_lights(self.models["testroad"])
+        # for i in range(20):
+        #     r = self.models["testroad"].copy_to(render)
+        #     r.set_y(i*260)
         self.task_mgr.add(self.player.input)
         self.task_mgr.add(self.tick)
 
