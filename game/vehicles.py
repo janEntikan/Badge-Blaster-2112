@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, randint
 from panda3d.core import Vec3
 
 
@@ -20,8 +20,7 @@ def veer(n, amount, threshold, center=0):
 class Car():
     def __init__(self, model):
         self.root = render.attach_new_node(model.name+'_root')
-        self.model = model
-        self.model.reparent_to(self.root)
+        self.model = model.copy_to(self.root)
 
         self.speed = Vec3()
         self.max_speed = 60
@@ -31,6 +30,18 @@ class Car():
         self.max_steering = 40
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
+
+    def bump(self):
+        for enemy in base.enemies:
+            if not enemy == self:
+                distance = (enemy.root.get_pos()-self.root.get_pos()).length()
+                if distance <= 1.5:
+                    if enemy.root.get_x() > self.root.get_x():
+                        self.slipping = 1
+                        enemy.slipping = -1
+                    else:
+                        self.slipping = -1
+                        enemy.slipping = 1
 
     def slip(self, x):
         self.speed.x = self.slipping*(self.max_steering)
@@ -61,6 +72,7 @@ class Car():
             self.model.set_h(self.speed.x)
         else:
             self.model.set_h(-self.speed.x/2)
+            self.bump()
 
 
 class TurboCar(Car):
@@ -79,6 +91,38 @@ class TurboCar(Car):
                 self.max_speed = self.max_speed_error
         else:
             self.max_speed = self.max_speed_normal
+
+class EnemyCar(Car):
+    def __init__(self, model, position):
+        Car.__init__(self, model)
+        self.steering = 100
+        self.max_speed = 130
+        self.acceleration = 80
+        self.root.set_pos(position)
+        self.speed.y = self.max_speed
+        self.speed.x = 0
+        self.aim = randint(30,60)
+
+    def chase(self):
+        if self.slipping:
+            pass
+        elif base.player.root.get_x() > self.root.get_x()+1:
+            self.steer(1)
+        elif base.player.root.get_x() < self.root.get_x()-1:
+            self.steer(-1)
+        else:
+            smoothing = (self.steering/2) * base.dt
+            self.speed.x = veer(self.speed.x, smoothing, smoothing)
+        if base.player.root.get_y()+self.aim > self.root.get_y():
+            self.accelerate()
+        else:
+            amount = self.acceleration * base.dt
+            self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=25)
+
+    def act(self, task):
+        self.chase()
+        self.update()
+        return task.cont
 
 
 class PlayerCar(TurboCar):
@@ -106,7 +150,7 @@ class PlayerCar(TurboCar):
             self.accelerate()
         else:
             amount = self.acceleration * base.dt
-            self.speed.y = veer(self.speed.y, amount, threshold=0.2)
+            self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=20)
 
         self.update()
 
@@ -120,5 +164,13 @@ class PlayerCar(TurboCar):
             color = (0,1,0,0.8)
         base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
 
+        base.trackgen.update(self.root.get_pos())
+
         base.cam.set_pos(0, -self.cam_height+self.root.get_y(), self.cam_height)
         return task.cont
+
+
+def spawn(point):
+    car = EnemyCar(base.models["cars"]["cop_car_s"], point)
+    base.task_mgr.add(car.act)
+    base.enemies.append(car)
