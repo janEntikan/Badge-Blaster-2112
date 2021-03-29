@@ -1,5 +1,6 @@
 from direct.showbase.ShowBase import ShowBase
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
+from game.gui import Gui
 from game.vehicles import PlayerCar
 from game.trackgen import DummyTrackGenerator
 
@@ -17,6 +18,7 @@ class Base(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.device_listener = DeviceListener(SinglePlayerAssigner())
+        self.gui = Gui()
         self.dt = 1
         self.models = {}
         # Load track generator

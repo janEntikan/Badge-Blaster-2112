@@ -8,9 +8,9 @@ def clamp(n, mini, maxi):
 
 # Veers a number to a center within a threshold
 def veer(n, amount, threshold, center=0):
-    if n > center+threshold:    
+    if n > center+threshold:
         n -= amount
-    elif n < center-threshold:  
+    elif n < center-threshold:
         n += amount
     else:
         n = center
@@ -37,7 +37,7 @@ class Car():
         if x == -self.slipping:
             self.slipping = 0
             self.speed.x
-        
+
     def steer(self, x):
         if self.speed.y > 0:
             self.speed.x += (x * self.steering) * base.dt
@@ -46,7 +46,7 @@ class Car():
             self.speed.x = clamp(self.speed.x, -self.max_steering, self.max_steering)
         else:
             self.speed.x = 0
-    
+
     def accelerate(self):
         if self.speed.y < self.max_speed:
             accel = self.acceleration / (max(self.speed.y / self.max_speed_normal ** 0.75, 0.1))
@@ -58,7 +58,7 @@ class Car():
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
         if self.slipping:
-            self.model.set_h(self.speed.x)    
+            self.model.set_h(self.speed.x)
         else:
             self.model.set_h(-self.speed.x/2)
 
@@ -87,7 +87,7 @@ class PlayerCar(TurboCar):
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
         base.cam.look_at(render, (0, self.cam_height/3, 0))
-    
+
     def input(self, task):
         context = base.device_listener.read_context('player')
         if context["slip_debug"]:
@@ -103,11 +103,22 @@ class PlayerCar(TurboCar):
 
         if context['accelerate']:
             self.handle_turbo(context['turbo'])
-            self.accelerate()                    
+            self.accelerate()
         else:
             amount = self.acceleration * base.dt
-            self.speed.y = veer(self.speed.y, amount, threshold=0.2)           
+            self.speed.y = veer(self.speed.y, amount, threshold=0.2)
 
         self.update()
+
+        # Set speed counter colors
+        color = (1,1,1,0.8)
+        if self.slipping or self.max_speed == self.max_speed_error:
+            color = (1,0,0,0.8)
+        elif self.max_speed == self.max_speed_turbo:
+            color = (1,1,1,0.8)
+        elif self.speed.y > self.turbo_threshold:
+            color = (0,1,0,0.8)
+        base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
+
         base.cam.set_pos(0, -self.cam_height+self.root.get_y(), self.cam_height)
         return task.cont
