@@ -2,7 +2,8 @@ from random import choice, randint
 from panda3d.core import Vec3
 
 
-SLIP_STRENGTH = 5
+SLIP_STRENGTH = 45 # In degrees.
+SLIP_TURN_SPEED = 120
 
 
 def clamp(n, mini, maxi):
@@ -47,10 +48,10 @@ class Car():
                         enemy.slipping = SLIP_STRENGTH
 
     def slip(self, x):
-        self.slipping -= (x*20) * base.dt
-        if self.slipping < 2 and self.slipping > -2:
+        self.slipping -= (x*SLIP_TURN_SPEED) * base.dt
+        if (self.slipping < 2 and self.slipping > -2) or self.slipping < -360 or self.slipping > 360:
             self.slipping = 0
-        self.model.set_h(self.slipping*10)
+        self.model.set_h(self.slipping)
 
     def steer(self, x):
         if self.speed.y > 0:
