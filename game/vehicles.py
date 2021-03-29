@@ -4,7 +4,8 @@ from panda3d.core import Vec3
 def clamp(n, mini, maxi):
     return max(min(n, maxi), mini)
 
-# Veers an number to a center within a threshold
+
+# Veers a number to a center within a threshold
 def veer(n, amount, threshold, center=0):
     if n > center+threshold:    
         n -= amount
@@ -26,25 +27,35 @@ class Car():
         self.acceleration = 40
         self.steering = 200
         self.max_steering = 40
-             
+
+        self.slipping = 0 #-1 is slip left, 1 is slip right
+
+    def slip(self, x):
+        self.speed.x = self.slipping*self.max_steering
+        if x == -self.slipping:
+            self.slipping = 0
+            self.speed.x
+        self.model.set_h(self.speed.x)
+        
     def steer(self, x):
-        self.speed.x += (x * self.steering) * base.dt
-        self.speed.x *= max((self.speed.y / self.max_speed) ** 0.25, 0.1)
-        self.speed.x = clamp(
-            self.speed.x, -self.max_steering, self.max_steering
-        )
+        if self.speed.y > 0:
+            self.speed.x += (x * self.steering) * base.dt
+            self.speed.x *= max((self.speed.y / self.max_speed) ** 0.25, 0.1)
+            self.speed.x = clamp(self.speed.x, -self.max_steering, self.max_steering)
+        else:
+            self.speed.x = 0
+        self.model.set_h(-self.speed.x/2)
     
     def accelerate(self):
-        accel = self.acceleration / (max(self.speed.y / self.max_speed ** 0.75, 0.1))
-        self.speed.y += accel * base.dt
-        self.speed.y = clamp(
-            self.speed.y, 0, self.max_speed
-        )
+        if self.speed.y < self.max_speed:
+            accel = self.acceleration / (max(self.speed.y / self.max_speed ** 0.75, 0.1))
+            self.speed.y += accel * base.dt
+        else:
+            self.speed.y -= self.acceleration * base.dt
 
     def update(self):
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
-        self.model.set_h(-self.speed.x/2)
     
 
 class TurboCar(Car):
@@ -52,9 +63,8 @@ class TurboCar(Car):
         Car.__init__(self, model)
         self.turbo_threshold  = 50
         self.max_speed_error  = 40
-        self.max_speed_normal = 60
+        self.max_speed_normal = self.max_speed
         self.max_speed_turbo  = 120
-        self.max_speed = self.max_speed_normal
 
     def handle_turbo(self, on=False):
         if on:
@@ -71,11 +81,16 @@ class PlayerCar(TurboCar):
         TurboCar.__init__(self, model)
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
-        base.cam.look_at(render, (0, 20, 0))
+        base.cam.look_at(render, (0, self.cam_height/3, 0))
     
     def input(self, task):
         context = base.device_listener.read_context('player')
-        if context['move']:
+        if context["slip_debug"]:
+            self.slipping = True
+
+        if self.slipping:
+            self.slip(context['move'])
+        elif context['move']:
             self.steer(context['move'])
         else:
             smoothing = (self.steering/2) * base.dt
@@ -87,6 +102,7 @@ class PlayerCar(TurboCar):
         else:
             amount = self.acceleration * base.dt
             self.speed.y = veer(self.speed.y, amount, threshold=0.2)           
+
         self.update()
         base.cam.set_pos(0, -self.cam_height+self.root.get_y(), self.cam_height)
         return task.cont
