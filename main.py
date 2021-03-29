@@ -22,7 +22,7 @@ class Base(ShowBase):
         self.dt = 1
         self.models = {}
         # Load track generator
-        self.trackgen = DummyTrackGenerator(None)
+        self.trackgen = DummyTrackGenerator()
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
