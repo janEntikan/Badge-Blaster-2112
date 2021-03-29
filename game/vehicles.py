@@ -35,7 +35,6 @@ class Car():
         if x == -self.slipping:
             self.slipping = 0
             self.speed.x
-        self.model.set_h(self.speed.x)
         
     def steer(self, x):
         if self.speed.y > 0:
@@ -44,7 +43,6 @@ class Car():
             self.speed.x = clamp(self.speed.x, -self.max_steering, self.max_steering)
         else:
             self.speed.x = 0
-        self.model.set_h(-self.speed.x/2)
     
     def accelerate(self):
         if self.speed.y < self.max_speed:
@@ -56,6 +54,7 @@ class Car():
     def update(self):
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
+        self.model.set_h(-self.speed.x/2)
     
 
 class TurboCar(Car):
