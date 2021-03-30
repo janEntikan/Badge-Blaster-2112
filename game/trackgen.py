@@ -42,15 +42,13 @@ class TrackGenerator:
 
     def query(self, y):
         """Returns left and right border x at given y pos as tuple."""
-        res = self._qry_center_w(y)
-        if res:
-            return res[0] - res[1], res[0] + res[1]
-        return False
+        x, w = self._qry_center_w(y)
+        return x - w, x + w
 
     def _qry_center_w(self, y):
         y *= UNIT_MULT
-        if y < self._y_offset:
-            return False
+        if y < self._y_offset or y > self._y_offset + len(self._track) * UNIT:
+            return 0, 0
         cl, fl = ceil(y - 1 - self._y_offset), floor(y - 1 - self._y_offset)
         fr = y - floor(y)
         x = self._track[fl] * fr + self._track[cl] * (1.0 - fr)
