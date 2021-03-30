@@ -46,9 +46,12 @@ class TrackGenerator:
         return x - w, x + w
 
     def _qry_center_w(self, y):
-        y *= UNIT_MULT
-        if y < self._y_offset or y > self._y_offset + len(self._track) * UNIT:
+        if y < self._y_offset:
             return 0, 0
+        while y > self._y_offset + len(self._track) * UNIT:
+            # FIXME: If time permits, solve more elegant...
+            self._add_chunks(False)
+        y *= UNIT_MULT
         cl, fl = ceil(y - 1 - self._y_offset), floor(y - 1 - self._y_offset)
         fr = y - floor(y)
         x = self._track[fl] * fr + self._track[cl] * (1.0 - fr)
@@ -61,17 +64,18 @@ class TrackGenerator:
     def set_difficulty(self, difficulty):
         self._difficulty = difficulty
 
-    def _add_chunks(self):
+    def _add_chunks(self, drop=True):
         start = 0 if len(self._track) == 0 else self._track[-1]
         num = ceil(TG_UNITS_PER_CHUNK * UNIT_MULT)
         self._track += util.noise1D(num, (-TG_MAX_ROAD_X, TG_MAX_ROAD_X),
             TG_MAX_SKEW_PER_UNIT * self._difficulty, start)
-        self._width += util.noise1D(num, (TG_MIN_WIDTH, TG_MAX_WIDTH),
-            TG_WIDTH_CHG_PER_UNIT * max(self._difficulty, 0.1))
+        self._width += [round(i * 0.2, 0) * 5
+            for i in util.noise1D(num, (TG_MIN_WIDTH, TG_MAX_WIDTH),
+                TG_WIDTH_CHG_PER_UNIT * max(self._difficulty, 0.1))]
         self._ymax += TG_UNITS_PER_CHUNK
         while self._add_track_part():
             pass
-        if len(self._track) > TG_UNITS_PER_CHUNK * 2:
+        if len(self._track) > TG_UNITS_PER_CHUNK * 2 and drop:
             self._track = self._track[num:]
             self._width = self._width[num:]
             self._y_offset += TG_UNITS_PER_CHUNK
