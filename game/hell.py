@@ -1,5 +1,22 @@
 from panda3d import core
+import enum
 import math
+
+
+FPS = 24
+NUM_FRAMES = 8
+
+
+class BulletType(enum.IntEnum):
+    # See bullets.png
+    BULLET = 0
+    MISSILE = 1
+    FIREBALL = 2
+    GREEN = 3
+    PURPLE = 4
+    RESERVED0 = 5
+    RESERVED1 = 6
+    RESERVED2 = 7
 
 
 class LinearPattern:
@@ -41,10 +58,20 @@ class BulletHell:
     def __init__(self, render=None, pool_size=1024):
         self.render = render or base.render
 
+        tex = base.loader.load_texture('assets/fireworks/bullets.png')
+        tex.set_minfilter(core.SamplerState.FT_nearest)
+        tex.set_magfilter(core.SamplerState.FT_nearest)
+
         self.geom_node = core.GeomNode('fireworks')
         path = self.render.attach_new_node(self.geom_node)
-        path.set_render_mode_thickness(20)
+        path.set_render_mode_thickness(32)
+        path.set_texture(tex)
+        path.set_tex_gen(core.TextureStage.get_default(), core.TexGenAttrib.M_point_sprite)
         path.set_antialias(core.AntialiasAttrib.M_point)
+        path.set_depth_test(False)
+        path.set_depth_write(False)
+        path.set_transparency(core.TransparencyAttrib.M_binary)
+        path.set_shader(core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/bullet.vert', 'assets/shaders/bullet.frag'))
         self.root = path
 
         self._generate_pool(pool_size)
@@ -54,7 +81,12 @@ class BulletHell:
         self.clock = 0
 
     def _generate_pool(self, pool_size):
-        vdata = core.GeomVertexData('piiiyeeew', core.GeomVertexFormat.get_v3t2(), core.GeomEnums.UH_static)
+        format = core.GeomVertexFormat()
+        format.add_array(core.GeomVertexFormat.get_v3().get_array(0))
+        format.add_array(core.GeomVertexArrayFormat('offset', 2, core.GeomEnums.NT_float32, core.GeomEnums.C_other,
+                                                    'rotation', 2, core.GeomEnums.NT_float32, core.GeomEnums.C_other))
+
+        vdata = core.GeomVertexData('piiiyeeew', core.GeomVertexFormat.register_format(format), core.GeomEnums.UH_static)
         vdata.set_num_rows(pool_size)
 
         prim = core.GeomPoints(core.GeomEnums.UH_static)
@@ -64,23 +96,26 @@ class BulletHell:
         self.geom_node.remove_all_geoms()
         self.geom_node.add_geom(geom)
 
-    def spawn_single(self, pos, velocity):
-        write = self._write_bullets(1, LinearPattern(velocity))
-        write(pos)
+    def spawn_single(self, type, pos, velocity):
+        write = self._write_bullets(type, 1, LinearPattern(velocity))
+        write(pos, velocity.xy.normalized())
 
-    def spawn_ring(self, num_bullets, pos, velocity, expand_speed=0, rotate_speed=0):
+    def spawn_ring(self, type, num_bullets, pos, velocity, expand_speed=0, rotate_speed=0):
         pattern = RadialPattern(pos, velocity)
         pattern.expand_speed = expand_speed
         pattern.rotate_speed = rotate_speed
         pattern.radius = 0.5
 
-        write = self._write_bullets(num_bullets, pattern)
+        frame_offset = int(FPS * globalClock.frame_time)
+
+        write = self._write_bullets(type, num_bullets, pattern)
         mult = math.pi * 2 / num_bullets
         for i in range(num_bullets):
             phi = i * mult
-            write(pos + core.Vec3(math.cos(phi), math.sin(phi), 0) * pattern.radius)
+            dir = math.cos(phi), math.sin(phi)
+            write(pos + core.Vec3(*dir, 0) * pattern.radius, dir)
 
-    def _write_bullets(self, num_bullets, pattern):
+    def _write_bullets(self, type, num_bullets, pattern):
         geom = self.geom_node.modify_geom(0)
         vdata = geom.modify_vertex_data()
 
@@ -91,9 +126,9 @@ class BulletHell:
         else:
             # Write new bullets after the end.
             offset = self.pool_usage.get_highest_on_bit() + 1
-        range = core.SparseArray.range(offset, num_bullets)
-        self.pool_usage |= range
-        #print("Allocating", range, "used range", self.pool_usage)
+        point_range = core.SparseArray.range(offset, num_bullets)
+        self.pool_usage |= point_range
+        #print("Allocating", point_range, "used point_range", self.pool_usage)
 
         old_size = vdata.get_num_rows()
         req_size = offset + num_bullets
@@ -103,12 +138,21 @@ class BulletHell:
             geom.modify_primitive(0).add_next_vertices(req_size - old_size)
 
         pattern.life_expectancy = self.clock + pattern.lifetime
-        pattern.range = range
+        pattern.range = point_range
         self.patterns.append(pattern)
 
-        writer = core.GeomVertexWriter(vdata, 'vertex')
-        writer.set_row(offset)
-        return writer.set_data3
+        # Offset into the texture coordinates
+        offset_writer = core.GeomVertexWriter(vdata, 'offset')
+        offset_writer.set_row(offset)
+        frame_offset = FPS * globalClock.frame_time
+        for i in range(num_bullets):
+            offset_writer.add_data2(frame_offset, type)
+
+        vertex_writer = core.GeomVertexWriter(vdata, 'vertex')
+        vertex_writer.set_row(offset)
+        rotate_writer = core.GeomVertexWriter(vdata, 'rotation')
+        rotate_writer.set_row(offset)
+        return lambda vtx, rot: vertex_writer.set_data3(*vtx) or rotate_writer.set_data2(*rot)
 
     def update(self, dt):
         if dt == 0:
@@ -129,4 +173,3 @@ class BulletHell:
                 vdata.transform_vertices(pattern.update_transform(dt), pattern.range)
 
         self.clock += dt
-

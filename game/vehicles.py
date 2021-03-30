@@ -1,6 +1,6 @@
 from random import choice, randint
 from panda3d.core import Vec3
-from .hell import BulletHell
+from .hell import BulletHell, BulletType
 
 
 SLIP_STRENGTH = 45 # In degrees.
@@ -129,7 +129,6 @@ class EnemyCar(Car):
         self.speed.x = 0
         self.aim = randint(30,60)
         self.last_fire = 10.0
-        self.hell.root.set_color((1, 0, 0, 1))
         self.looking_at = loader.load_model("models/smiley.egg.pz")
         self.looking_at.reparent_to(self.root)
 
@@ -173,7 +172,7 @@ class EnemyCar(Car):
         return task.cont
 
     def fire(self):
-        self.hell.spawn_ring(30, self.root.get_pos(), self.speed, 10)
+        self.hell.spawn_ring(BulletType.BULLET, 30, self.root.get_pos(), self.speed, 10)
 
 
 class PlayerCar(TurboCar):
@@ -222,7 +221,7 @@ class PlayerCar(TurboCar):
         return task.cont
 
     def fire(self):
-        self.hell.spawn_single(self.root.get_pos(), self.speed + (0, 60, 0))
+        self.hell.spawn_single(BulletType.MISSILE, self.root.get_pos(), self.speed + (0, 60, 0))
 
 
 def spawn(point):
