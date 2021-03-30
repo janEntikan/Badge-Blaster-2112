@@ -5,6 +5,7 @@ from .hell import BulletHell
 
 SLIP_STRENGTH = 45 # In degrees.
 SLIP_TURN_SPEED = 120
+SLIP_BUMP = 30
 
 
 def clamp(n, mini, maxi):
@@ -33,22 +34,34 @@ class Car():
         self.acceleration = 40
         self.steering = 200
         self.max_steering = 40
+        self.track_left, self.track_right = -100, 100
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
 
         self.hell = BulletHell()
 
     def bump(self):
+        x, y, z = self.root.get_pos()
         for enemy in base.enemies:
             if not enemy == self:
                 distance = (enemy.root.get_pos()-self.root.get_pos()).length()
                 if distance <= 1.5:
-                    if enemy.root.get_x() > self.root.get_x():
-                        self.slipping = SLIP_STRENGTH
-                        enemy.slipping = -SLIP_STRENGTH
-                    else:
-                        self.slipping = -SLIP_STRENGTH
-                        enemy.slipping = SLIP_STRENGTH
+                    self.trigger_slip(enemy.root.get_x() > x)
+                    enemy.trigger_slip(not enemy.root.get_x() > x)
+        if x < self.track_left or x > self.track_right:
+            if self.slipping:
+                #TODO: EXPLODE IN FIERY DEATH!
+                pass
+            else:
+                self.trigger_slip(x < self.track_left)
+
+    def trigger_slip(self, left=True):
+        if left:
+            self.slipping = SLIP_STRENGTH
+            self.speed.x = SLIP_BUMP
+        else:
+            self.slipping = -SLIP_STRENGTH
+            self.speed.x = -SLIP_BUMP
 
     def slip(self, x):
         self.slipping -= (x*SLIP_TURN_SPEED) * base.dt
@@ -75,6 +88,7 @@ class Car():
     def update(self):
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
+        self.track_left, self.track_right = base.trackgen.query(self.root.get_y())
         if not self.slipping:
             self.model.set_h(-self.speed.x/2)
             self.bump()
@@ -102,20 +116,23 @@ class TurboCar(Car):
 class EnemyCar(Car):
     def __init__(self, model, position):
         Car.__init__(self, model)
+        self.look_ahead = 10
         self.steering = 100
-        self.max_speed = 130
-        self.acceleration = 80
+        self.max_speed = 110
+        self.acceleration = 60
         self.root.set_pos(position)
         self.speed.y = self.max_speed
         self.speed.x = 0
         self.aim = randint(30,60)
         self.last_fire = 10.0
         self.hell.root.set_color((1, 0, 0, 1))
+        self.looking_at = loader.load_model("models/smiley.egg.pz")
+        self.looking_at.reparent_to(self.root)
 
     def chase(self):
         if self.slipping:
-            pass
-        elif base.player.root.get_x() > self.root.get_x()+1:
+            return
+        if base.player.root.get_x() > self.root.get_x()+1:
             self.steer(1)
         elif base.player.root.get_x() < self.root.get_x()-1:
             self.steer(-1)
@@ -128,8 +145,21 @@ class EnemyCar(Car):
             amount = self.acceleration * base.dt
             self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=25)
 
+    def stay_on_the_road(self):
+        ahead = self.root.get_pos()
+        ahead.y += self.speed.y/4
+        self.looking_at.set_pos(render, ahead)
+        left, right = base.trackgen.query(ahead.y)
+        if ahead.x-7 < left:
+            self.steer(1)
+        elif ahead.x+7 > right:
+            self.steer(-1)
+        else:
+            return True
+
     def act(self, task):
-        self.chase()
+        if self.stay_on_the_road():
+            self.chase()
         self.update()
         if task.time - self.last_fire > 1:
             self.fire()
