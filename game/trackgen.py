@@ -27,6 +27,7 @@ class TrackGenerator:
         self._track = []
         self._next_part_y = 0
         self._ymax = 0
+        self._parts = []
         self._width = []
         self._y_offset = 0
         self._next_spawn = 1
@@ -51,9 +52,9 @@ class TrackGenerator:
         while y > self._y_offset + len(self._track) * UNIT:
             # FIXME: If time permits, solve more elegant...
             self._add_chunks(False)
-        y *= UNIT_MULT
-        cl, fl = ceil(y - 1 - self._y_offset), floor(y - 1 - self._y_offset)
-        fr = y - floor(y)
+        ynorm = min(y - 1 - self._y_offset, 0)
+        cl, fl = ceil(ynorm * UNIT_MULT), floor(ynorm * UNIT_MULT)
+        fr = y * UNIT_MULT - floor(y * UNIT_MULT)
         x = self._track[fl] * fr + self._track[cl] * (1.0 - fr)
         w = self._width[fl] * fr + self._width[cl] * (1.0 - fr)
         return x, w
@@ -75,10 +76,16 @@ class TrackGenerator:
         self._ymax += TG_UNITS_PER_CHUNK
         while self._add_track_part():
             pass
-        if len(self._track) > TG_UNITS_PER_CHUNK * 2 and drop:
+        if drop and len(self._track) > num * 2:
             self._track = self._track[num:]
             self._width = self._width[num:]
             self._y_offset += TG_UNITS_PER_CHUNK
+            while True:
+                if self._parts[0].get_y() < self._y_offset:
+                    self._parts[0].detach_node()
+                    self._parts.pop(0)
+                    continue
+                break
 
     def _add_track_part(self):
         part = self._select_part()
@@ -95,6 +102,7 @@ class TrackGenerator:
             scale_end = (end_w * 2) / part.bounds.width
             np = partgen.generate_part(part.model, part.bounds, hskew, scale_start, scale_end)
             np.reparent_to(base.render)
+            self._parts.append(np)
             x = (end_x - start_x) / 2 + start_x
             np.set_pos(x, self._next_part_y, 0)
             self._next_part_y = new_next
