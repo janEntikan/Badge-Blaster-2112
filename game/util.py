@@ -30,6 +30,7 @@ def generate_track_offset(num, bounds, difficulty, start=None):
     """
     n = [start if start is not None else sum(bounds) / 2]
     pc = 1
+    curve_delta = ((max(bounds) - min(bounds)) / 1.5) * difficulty
     while pc < num:
         if num - pc < 4:
             n += [n[-1]] * (num - pc)
@@ -37,7 +38,9 @@ def generate_track_offset(num, bounds, difficulty, start=None):
 
         clen = randint(4, num - pc)
         if uniform(*TG_CURVE_RNG) < difficulty:  # Curve
-            cdelta = uniform(*bounds) - n[-1]
+            cdelta = curve_delta + 1
+            while cdelta > curve_delta:
+                cdelta = uniform(*bounds) - n[-1]
             n += [sin((i / clen) * HPI) * cdelta + n[-1] for i in range(1, clen + 1)]
         else:
             n += [n[-1]] * clen
