@@ -160,16 +160,40 @@ class BulletHell:
 
         geom = self.geom_node.modify_geom(0)
         vdata = geom.modify_vertex_data()
+        rewriter = core.GeomVertexRewriter(vdata, 'vertex')
 
         for pattern in self.patterns[:]:
+            point_range = pattern.range
             if self.clock >= pattern.life_expectancy:
                 #TODO: delete bullets
-                range = pattern.range
-                vdata.transform_vertices(core.Mat4.translate_mat((0, 0, -10000)), range)
+                vdata.transform_vertices(core.Mat4.translate_mat((0, 0, -10000)), point_range)
                 self.patterns.remove(pattern)
-                self.pool_usage &= ~range
-                #print("Freeing", range)
-            else:
-                vdata.transform_vertices(pattern.update_transform(dt), pattern.range)
+                self.pool_usage &= ~point_range
+                #print("Freeing", point_range)
+                continue
+
+            vdata.transform_vertices(pattern.update_transform(dt), point_range)
+
+            # Delete vertices out of bounds.
+            delete_points = core.SparseArray()
+            for sri in range(self.pool_usage.get_num_subranges()):
+                begin = self.pool_usage.get_subrange_begin(sri)
+                end = self.pool_usage.get_subrange_end(sri)
+                for i in range(begin, end):
+                    rewriter.set_row(i)
+                    x, y = rewriter.get_data2()
+                    left, right = base.trackgen.query(y)
+                    if x < left or x > right:
+                        delete_points.set_bit(i)
+
+            if not delete_points.is_zero():
+                vdata.transform_vertices(core.Mat4.translate_mat((0, 0, -10000)), delete_points)
+                inv_delete_points = ~delete_points
+                point_range &= inv_delete_points
+                self.pool_usage &= inv_delete_points
+                #print("Freeing", delete_points)
+
+                if point_range.is_zero():
+                    self.patterns.remove(pattern)
 
         self.clock += dt
