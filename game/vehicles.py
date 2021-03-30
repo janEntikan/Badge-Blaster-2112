@@ -5,7 +5,7 @@ from .hell import BulletHell
 
 SLIP_STRENGTH = 45 # In degrees.
 SLIP_TURN_SPEED = 120
-SLIP_BUMP = 30
+SLIP_BUMP = 10
 
 
 def clamp(n, mini, maxi):
@@ -85,6 +85,10 @@ class Car():
         else:
             self.speed.y -= self.acceleration * base.dt
 
+    def decelerate(self, center=0, multiplier=1):
+        amount = self.acceleration * base.dt * multiplier
+        self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=center)
+
     def update(self):
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
@@ -130,8 +134,6 @@ class EnemyCar(Car):
         self.looking_at.reparent_to(self.root)
 
     def chase(self):
-        if self.slipping:
-            return
         if base.player.root.get_x() > self.root.get_x()+1:
             self.steer(1)
         elif base.player.root.get_x() < self.root.get_x()-1:
@@ -142,24 +144,28 @@ class EnemyCar(Car):
         if base.player.root.get_y()+self.aim > self.root.get_y():
             self.accelerate()
         else:
-            amount = self.acceleration * base.dt
-            self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=25)
+            self.decelerate(center=35)
 
     def stay_on_the_road(self):
         ahead = self.root.get_pos()
         ahead.y += self.speed.y/4
         self.looking_at.set_pos(render, ahead)
         left, right = base.trackgen.query(ahead.y)
-        if ahead.x-7 < left:
-            self.steer(1)
-        elif ahead.x+7 > right:
-            self.steer(-1)
+        if ahead.x-10 < left:
+            self.steer(3)
+            self.decelerate(multiplier=0.5, center=35)
+        elif ahead.x+10 > right:
+            self.steer(-3)
+            self.decelerate(multiplier=0.5, center=35)
         else:
             return True
 
     def act(self, task):
-        if self.stay_on_the_road():
-            self.chase()
+        if not self.slipping:
+            if self.stay_on_the_road():
+                self.chase()
+            else:
+                self.decelerate(center=35)
         self.update()
         if task.time - self.last_fire > 1:
             self.fire()
@@ -197,9 +203,7 @@ class PlayerCar(TurboCar):
                 self.handle_turbo(context['turbo'])
                 self.accelerate()
             else:
-                amount = self.acceleration * base.dt
-                self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=20)
-
+                self.decelerate()
         self.update()
 
         # Set speed counter colors
