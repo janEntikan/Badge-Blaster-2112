@@ -9,5 +9,5 @@ TG_CHUNK_TRIGGER = 499      # How far ahead of the track end a new chunk should 
 TG_MIN_SPAWN_DIST = 100     # Minimum distance between player and new enemy spawn
 TG_MAX_SPAWN_DIST = 200     # Maximum distance between player and new enemy spawn
 TG_MAX_WIDTH = 25
-TG_MIN_WIDTH = 8
+TG_MIN_WIDTH = 13
 TG_WIDTH_CHG_PER_UNIT = 2
