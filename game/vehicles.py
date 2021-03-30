@@ -1,5 +1,6 @@
 from random import choice, randint
 from panda3d.core import Vec3
+from .hell import BulletHell
 
 
 SLIP_STRENGTH = 45 # In degrees.
@@ -34,6 +35,8 @@ class Car():
         self.max_steering = 40
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
+
+        self.hell = BulletHell()
 
     def bump(self):
         for enemy in base.enemies:
@@ -76,6 +79,8 @@ class Car():
             self.model.set_h(-self.speed.x/2)
             self.bump()
 
+        self.hell.update(base.dt)
+
 
 class TurboCar(Car):
     def __init__(self, model):
@@ -104,6 +109,8 @@ class EnemyCar(Car):
         self.speed.y = self.max_speed
         self.speed.x = 0
         self.aim = randint(30,60)
+        self.last_fire = 10.0
+        self.hell.root.set_color((1, 0, 0, 1))
 
     def chase(self):
         if self.slipping:
@@ -124,7 +131,13 @@ class EnemyCar(Car):
     def act(self, task):
         self.chase()
         self.update()
+        if task.time - self.last_fire > 1:
+            self.fire()
+            self.last_fire = task.time
         return task.cont
+
+    def fire(self):
+        self.hell.spawn_ring(30, self.root.get_pos(), self.speed, 10)
 
 
 class PlayerCar(TurboCar):
@@ -133,6 +146,8 @@ class PlayerCar(TurboCar):
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
         base.cam.look_at(render, (0, self.cam_height/3, 0))
+
+        base.accept('space', self.fire)
 
     def input(self, task):
         context = base.device_listener.read_context('player')
@@ -171,6 +186,9 @@ class PlayerCar(TurboCar):
 
         base.cam.set_pos(0, -self.cam_height+self.root.get_y(), self.cam_height)
         return task.cont
+
+    def fire(self):
+        self.hell.spawn_single(self.root.get_pos(), self.speed + (0, 60, 0))
 
 
 def spawn(point):
