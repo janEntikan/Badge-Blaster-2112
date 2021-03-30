@@ -13,7 +13,7 @@ from . import part
 from . import partgen
 from .common import (TG_CHUNK_TRIGGER, TG_MAX_ROAD_X, TG_MAX_SKEW_PER_UNIT,
                      TG_UNITS_PER_CHUNK, TG_MIN_SPAWN_DIST, TG_MAX_SPAWN_DIST,
-                     TG_WIDTHS)
+                     TG_WIDTHS, TG_VISIBLE)
 
 UNIT = 10
 UNIT_MULT = 1 / 10
@@ -42,6 +42,8 @@ class TrackGenerator:
             self._add_chunks()
         if car_position.y >= self._next_spawn:
             self._spawn_enemy()
+        while self._add_track_part():
+            pass
 
     def query(self, y):
         """Returns left and right border x at given y pos as tuple."""
@@ -74,8 +76,6 @@ class TrackGenerator:
             self._difficulty, start)
         self._width += util.generate_width(num, TG_WIDTHS, self._width[-1] if self._width else TG_WIDTHS[-1])
         self._ymax += TG_UNITS_PER_CHUNK
-        while self._add_track_part():
-            pass
         if drop and len(self._track) > num * 2:
             self._track = self._track[num:]
             self._width = self._width[num:]
@@ -91,7 +91,7 @@ class TrackGenerator:
         part = self._select_part()
         hlen = part.bounds.hlen
         new_next = self._next_part_y + hlen * 2
-        if new_next <= self._ymax:
+        if new_next <= self._car_position.y + TG_VISIBLE:
             start = self._qry_center_w(self._next_part_y)
             end = self._qry_center_w(new_next)
             if not start or not end:

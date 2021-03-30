@@ -10,3 +10,4 @@ TG_MIN_SPAWN_DIST = 100     # Minimum distance between player and new enemy spaw
 TG_MAX_SPAWN_DIST = 200     # Maximum distance between player and new enemy spawn
 TG_WIDTHS = 12, 15, 20, 25  # Road widths
 TG_CURVE_RNG = -0.1, 1.6    # Range to sample to compare against diffculty. sample < difficulty == curve
+TG_VISIBLE = 150            # How far ahead of the car visible road parts have to be spawned
