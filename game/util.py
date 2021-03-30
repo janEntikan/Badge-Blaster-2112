@@ -29,3 +29,9 @@ def normalize_list(values, bounds=(0, 1)):
         v = (v - vmin) / vdelta
         v *= bdelta + bmin
         values[i] = v
+
+
+def set_faux_lights(node):
+    for light in node.find_all_matches('**/*light*'):
+        light.set_alpha_scale(0.1)
+        light.set_transparency(True)

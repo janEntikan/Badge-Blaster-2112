@@ -4,12 +4,8 @@ from game.gui import Gui
 from game.vehicles import PlayerCar, spawn
 from game import part
 from game.trackgen import TrackGenerator
+from game.util import set_faux_lights
 
-
-def set_faux_lights(node):
-    for light in node.find_all_matches('**/*light*'):
-        light.set_alpha_scale(0.1)
-        light.set_transparency(True)
 
 def child_dict(model):
     nodes = {}
@@ -31,8 +27,8 @@ class Base(ShowBase):
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
         # Setup track generator
-        road_model = loader.load_model("assets/models/testparts-b.bam")
-        self.part_mgr = part.PartMgr({"testparts-b": road_model}, ('test', ))
+        road_model = loader.load_model("assets/models/forest.bam")
+        self.part_mgr = part.PartMgr({"forest": road_model}, ('parts', ))
         self.trackgen = TrackGenerator()
         self.trackgen.register_spawn_callback(spawn)
         self.trackgen.set_difficulty(1)  # Adjust from 0..1

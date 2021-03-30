@@ -15,8 +15,8 @@ from .common import (TG_CHUNK_TRIGGER, TG_MAX_ROAD_X, TG_MAX_SKEW_PER_UNIT,
                      TG_UNITS_PER_CHUNK, TG_MIN_SPAWN_DIST, TG_MAX_SPAWN_DIST,
                      TG_MAX_WIDTH, TG_MIN_WIDTH, TG_WIDTH_CHG_PER_UNIT)
 
-UNIT = 20
-UNIT_MULT = 1 / 20
+UNIT = 10
+UNIT_MULT = 1 / 10
 
 
 class TrackGenerator:
@@ -31,12 +31,15 @@ class TrackGenerator:
         self._width = []
         self._y_offset = 0
         self._next_spawn = 1
+        self._next_variant = 30
+        self._variant = 0
         self._part_mgr:part.PartMgr = base.part_mgr
         self.update(core.Vec3(0))
 
     def update(self, car_position):
         self._car_position = car_position
-        if car_position.y + TG_CHUNK_TRIGGER > len(self._track) * UNIT + self._y_offset:
+        while car_position.y + TG_CHUNK_TRIGGER >= len(self._track) * UNIT + self._y_offset:
+            print('proper chunk trigger')
             self._add_chunks()
         if car_position.y >= self._next_spawn:
             self._spawn_enemy()
@@ -48,12 +51,14 @@ class TrackGenerator:
 
     def _qry_center_w(self, y):
         if y < self._y_offset:
+            print('no track back here')
             return 0, 0
         while y > self._y_offset + len(self._track) * UNIT:
             # FIXME: If time permits, solve more elegant...
+            print('too far ahead.. add a chunk')
             self._add_chunks(False)
-        ynorm = min(y - 1 - self._y_offset, 0)
-        cl, fl = ceil(ynorm * UNIT_MULT), floor(ynorm * UNIT_MULT)
+        ynorm = max((y - self._y_offset) * UNIT_MULT - 1, 0)
+        cl, fl = ceil(ynorm), floor(ynorm)
         fr = y * UNIT_MULT - floor(y * UNIT_MULT)
         x = self._track[fl] * fr + self._track[cl] * (1.0 - fr)
         w = self._width[fl] * fr + self._width[cl] * (1.0 - fr)
@@ -111,7 +116,11 @@ class TrackGenerator:
 
     def _select_part(self):
         # FIXME: actually do sensible selection
-        return self._part_mgr.get_road_part('styled_road', 0)
+        self._next_variant -= 1
+        if self._next_variant == 0:
+            self._variant = random.randint(0, 3)
+            self._next_variant = random.randint(15, 50)
+        return self._part_mgr.get_road_part('forest', self._variant)
 
     def _spawn_enemy(self):
         # FIXME: make spawning better
