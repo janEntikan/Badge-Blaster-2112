@@ -8,6 +8,5 @@ TG_UNITS_PER_CHUNK = 500    # How much units are generated at once for the track
 TG_CHUNK_TRIGGER = 499      # How far ahead of the track end a new chunk should be added
 TG_MIN_SPAWN_DIST = 100     # Minimum distance between player and new enemy spawn
 TG_MAX_SPAWN_DIST = 200     # Maximum distance between player and new enemy spawn
-TG_MAX_WIDTH = 25
-TG_MIN_WIDTH = 13
-TG_WIDTH_CHG_PER_UNIT = 2
+TG_WIDTHS = 12, 15, 20, 25  # Road widths
+TG_CURVE_RNG = -0.1, 1.6    # Range to sample to compare against diffculty. sample < difficulty == curve

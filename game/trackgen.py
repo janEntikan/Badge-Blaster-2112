@@ -13,7 +13,7 @@ from . import part
 from . import partgen
 from .common import (TG_CHUNK_TRIGGER, TG_MAX_ROAD_X, TG_MAX_SKEW_PER_UNIT,
                      TG_UNITS_PER_CHUNK, TG_MIN_SPAWN_DIST, TG_MAX_SPAWN_DIST,
-                     TG_MAX_WIDTH, TG_MIN_WIDTH, TG_WIDTH_CHG_PER_UNIT)
+                     TG_WIDTHS)
 
 UNIT = 10
 UNIT_MULT = 1 / 10
@@ -32,14 +32,13 @@ class TrackGenerator:
         self._y_offset = 0
         self._next_spawn = 1
         self._next_variant = 30
-        self._variant = 0
+        self._variant = 1
         self._part_mgr:part.PartMgr = base.part_mgr
         self.update(core.Vec3(0))
 
     def update(self, car_position):
         self._car_position = car_position
         while car_position.y + TG_CHUNK_TRIGGER >= len(self._track) * UNIT + self._y_offset:
-            print('proper chunk trigger')
             self._add_chunks()
         if car_position.y >= self._next_spawn:
             self._spawn_enemy()
@@ -51,11 +50,9 @@ class TrackGenerator:
 
     def _qry_center_w(self, y):
         if y < self._y_offset:
-            print('no track back here')
             return 0, 0
         while y > self._y_offset + len(self._track) * UNIT:
             # FIXME: If time permits, solve more elegant...
-            print('too far ahead.. add a chunk')
             self._add_chunks(False)
         ynorm = max((y - self._y_offset) * UNIT_MULT - 1, 0)
         cl, fl = ceil(ynorm), floor(ynorm)
@@ -73,11 +70,9 @@ class TrackGenerator:
     def _add_chunks(self, drop=True):
         start = 0 if len(self._track) == 0 else self._track[-1]
         num = ceil(TG_UNITS_PER_CHUNK * UNIT_MULT)
-        self._track += util.noise1D(num, (-TG_MAX_ROAD_X, TG_MAX_ROAD_X),
-            TG_MAX_SKEW_PER_UNIT * self._difficulty, start)
-        self._width += [round(i * 0.2, 0) * 5
-            for i in util.noise1D(num, (TG_MIN_WIDTH, TG_MAX_WIDTH),
-                TG_WIDTH_CHG_PER_UNIT * max(self._difficulty, 0.1))]
+        self._track += util.generate_track_offset(num, (-TG_MAX_ROAD_X, TG_MAX_ROAD_X),
+            self._difficulty, start)
+        self._width += util.generate_width(num, TG_WIDTHS, self._width[-1] if self._width else TG_WIDTHS[-1])
         self._ymax += TG_UNITS_PER_CHUNK
         while self._add_track_part():
             pass

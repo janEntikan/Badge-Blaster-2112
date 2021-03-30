@@ -10,35 +10,46 @@ from panda3d import core
 
 @dataclass
 class Bounds:
-    bmax:core.Vec3 = field(default_factory=core.Vec3)
-    bmin:core.Vec3 = field(default_factory=core.Vec3)
+    mmax:core.Vec3 = field(default_factory=core.Vec3)
+    mmin:core.Vec3 = field(default_factory=core.Vec3)
+    rmax:core.Vec3 = field(default_factory=core.Vec3)
+    rmin:core.Vec3 = field(default_factory=core.Vec3)
     hlen:float = 0
     width:float = 0
     depth:float = 0
 
     def __post_init_(self):
         inf = float('inf')
-        self.bmax.set(-inf, -inf, -inf)
-        self.bmin.set(inf, inf, inf)
+        self.mmax.set(-inf, -inf, -inf)
+        self.mmin.set(inf, inf, inf)
+        self.rmax.set(-inf, -inf, -inf)
+        self.rmin.set(inf, inf, inf)
 
     def finalize(self):
-        self.width = self.bmax.x - self.bmin.x
-        self.hlen = (self.bmax.y - self.bmin.y) / 2
-        self.depth = abs(self.bmin.z)
+        self.width = self.rmax.x - self.rmin.x
+        self.hlen = (self.mmax.y - self.mmin.y) / 2
+        self.depth = abs(self.mmin.z)
 
 
-def _process_geom(geom, bounds):
+def _process_geom(geom, bounds, is_road):
     vdata = geom.get_vertex_data()
     vertex = core.GeomVertexReader(vdata, 'vertex')
 
     while not vertex.is_at_end():
         v = vertex.get_data3()
-        bounds.bmax.x = max(bounds.bmax.x, v.x)
-        bounds.bmax.y = max(bounds.bmax.y, v.y)
-        bounds.bmax.z = max(bounds.bmax.z, v.z)
-        bounds.bmin.x = min(bounds.bmin.x, v.x)
-        bounds.bmin.y = min(bounds.bmin.y, v.y)
-        bounds.bmin.z = min(bounds.bmin.z, v.z)
+        bounds.mmax.x = max(bounds.mmax.x, v.x)
+        bounds.mmax.y = max(bounds.mmax.y, v.y)
+        bounds.mmax.z = max(bounds.mmax.z, v.z)
+        bounds.mmin.x = min(bounds.mmin.x, v.x)
+        bounds.mmin.y = min(bounds.mmin.y, v.y)
+        bounds.mmin.z = min(bounds.mmin.z, v.z)
+        if is_road:
+            bounds.rmax.x = max(bounds.rmax.x, v.x)
+            bounds.rmax.y = max(bounds.rmax.y, v.y)
+            bounds.rmax.z = max(bounds.rmax.z, v.z)
+            bounds.rmin.x = min(bounds.rmin.x, v.x)
+            bounds.rmin.y = min(bounds.rmin.y, v.y)
+            bounds.rmin.z = min(bounds.rmin.z, v.z)
 
 
 def geom_gen(geom_node, modify=False):
@@ -58,19 +69,8 @@ def geom_node_gen(model):
 def get_model_bounds(model):
     bounds = Bounds()
     for n in geom_node_gen(model):
+        is_road = 'road' in n.name.lower()
         for geom in geom_gen(n):
-            _process_geom(geom, bounds)
+            _process_geom(geom, bounds, is_road)
     bounds.finalize()
     return bounds
-
-
-class PreProcessor:
-    def __init__(self, models):
-        self._models = {}
-
-    def _process_model(self, model):
-        pass
-
-    def __getitem__(self, item):
-        pass
-

@@ -48,6 +48,7 @@ class PartMgr:
                 util.set_faux_lights(np)
                 np.clear_transform()
                 self._parts['road'][key].append(Part(key, key, np, pp.get_model_bounds(np)))
+                np.flatten_strong()
 
     def _scan_props(self, models):
         pass
