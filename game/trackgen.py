@@ -59,8 +59,8 @@ class TrackGenerator:
         ynorm = max((y - self._y_offset) * UNIT_MULT - 1, 0)
         cl, fl = ceil(ynorm), floor(ynorm)
         fr = y * UNIT_MULT - floor(y * UNIT_MULT)
-        x = self._track[fl] * fr + self._track[cl] * (1.0 - fr)
-        w = self._width[fl] * fr + self._width[cl] * (1.0 - fr)
+        x = self._track[cl] * fr + self._track[fl] * (1.0 - fr)
+        w = self._width[cl] * fr + self._width[fl] * (1.0 - fr)
         return x, w
 
     def register_spawn_callback(self, spawn_callback):
