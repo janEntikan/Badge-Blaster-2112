@@ -37,6 +37,7 @@ class Base(ShowBase):
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
         # Setup track generator
+        self.levels = ("forest", "desert")
         parts = {
             "forest": loader.load_model("assets/models/forest.bam"),
             "desert": loader.load_model("assets/models/desert.bam"),
@@ -53,6 +54,10 @@ class Base(ShowBase):
         self.task_mgr.add(self.tick)
         # Setup x-follow cam
         self.followcam = FollowCam()
+        self.accept("level-transition", self.level_transition_evt)
+
+    def level_transition_evt(self, level):
+        print(f"We're about to enter the level {level.upper()}")
 
     def tick(self, task=None):
         self.dt = globalClock.get_dt()

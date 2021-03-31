@@ -26,10 +26,15 @@ class TrackGenerator:
         self._width = []
         self._y_offset = 0
         self._next_spawn = 1
-        self._next_variant = random.randint(600, 2400)
+        self._next_variant = random.randint(*TG_PART_CHG_RNG)
         self._level = random.choice(['forest', 'desert'])
         self._variant = random.randrange(base.part_mgr.num_roads(self._level))
         self._dense_counter = 0
+        self._next_level = random.randint(*TG_LEVEL_CHG_RNG)
+        self._level_trans_old = -1
+        self._level_trans_new = -1
+        self._level_after_trans = ''
+        self._level_event_sent = False
         self._part_mgr:part.PartMgr = base.part_mgr
         self.update(core.Vec3(0))
 
@@ -113,9 +118,37 @@ class TrackGenerator:
     def _select_part(self):
         # FIXME: actually do sensible selection
         self._next_variant -= 1
-        if self._next_variant == 0:
-            self._variant = random.randrange(self._part_mgr.num_roads(self._level))
-            self._next_variant = random.randint(1000, 2000)
+        if self._next_variant <= 0:
+            if self._next_level > 0:                                    # Change Variant
+                self._variant = random.randrange(self._part_mgr.num_roads(self._level))
+                self._next_variant = random.randint(*TG_PART_CHG_RNG)
+                self._next_level -= 1
+            elif self._level_trans_new == self._level_trans_old == -2:  # Setup transition
+                self._level_trans_old = random.randint(*TG_TRANS_RNG) - 1
+                self._level_trans_new = random.randint(*TG_TRANS_RNG)
+                self._level_after_trans = self._level
+                while self._level_after_trans == self._level:
+                    self._level_after_trans = random.choice(base.levels)
+                return self._part_mgr.get_road_transition(self._level)
+            elif self._level_trans_old > 0:                             # Transition part old
+                self._level_trans_old -= 1
+                self._level_trans_old = -1 if self._level_trans_old <= 0 else self._level_trans_old
+                return self._part_mgr.get_road_transition(self._level)
+            elif self._level_trans_new > 0:                             # Transition part new
+                if not self._level_event_sent:
+                    messenger.send('level-transition', [self._level_after_trans])
+                    self._level_event_sent = True
+                self._level = self._level_after_trans
+                self._level_trans_new -= 1
+                self._level_trans_new = -1 if self._level_trans_new <= 0 else self._level_trans_new
+                return self._part_mgr.get_road_transition(self._level_after_trans)
+            else:                                                       # Actual level change
+                self._variant = random.randrange(self._part_mgr.num_roads(self._level))
+                self._next_variant = random.randint(*TG_PART_CHG_RNG)
+                self._next_level = random.randint(*TG_LEVEL_CHG_RNG)
+                self._level_trans_new = -2
+                self._level_trans_old = -2
+                self._level_event_sent = False
         return self._part_mgr.get_road_part(self._level, self._variant)
 
     def _populate_props(self, z, bl, br):
