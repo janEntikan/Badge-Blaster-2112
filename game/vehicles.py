@@ -286,7 +286,7 @@ class PlayerCar(Car):
         base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
         base.gui.set_score_counter(int(self.root.get_y()+self.score))
         base.trackgen.update(self.root.get_pos())
-        base.cam.set_pos(0, -self.cam_height+self.root.get_y(), self.cam_height)
+        base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
         return task.cont
 
 

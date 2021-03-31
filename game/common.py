@@ -1,5 +1,11 @@
 """Constants for easier tuning in one place"""
 
+# Follow Cam constants (FC_ prefix)
+
+FC_MAX_SPEED = 1.0
+FC_EXP = 0.25
+
+
 # Track Generation constants (TG_ prefix)
 
 TG_MAX_ROAD_X = 25          # How far out left/right the road can go from the center

@@ -6,6 +6,7 @@ from game.vehicles import PlayerCar, spawn
 from game import part
 from game.trackgen import TrackGenerator
 from game.util import set_faux_lights
+from game.followcam import FollowCam
 
 USER_CONFIG_PATH = core.Filename.expand_from('$MAIN_DIR/user.prc')
 if USER_CONFIG_PATH.exists():
@@ -25,9 +26,11 @@ def child_dict(model):
 class Base(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
+        self.disable_mouse()
         self.device_listener = DeviceListener(SinglePlayerAssigner())
         self.gui = Gui()
         self.dt = 1
+        self.camx = 0
         self.enemies = []
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
@@ -44,9 +47,12 @@ class Base(ShowBase):
         self.player = PlayerCar(self.models["cars"]["player"])
         self.task_mgr.add(self.player.input)
         self.task_mgr.add(self.tick)
+        # Setup x-follow cam
+        self.followcam = FollowCam()
 
     def tick(self, task=None):
         self.dt = globalClock.get_dt()
+        self.followcam.update(self.dt)
         return task.cont
 
 if __name__ == "__main__":
