@@ -204,13 +204,13 @@ class TrackGenerator:
                     break
 
     def _place_dense(self, left, right):
-        # FIXME: Account for possibly more than one prop with 100% density
-        for part in self._part_mgr.get_prop_by_density(self._level, 1):
+        # FIXME: Account for possibly more than two prop with 100% density
+        for i, part in enumerate(self._part_mgr.get_prop_by_density(self._level, 1)):
             np = core.NodePath('prop')
             part.model.copy_to(np)
             np.reparent_to(base.render)
 
-            if self._dense_counter % 2:
+            if (self._dense_counter + i) % 2:
                 np.set_scale(PR_SCALE)
                 np.set_pos(left, self._next_part_y, 0)
             else:
