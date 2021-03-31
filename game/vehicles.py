@@ -172,7 +172,7 @@ class EnemyCar(Car):
         return task.cont
 
     def fire(self):
-        self.hell.spawn_ring(BulletType.BULLET, 30, self.root.get_pos(), self.speed, 10)
+        self.hell.spawn_ring(BulletType.PURPLE, 30, self.root.get_pos(), self.speed, 10)
 
 
 class PlayerCar(TurboCar):
