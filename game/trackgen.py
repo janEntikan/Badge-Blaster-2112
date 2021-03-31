@@ -13,9 +13,6 @@ from . import part
 from . import partgen
 from .common import *
 
-UNIT = 20
-UNIT_MULT = 1 / 20
-
 
 class TrackGenerator:
     def __init__(self):
@@ -38,12 +35,18 @@ class TrackGenerator:
 
     def update(self, car_position):
         self._car_position = car_position
-        while car_position.y + TG_CHUNK_TRIGGER >= len(self._track) * UNIT + self._y_offset:
+        while car_position.y + TG_CHUNK_TRIGGER >= len(self._track) * TG_UNIT + self._y_offset:
             self._add_chunks()
         if car_position.y >= self._next_spawn:
             self._spawn_enemy()
         while self._add_track_part():
             pass
+        while True:
+            if self._parts[0].get_y() < car_position.y - TG_DESPAWN:
+                self._parts[0].detach_node()
+                self._parts.pop(0)
+                continue
+            break
 
     def query(self, y):
         """Returns left and right border x at given y pos as tuple."""
@@ -53,12 +56,12 @@ class TrackGenerator:
     def _qry_center_w(self, y):
         if y < self._y_offset:
             return 0, 0
-        while y > self._y_offset + len(self._track) * UNIT:
+        while y > self._y_offset + len(self._track) * TG_UNIT:
             # FIXME: If time permits, solve more elegant...
             self._add_chunks(False)
-        ynorm = min(max((y - self._y_offset - UNIT) * UNIT_MULT, 0), len(self._track) - 1)
+        ynorm = min(max((y - self._y_offset - TG_UNIT) * TG_UNIT_MULT, 0), len(self._track) - 1)
         cl, fl = ceil(ynorm), floor(ynorm)
-        fr = y * UNIT_MULT - floor(y * UNIT_MULT)
+        fr = y * TG_UNIT_MULT - floor(y * TG_UNIT_MULT)
         x = self._track[cl] * fr + self._track[fl] * (1.0 - fr)
         w = self._width[cl] * fr + self._width[fl] * (1.0 - fr)
         return x, w
@@ -71,7 +74,7 @@ class TrackGenerator:
 
     def _add_chunks(self, drop=True):
         start = 0 if len(self._track) == 0 else self._track[-1]
-        num = ceil(TG_UNITS_PER_CHUNK * UNIT_MULT)
+        num = ceil(TG_UNITS_PER_CHUNK * TG_UNIT_MULT)
         self._track += util.generate_track_offset(num, (-TG_MAX_ROAD_X, TG_MAX_ROAD_X),
             self._difficulty, start)
         self._width += util.generate_width(num, TG_WIDTHS, self._width[-1] if self._width else TG_WIDTHS[-1])
@@ -80,12 +83,6 @@ class TrackGenerator:
             self._track = self._track[num:]
             self._width = self._width[num:]
             self._y_offset += TG_UNITS_PER_CHUNK
-            while True:
-                if self._parts[0].get_y() < self._y_offset - UNIT:
-                    self._parts[0].detach_node()
-                    self._parts.pop(0)
-                    continue
-                break
 
     def _add_track_part(self):
         part = self._select_part()
@@ -104,7 +101,7 @@ class TrackGenerator:
             np.reparent_to(base.render)
             self._parts.append(np)
             x = (end_x - start_x) / 2 + start_x
-            np.set_pos(x, self._next_part_y + UNIT / 2, 0)
+            np.set_pos(x, self._next_part_y + TG_UNIT / 2, 0)
             scale = (scale_start + scale_end) / 2
             self._populate_props(part.bounds.depth,
                 (part.bounds.rmin.x - part.bounds.mmin.x) * scale,
@@ -142,7 +139,7 @@ class TrackGenerator:
             np.reparent_to(base.render)
             fail = 10
             while fail > 0:
-                y = self._next_part_y + random.uniform(0, UNIT)
+                y = self._next_part_y + random.uniform(0, TG_UNIT)
                 x, w = self._qry_center_w(y)
                 dist = (int(part.part_type[0]) - 1) * PR_OFFSET
                 if random.random() < 0.5:
