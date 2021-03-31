@@ -174,7 +174,12 @@ class TrackGenerator:
             while fail > 0:
                 y = self._next_part_y + random.uniform(0, TG_UNIT)
                 x, w = self._qry_center_w(y)
-                dist = (int(part.part_type[0]) - 1) * PR_OFFSET
+                dist = int(part.part_type[0])
+                if dist == 4:  # FIXME: Handle underneath the road placement
+                    pass
+                elif dist == 5:
+                    dist = random.randint(1, 3)
+                dist = (dist - 1) * PR_OFFSET
                 if random.random() < 0.5:
                     angle = 0
                     x = x - w - dist - bl
