@@ -181,7 +181,7 @@ class PlayerCar(TurboCar):
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
         base.cam.look_at(render, (0, self.cam_height/3, 0))
-
+        self.score = 0
         base.accept('space', self.fire)
 
     def input(self, task):
@@ -205,7 +205,7 @@ class PlayerCar(TurboCar):
                 self.decelerate()
         self.update()
 
-        # Set speed counter colors
+        # Set counters
         color = (1,1,1,0.8)
         if self.slipping or self.max_speed == self.max_speed_error:
             color = (1,0,0,0.8)
@@ -214,6 +214,9 @@ class PlayerCar(TurboCar):
         elif self.speed.y > self.turbo_threshold:
             color = (0,1,0,0.8)
         base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
+
+        base.gui.set_score_counter(int(self.root.get_y()+self.score))
+
 
         base.trackgen.update(self.root.get_pos())
 

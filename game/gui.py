@@ -29,10 +29,17 @@ class Gui():
         self.set_speed_counter(0)
         self.speed_counter.set_scale(0.1)
         self.speed_counter.set_pos(0.9,0,-0.9)
-        #self.speed_counter.hide()
+
+        self.score_counter = self.hud.attach_new_node(TextNode("score counter"))
+        self.set_score_counter(0)
+        self.score_counter.set_scale(0.05)
+        self.score_counter.set_pos(-0.9,0,0.9)
 
     def set_speed_counter(self, speed, color=(1,1,1,0.8)):
         self.set_text(self.speed_counter, str(speed)+" kmph", color=color, align=1)
+
+    def set_score_counter(self, score):
+        self.set_text(self.score_counter, "score " + str(score).zfill(10), align=0)
 
     def flashy_text(self, node, text, colors, speed, align=2, repeat=1):
         sequence = Sequence()
@@ -41,7 +48,7 @@ class Gui():
                 sequence.append(Func(self.set_text, node, text, color, align))
                 sequence.append(Wait(speed))
         return sequence
-        
+
     def set_text(self, node, text, color=(1,1,1,1), align=2):
         text_node = node.node()
         text_node.font = self.font
