@@ -68,8 +68,9 @@ class BulletHell:
         path.set_texture(tex)
         path.set_tex_gen(core.TextureStage.get_default(), core.TexGenAttrib.M_point_sprite)
         path.set_antialias(core.AntialiasAttrib.M_point)
-        path.set_depth_test(False)
-        path.set_depth_write(False)
+        path.set_depth_test(True)
+        path.set_depth_write(True)
+        path.set_z(0.5)
         path.set_transparency(core.TransparencyAttrib.M_binary)
         path.set_shader(core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/bullet.vert', 'assets/shaders/bullet.frag'))
         self.root = path
