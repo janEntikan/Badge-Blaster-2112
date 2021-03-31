@@ -1,7 +1,6 @@
 #version 120
 
-uniform mat4 p3d_ProjectionMatrix;
-uniform mat4 p3d_ModelViewMatrix;
+uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform float i_hskew;
 uniform float i_ymax;
 uniform vec2 i_scale;
@@ -19,6 +18,5 @@ void main() {
     vec4 v_pos = p3d_Vertex;
     v_pos.x *= (i_scale.y - i_scale.x) * f + i_scale.x;
     v_pos.x += s;
-    v_pos = p3d_ModelViewMatrix * v_pos;
-	gl_Position = p3d_ProjectionMatrix * v_pos;
+	gl_Position = p3d_ModelViewProjectionMatrix * v_pos;
 }

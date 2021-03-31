@@ -28,7 +28,8 @@ class Base(ShowBase):
         self.set_background_color(0, 0, 0, 0)
         # Setup track generator
         road_model = loader.load_model("assets/models/forest.bam")
-        self.part_mgr = part.PartMgr({"forest": road_model}, ('parts', ))
+        parts = {"forest": road_model}
+        self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
         self.trackgen = TrackGenerator()
         self.trackgen.register_spawn_callback(spawn)
         self.trackgen.set_difficulty(1)  # Adjust from 0..1
@@ -36,12 +37,6 @@ class Base(ShowBase):
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
-        # Testroad
-        # self.models["testroad"] = loader.load_model("assets/models/testroad.bam")
-        # set_faux_lights(self.models["testroad"])
-        # for i in range(20):
-        #     r = self.models["testroad"].copy_to(render)
-        #     r.set_y(i*260)
         self.task_mgr.add(self.player.input)
         self.task_mgr.add(self.tick)
 

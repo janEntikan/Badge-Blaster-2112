@@ -11,12 +11,10 @@ from panda3d import core
 from . import util
 from . import part
 from . import partgen
-from .common import (TG_CHUNK_TRIGGER, TG_MAX_ROAD_X, TG_MAX_SKEW_PER_UNIT,
-                     TG_UNITS_PER_CHUNK, TG_MIN_SPAWN_DIST, TG_MAX_SPAWN_DIST,
-                     TG_WIDTHS, TG_VISIBLE)
+from .common import *
 
-UNIT = 10
-UNIT_MULT = 1 / 10
+UNIT = 20
+UNIT_MULT = 1 / 20
 
 
 class TrackGenerator:
@@ -31,8 +29,10 @@ class TrackGenerator:
         self._width = []
         self._y_offset = 0
         self._next_spawn = 1
-        self._next_variant = 30
-        self._variant = 1
+        self._next_variant = random.randint(600, 2400)
+        self._level = 'forest'
+        self._variant = random.randrange(base.part_mgr.num_roads(self._level))
+        self._dense_counter = 0
         self._part_mgr:part.PartMgr = base.part_mgr
         self.update(core.Vec3(0))
 
@@ -56,7 +56,7 @@ class TrackGenerator:
         while y > self._y_offset + len(self._track) * UNIT:
             # FIXME: If time permits, solve more elegant...
             self._add_chunks(False)
-        ynorm = max((y - self._y_offset) * UNIT_MULT - 1, 0)
+        ynorm = min(max((y - self._y_offset - UNIT) * UNIT_MULT, 0), len(self._track) - 1)
         cl, fl = ceil(ynorm), floor(ynorm)
         fr = y * UNIT_MULT - floor(y * UNIT_MULT)
         x = self._track[cl] * fr + self._track[fl] * (1.0 - fr)
@@ -81,7 +81,7 @@ class TrackGenerator:
             self._width = self._width[num:]
             self._y_offset += TG_UNITS_PER_CHUNK
             while True:
-                if self._parts[0].get_y() < self._y_offset:
+                if self._parts[0].get_y() < self._y_offset - UNIT:
                     self._parts[0].detach_node()
                     self._parts.pop(0)
                     continue
@@ -104,7 +104,11 @@ class TrackGenerator:
             np.reparent_to(base.render)
             self._parts.append(np)
             x = (end_x - start_x) / 2 + start_x
-            np.set_pos(x, self._next_part_y, 0)
+            np.set_pos(x, self._next_part_y + UNIT / 2, 0)
+            scale = (scale_start + scale_end) / 2
+            self._populate_props(part.bounds.depth,
+                (part.bounds.rmin.x - part.bounds.mmin.x) * scale,
+                (part.bounds.mmax.x - part.bounds.rmax.x) * scale)
             self._next_part_y = new_next
             return True
         return False
@@ -113,9 +117,74 @@ class TrackGenerator:
         # FIXME: actually do sensible selection
         self._next_variant -= 1
         if self._next_variant == 0:
-            self._variant = random.randint(0, 3)
-            self._next_variant = random.randint(15, 50)
-        return self._part_mgr.get_road_part('forest', self._variant)
+            self._variant = random.randrange(self._part_mgr.num_roads(self._level))
+            self._next_variant = random.randint(1000, 2000)
+        return self._part_mgr.get_road_part(self._level, self._variant)
+
+    def _populate_props(self, z, bl, br):
+        l, r = self.query(self._next_part_y)
+        self._place_dense(l - bl / 2, r + br / 2)
+        self._place_decoration(z, bl, br)
+
+    def _place_decoration(self, z, bl, br):
+        remaining = random.randint(1, 4)
+        placed = []
+        while remaining:
+            part = random.choice(self._part_mgr[(self._level, 'props')])
+            if part.density == 1:
+                continue
+            chk = 0.5 if part.density < 0 else part.density
+            remaining -= 1
+            if random.random() > chk:
+                continue
+            np = core.NodePath('prop')
+            part.model.copy_to(np)
+            np.reparent_to(base.render)
+            fail = 10
+            while fail > 0:
+                y = self._next_part_y + random.uniform(0, UNIT)
+                x, w = self._qry_center_w(y)
+                dist = (int(part.part_type[0]) - 1) * PR_OFFSET
+                if random.random() < 0.5:
+                    angle = 0
+                    x = x - w - dist - bl
+                else:
+                    angle = 180
+                    x = x + w + dist + br
+                hw = (part.bounds.width / 2) * PR_SCALE
+                hh = part.bounds.hlen
+                mbb = util.AABB(x + part.bounds.mmin.x + hw, y + part.bounds.mmin.y + hh, hw, hh)
+                can_place = True
+                for bb in placed:
+                    if bb.overlap(mbb):
+                        can_place = False
+                        fail -= 1
+                        break
+                if can_place:
+                    np.set_pos(x, y, z)
+                    np.set_scale(PR_SCALE)
+                    np.set_h(angle)
+                    placed.append(mbb)
+                    self._parts.append(np)
+                    break
+
+    def _place_dense(self, left, right):
+        # FIXME: Account for possibly more than one prop with 100% density
+        for part in self._part_mgr.get_prop_by_density(self._level, 1):
+            np = core.NodePath('prop')
+            part.model.copy_to(np)
+            np.reparent_to(base.render)
+
+            if self._dense_counter % 2:
+                np.set_scale(PR_SCALE)
+                np.set_pos(left, self._next_part_y, 0)
+            else:
+                np.set_h(180)
+                np.set_scale(PR_SCALE)
+                np.set_pos(right, self._next_part_y, 0)
+
+            self._parts.append(np)
+        self._dense_counter += 1
 
     def _spawn_enemy(self):
         # FIXME: make spawning better

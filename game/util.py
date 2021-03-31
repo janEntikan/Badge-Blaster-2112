@@ -6,6 +6,8 @@ If it doesn't fit elsewhere, plonk it in here!
 from math import sin, pi
 from random import uniform, randint, choice
 
+from panda3d import core
+
 from .common import TG_CURVE_RNG
 
 HPI = pi / 2
@@ -77,3 +79,25 @@ def set_faux_lights(node):
     for light in node.find_all_matches('**/*light*'):
         light.set_alpha_scale(0.1)
         light.set_transparency(True)
+
+
+class AABB:
+    def __init__(self, x, y, hw, hh):
+        self.x = x
+        self.y = y
+        self.hw = hw
+        self.hh = hh
+
+    def overlap(self, other):
+        return (self.inside(other.x - other.hw, other.y - other.hh)
+            or self.inside(other.x + other.hw, other.y - other.hh)
+            or self.inside(other.x + other.hw, other.y + other.hh)
+            or self.inside(other.x - other.hw, other.y + other.hh)
+            or other.inside(self.x - self.hw, self.y - self.hh)
+            or other.inside(self.x + self.hw, self.y - self.hh)
+            or other.inside(self.x + self.hw, self.y + self.hh)
+            or other.inside(self.x - self.hw, self.y + self.hh))
+
+    def inside(self, x, y):
+        return self.x - self.hw <= x <= self.x + self.hw \
+            and self.y - self.hh <= y <= self.y + self.hh

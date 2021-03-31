@@ -27,7 +27,11 @@ class Bounds:
 
     def finalize(self):
         self.width = self.rmax.x - self.rmin.x
-        self.hlen = (self.mmax.y - self.mmin.y) / 2
+        if self.width == 0:
+            self.width = self.mmax.x - self.mmin.x
+        self.hlen = (self.rmax.y - self.rmin.y) / 2
+        if self.hlen == 0:
+            self.hlen = (self.mmax.y - self.mmin.y) / 2
         self.depth = abs(self.mmin.z)
 
 
