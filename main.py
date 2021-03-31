@@ -1,10 +1,15 @@
 from direct.showbase.ShowBase import ShowBase
+from panda3d import core
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
 from game.gui import Gui
 from game.vehicles import PlayerCar, spawn
 from game import part
 from game.trackgen import TrackGenerator
 from game.util import set_faux_lights
+
+USER_CONFIG_PATH = core.Filename.expand_from('$MAIN_DIR/user.prc')
+if USER_CONFIG_PATH.exists():
+    core.load_prc_file(USER_CONFIG_PATH)
 
 
 def child_dict(model):
