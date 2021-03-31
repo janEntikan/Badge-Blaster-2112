@@ -23,6 +23,74 @@ def veer(n, amount, threshold, center=0):
     return n
 
 
+class CooldownTimer():
+    def __init__(self,a, b=0, repeat=0):
+        self.a, self.b = a, b
+        self.time = a
+        self.repeats = repeat
+        self.repeat = repeat
+
+    def ready(self):
+        self.time -= base.dt
+        if self.time < 0:
+            self.time = self.a
+            return True
+
+class Gun():
+    def __init__(self, node):
+        self.root = node
+        if 'single' in node.name:
+            self.timer = CooldownTimer(0.5,0,0)
+            self.fire = self.single
+        if 'rapid' in node.name:
+            self.timer = CooldownTimer(0.2,0,0)
+            self.fire = self.single
+        elif 'full_spread'in node.name:
+            self.timer = CooldownTimer(2,0,0)
+            self.fire = self.full
+        elif 'spread' in node.name:
+            self.timer = CooldownTimer(1,0,0)
+            self.fire = self.spread
+        elif 'rocket' in node.name:
+            self.timer = CooldownTimer(2,0,0)
+            self.fire = self.rocket
+        elif 'player' in node.name:
+            self.timer = CooldownTimer(0.2,0,0)
+            self.fire = self.player
+
+    def player(self, car):
+        if self.timer.ready():
+            car.hell.set_thickness(16)
+            s = car.speed.y + 100
+            car.hell.spawn_single(BulletType.BULLET, self.root.get_pos(render),Vec3(0,s,0))
+
+    def single(self, car):
+        if self.timer.ready():
+            if randint(0,1):
+                return
+            if self.root.get_x(render) > car.root.get_x():
+                x = 10
+            else:
+                x = -10
+            if self.root.get_y(render) < base.player.root.get_y():
+                y = -40
+            else:
+                y = 40
+            car.hell.spawn_single(BulletType.GREEN, self.root.get_pos(render),Vec3(x,y,0))
+
+    def full(self, hell):
+        if self.timer.ready():
+            hell.spawn_single(BulletType.PINK, self.root.get_pos(render),Vec3(0,-2,0))
+
+    def spread(self, hell):
+        if self.timer.ready():
+            hell.spawn_single(BulletType.PINK, self.root.get_pos(render),Vec3(0,-2,0))
+
+    def rocket(self, hell):
+        if self.timer.ready():
+            hell.spawn_single(BulletType.PINK, self.root.get_pos(render),Vec3(0,-2,0))
+
+
 class Car():
     def __init__(self, model):
         self.root = render.attach_new_node(model.name+'_root')
@@ -30,6 +98,7 @@ class Car():
 
         self.speed = Vec3()
         self.max_speed = 60
+        self.min_speed = 0
         self.max_speed_normal = self.max_speed
         self.acceleration = 40
         self.steering = 200
@@ -37,8 +106,14 @@ class Car():
         self.track_left, self.track_right = -100, 100
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
-
         self.hell = BulletHell()
+        self.guns = []
+        for gun_empty in self.model.find_all_matches("**/*gun*"):
+            self.guns.append(Gun(gun_empty))
+
+    def fire_weapons(self):
+        for gun in self.guns:
+            gun.fire(self)
 
     def bump(self):
         x, y, z = self.root.get_pos()
@@ -85,9 +160,9 @@ class Car():
         else:
             self.speed.y -= self.acceleration * base.dt
 
-    def decelerate(self, center=0, multiplier=1):
+    def decelerate(self, multiplier=1):
         amount = self.acceleration * base.dt * multiplier
-        self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=center)
+        self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=self.min_speed)
 
     def update(self):
         self.root.set_y(self.root, self.speed.y * base.dt)
@@ -97,25 +172,14 @@ class Car():
             self.model.set_h(-self.speed.x/2)
             self.bump()
 
+        if not self == base.player:
+            self.distance = (base.player.root.get_pos()-self.root.get_pos()).length()
+            if self.distance < 150:
+                self.fire_weapons()
+        else:
+            self.fire_weapons()
         self.hell.update(base.dt)
 
-
-class TurboCar(Car):
-    def __init__(self, model):
-        Car.__init__(self, model)
-        self.turbo_threshold  = 50
-        self.max_speed_error  = 40
-        self.max_speed_normal = self.max_speed
-        self.max_speed_turbo  = 120
-
-    def handle_turbo(self, on=False):
-        if on:
-            if self.speed.y > self.turbo_threshold:
-                self.max_speed = self.max_speed_turbo
-            else:
-                self.max_speed = self.max_speed_error
-        else:
-            self.max_speed = self.max_speed_normal
 
 class EnemyCar(Car):
     def __init__(self, model, position):
@@ -123,14 +187,13 @@ class EnemyCar(Car):
         self.look_ahead = 10
         self.steering = 100
         self.max_speed = 110
+        self.min_speed = 35
         self.acceleration = 60
         self.root.set_pos(position)
         self.speed.y = self.max_speed
         self.speed.x = 0
         self.aim = randint(30,60)
         self.last_fire = 10.0
-        self.looking_at = loader.load_model("models/smiley.egg.pz")
-        self.looking_at.reparent_to(self.root)
 
     def chase(self):
         if base.player.root.get_x() > self.root.get_x()+1:
@@ -143,19 +206,18 @@ class EnemyCar(Car):
         if base.player.root.get_y()+self.aim > self.root.get_y():
             self.accelerate()
         else:
-            self.decelerate(center=35)
+            self.decelerate()
 
     def stay_on_the_road(self):
         ahead = self.root.get_pos()
         ahead.y += self.speed.y/4
-        self.looking_at.set_pos(render, ahead)
         left, right = base.trackgen.query(ahead.y)
         if ahead.x-10 < left:
-            self.steer(3)
-            self.decelerate(multiplier=0.5, center=35)
+            self.steer(2)
+            self.decelerate(multiplier=0.5)
         elif ahead.x+10 > right:
-            self.steer(-3)
-            self.decelerate(multiplier=0.5, center=35)
+            self.steer(-2)
+            self.decelerate(multiplier=0.5)
         else:
             return True
 
@@ -164,25 +226,33 @@ class EnemyCar(Car):
             if self.stay_on_the_road():
                 self.chase()
             else:
-                self.decelerate(center=35)
+                self.decelerate()
         self.update()
-        if task.time - self.last_fire > 1:
-            self.fire()
-            self.last_fire = task.time
         return task.cont
 
-    def fire(self):
-        self.hell.spawn_ring(BulletType.PURPLE, 30, self.root.get_pos(), self.speed, 10)
 
-
-class PlayerCar(TurboCar):
+class PlayerCar(Car):
     def __init__(self, model):
-        TurboCar.__init__(self, model)
+        Car.__init__(self, model)
+
+        self.turbo_threshold  = 50
+        self.max_speed_error  = 40
+        self.max_speed_normal = self.max_speed
+        self.max_speed_turbo  = 120
+
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
         base.cam.look_at(render, (0, self.cam_height/3, 0))
         self.score = 0
-        base.accept('space', self.fire)
+
+    def handle_turbo(self, on=False):
+        if on:
+            if self.speed.y > self.turbo_threshold:
+                self.max_speed = self.max_speed_turbo
+            else:
+                self.max_speed = self.max_speed_error
+        else:
+            self.max_speed = self.max_speed_normal
 
     def input(self, task):
         context = base.device_listener.read_context('player')
@@ -214,17 +284,10 @@ class PlayerCar(TurboCar):
         elif self.speed.y > self.turbo_threshold:
             color = (0,1,0,0.8)
         base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
-
         base.gui.set_score_counter(int(self.root.get_y()+self.score))
-
-
         base.trackgen.update(self.root.get_pos())
-
         base.cam.set_pos(0, -self.cam_height+self.root.get_y(), self.cam_height)
         return task.cont
-
-    def fire(self):
-        self.hell.spawn_single(BulletType.MISSILE, self.root.get_pos(), self.speed + (0, 60, 0))
 
 
 def spawn(point):

@@ -23,12 +23,14 @@ class LinearPattern:
     """Bullet that linearly moves in one direction."""
 
     lifetime = 4.0
+    scale = 0.4
 
     def __init__(self, velocity):
         self.velocity = core.Vec3(velocity)
 
     def update_transform(self, dt):
-        return core.Mat4.translate_mat(self.velocity * dt)
+        mat = core.Mat4.translate_mat(self.velocity * dt)
+        return mat
 
 
 class RadialPattern:
@@ -80,6 +82,9 @@ class BulletHell:
         self.patterns = []
         self.pool_usage = core.SparseArray()
         self.clock = 0
+
+    def set_thickness(self, thickness):
+        self.root.set_render_mode_thickness(thickness)
 
     def _generate_pool(self, pool_size):
         format = core.GeomVertexFormat()
