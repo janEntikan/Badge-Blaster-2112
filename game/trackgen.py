@@ -124,20 +124,20 @@ class TrackGenerator:
         self._place_decoration(z, bl, br)
 
     def _place_decoration(self, z, bl, br):
-        remaining = random.randint(1, 4)
+        remaining = random.randint(*PR_ATTEMPTS)
         placed = []
         while remaining:
             part = random.choice(self._part_mgr[(self._level, 'props')])
             if part.density == 1:
                 continue
-            chk = 0.5 if part.density < 0 else part.density
+            chk = PR_DEFAULT_DENSITY if part.density < 0 else part.density
             remaining -= 1
             if random.random() > chk:
                 continue
             np = core.NodePath('prop')
             part.model.copy_to(np)
             np.reparent_to(base.render)
-            fail = 10
+            fail = PR_PLACE_ATTEMPTS
             while fail > 0:
                 y = self._next_part_y + random.uniform(0, TG_UNIT)
                 x, w = self._qry_center_w(y)

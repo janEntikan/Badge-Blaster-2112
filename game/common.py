@@ -18,5 +18,8 @@ TG_DESPAWN = TG_UNIT * 10   # Distance behind player car to despawn parts
 
 # Props constants (PR_ prefix)
 
-PR_SCALE = 1.8
-PR_OFFSET = 12
+PR_SCALE = 1.8              # Scale applied to props
+PR_OFFSET = 12              # Offset distance multiplier (2_somethin = 1 * PR_OFFSET)
+PR_ATTEMPTS = 1, 4          # Number of props to try to place (depends on RNG vs density as well)
+PR_DEFAULT_DENSITY = 0.4    # Default density if none was specified
+PR_PLACE_ATTEMPTS = 10      # Number of attempts to find a free spot to place
