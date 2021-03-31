@@ -8,7 +8,8 @@ FC_EXP = 0.25
 
 # Track Generation constants (TG_ prefix)
 
-TG_MAX_ROAD_X = 25          # How far out left/right the road can go from the center
+TG_MAX_ROAD_X = 80          # How far out left/right the road can go from the center
+TG_LOCAL_CURVE_DIV = TG_MAX_ROAD_X / 16  # Used internally
 TG_MAX_SKEW_PER_UNIT = 10   # How much the direction can change per one unit forwards
 TG_UNITS_PER_CHUNK = 500    # How much units are generated at once for the track
 TG_CHUNK_TRIGGER = 499      # How far ahead of the track end a new chunk should be added
