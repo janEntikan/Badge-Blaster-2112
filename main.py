@@ -8,6 +8,8 @@ from game.trackgen import TrackGenerator
 from game.util import set_faux_lights
 from game.followcam import FollowCam
 
+core.load_prc_file(core.Filename.expand_from('$MAIN_DIR/settings.prc'))
+
 USER_CONFIG_PATH = core.Filename.expand_from('$MAIN_DIR/user.prc')
 if USER_CONFIG_PATH.exists():
     core.load_prc_file(USER_CONFIG_PATH)
@@ -35,8 +37,10 @@ class Base(ShowBase):
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
         # Setup track generator
-        road_model = loader.load_model("assets/models/forest.bam")
-        parts = {"forest": road_model}
+        parts = {
+            "forest": loader.load_model("assets/models/forest.bam"),
+            "desert": loader.load_model("assets/models/desert.bam"),
+        }
         self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
         self.trackgen = TrackGenerator()
         self.trackgen.register_spawn_callback(spawn)

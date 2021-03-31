@@ -27,7 +27,7 @@ class TrackGenerator:
         self._y_offset = 0
         self._next_spawn = 1
         self._next_variant = random.randint(600, 2400)
-        self._level = 'forest'
+        self._level = random.choice(['forest', 'desert'])
         self._variant = random.randrange(base.part_mgr.num_roads(self._level))
         self._dense_counter = 0
         self._part_mgr:part.PartMgr = base.part_mgr
