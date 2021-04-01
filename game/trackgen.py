@@ -255,7 +255,7 @@ class TrackGenerator:
 
     def _spawn_enemy(self):
         # FIXME: make spawning better
-        enemy_y = random.uniform(TG_MIN_SPAWN_DIST, TG_MAX_SPAWN_DIST)
+        enemy_y = 100
         self._next_spawn += enemy_y * (4 - self._difficulty)
         enemy_y += self._car_position.y
         left, right = self.query(enemy_y)
