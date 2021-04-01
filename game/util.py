@@ -8,9 +8,30 @@ from random import uniform, randint, choice
 
 from panda3d import core
 
-from .common import TG_CURVE_RNG, TG_LOCAL_CURVE_DIV
+from .common import TG_CURVE_RNG, TG_LOCAL_CURVE_DIV, TG_UNITS_PER_CHUNK, DF_SPLINE_PTS
 
 HPI = pi / 2
+
+
+def spline_point(t):
+    mx = len(DF_SPLINE_PTS) - 1
+    p0 = int(t * mx)
+    p1 = min(p0 + 1, mx)
+    p2 = min(p1 + 1, mx)
+    p3 = min(p2 + 1, mx)
+
+    t = t * mx - int(t * mx)
+    tt = t * t
+    ttt = tt * t
+
+    q1 = -ttt + 2.0 * tt - t
+    q2 = 3.0 * ttt - 5.0 * tt + 2.0
+    q3 = -3.0 * ttt + 4.0 * tt + t
+    q4 = ttt - tt
+
+    tx = 0.5 * (DF_SPLINE_PTS[p0].x * q1 + DF_SPLINE_PTS[p1].x * q2 + DF_SPLINE_PTS[p2].x * q3 + DF_SPLINE_PTS[p3].x * q4)
+    ty = 0.5 * (DF_SPLINE_PTS[p0].y * q1 + DF_SPLINE_PTS[p1].y * q2 + DF_SPLINE_PTS[p2].y * q3 + DF_SPLINE_PTS[p3].y * q4)
+    return core.Vec2(min(max(tx, 0), 1), min(max(ty, 0), 1))
 
 
 def generate_track_offset(num, bounds, difficulty, start=None, start_straight=False):
@@ -19,7 +40,7 @@ def generate_track_offset(num, bounds, difficulty, start=None, start_straight=Fa
     """
     n = [start if start is not None else sum(bounds) / 2]
     if start_straight:
-        n += n * 2
+        n += n * 5
     pc = len(n)
     curve_delta = ((max(bounds) - min(bounds)) / TG_LOCAL_CURVE_DIV) * difficulty
     while pc < num:

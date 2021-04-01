@@ -1,5 +1,27 @@
 """Constants for easier tuning in one place"""
 
+from panda3d.core import Vec2
+
+# Difficulty (DF_ prefix)
+
+DF_SPLINE_PTS = [
+    Vec2(0, -0.8),
+    Vec2(1, 0.0),
+    Vec2(2, 0.3),
+    Vec2(3, 0.25),
+    Vec2(4, 0.47),
+    Vec2(5, 0.69),
+    Vec2(6, 0.54),
+    Vec2(7, 0.78),
+    Vec2(8, 0.65),
+    Vec2(9, 0.84),
+    Vec2(10, 0.92),
+    Vec2(11, 0.8),
+    Vec2(12, 0.75),
+    Vec2(13, 0.9)
+]                           # Spline points representing difficulty
+
+
 # Follow Cam constants (FC_ prefix)
 
 FC_MAX_SPEED = 1.0
