@@ -126,8 +126,12 @@ class Car():
             self.guns.append(Gun(gun_empty))
 
     def die(self):
+        if not self.alive:
+            return
         splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
-        base.explosions.spawn_single(splode_type, self.root.get_pos(), self.speed)
+        base.explosions.spawn_single(splode_type, self.root.get_pos())
+        self.root.remove_node()
+        self.model.remove_node()
         self.speed.normalize()
         self.speed *= 15
         self.alive = False
@@ -223,12 +227,11 @@ class EnemyCar(Car):
         self.hell = base.enemy_hell
         base.player_hell.add_collider(self.root, radius=2, callback=self.get_hit)
 
-    def destroy(self):
+    def die(self):
+        Car.die(self)
         if self in base.enemies:
             base.enemies.remove(self)
         base.player_hell.remove_collider(self.root)
-        self.root.remove_node()
-        self.model.remove_node()
 
     async def get_hit(self):
         self.hp -= 1
@@ -283,7 +286,7 @@ class EnemyCar(Car):
         if self.alive:
             return task.cont
         else:
-            self.destroy()
+            return task.done
 
 
 class PlayerCar(Car):
