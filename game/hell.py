@@ -64,9 +64,10 @@ class RadialPattern:
 
 
 class BulletHell(DirectObject):
-    def __init__(self, render=None, sprite_map='', sprite_layout=(8, 8), loop=True, pool_size=1024, check_bounds=False):
+    def __init__(self, render=None, sprite_map='', sprite_layout=(8, 8), loop=True, pool_size=1024, check_bounds=False, scale=0.02):
         self.render = render or base.render
         self.check_bounds = check_bounds
+        self.scale = scale
 
         tex = base.loader.load_texture(sprite_map)
         tex.set_minfilter(core.SamplerState.FT_nearest)
@@ -95,8 +96,13 @@ class BulletHell(DirectObject):
         self.clock = 0
         self.colliders = []
 
-    def set_thickness(self, thickness):
-        self.root.set_render_mode_thickness(thickness)
+        self.accept('window-event', self._update_size)
+        self._update_size(base.win)
+
+    def _update_size(self, win):
+        if win == base.win:
+            size = min(win.size.x, win.size.y)
+            self.root.set_render_mode_thickness(size * self.scale)
 
     def _generate_pool(self, pool_size):
         format = core.GeomVertexFormat()
