@@ -5,9 +5,10 @@ from game.gui import Gui
 from game.vehicles import PlayerCar, spawn
 from game import part
 from game.trackgen import TrackGenerator
-from game.util import set_faux_lights
+from game.util import set_faux_lights, spline_point
 from game.followcam import FollowCam
 from game.hell import BulletHell
+from game.common import DF_INC_PER_SEC
 
 core.load_prc_file(core.Filename.expand_from('$MAIN_DIR/settings.prc'))
 
@@ -55,9 +56,15 @@ class Base(ShowBase):
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
         self.task_mgr.do_method_later(0.01, self.tick, name='tick')
+
         # Setup x-follow cam
         self.followcam = FollowCam()
         self.accept("level-transition", self.level_transition_evt)
+
+        # Setup difficulty adjust
+        self.difficulty = spline_point(0)
+        self.progress = 0
+        self.task_mgr.do_method_later(1, self.update_difficulty, name="update_difficulty")
 
     def level_transition_evt(self, level):
         print(f"We're about to enter the level {level.upper()}")
@@ -70,6 +77,14 @@ class Base(ShowBase):
         self.enemy_hell.update(self.dt)
         self.explosions.update(self.dt)
         return task.cont
+
+    def update_difficulty(self, task=None):
+        self.progress += DF_INC_PER_SEC
+        self.difficulty = spline_point(min(self.progress, 1.0))
+        self.trackgen.set_difficulty(self.difficulty)
+        print(self.difficulty)
+        return task.again
+
 
 if __name__ == "__main__":
     base = Base()

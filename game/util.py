@@ -29,9 +29,8 @@ def spline_point(t):
     q3 = -3.0 * ttt + 4.0 * tt + t
     q4 = ttt - tt
 
-    tx = 0.5 * (DF_SPLINE_PTS[p0].x * q1 + DF_SPLINE_PTS[p1].x * q2 + DF_SPLINE_PTS[p2].x * q3 + DF_SPLINE_PTS[p3].x * q4)
     ty = 0.5 * (DF_SPLINE_PTS[p0].y * q1 + DF_SPLINE_PTS[p1].y * q2 + DF_SPLINE_PTS[p2].y * q3 + DF_SPLINE_PTS[p3].y * q4)
-    return core.Vec2(min(max(tx, 0), 1), min(max(ty, 0), 1))
+    return ty
 
 
 def generate_track_offset(num, bounds, difficulty, start=None, start_straight=False):
