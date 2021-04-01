@@ -118,12 +118,19 @@ class Car():
         self.steering = 200
         self.max_steering = 40
         self.track_left, self.track_right = -100, 100
-        self.boost = 2
+        self.bump_time = 0.2
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
         self.guns = []
         for gun_empty in self.model.find_all_matches("**/*gun*"):
             self.guns.append(Gun(gun_empty))
+
+    def die(self):
+        splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
+        base.explosions.spawn_single(splode_type, self.root.get_pos(), self.speed)
+        self.speed.normalize()
+        self.speed *= 15
+        self.alive = False
 
     def fire_weapons(self):
         for gun in self.guns:
@@ -138,11 +145,14 @@ class Car():
                     self.trigger_slip(enemy.root.get_x() > x)
                     enemy.trigger_slip(not enemy.root.get_x() > x)
         if x < self.track_left or x > self.track_right:
-            if self.slipping:
-                #TODO: EXPLODE IN FIERY DEATH!
-                pass
+            if self.bump_time <= 0:
+                self.die()
             else:
-                self.trigger_slip(x < self.track_left)
+                if self.bump_time > 0.15:
+                    self.trigger_slip(x < self.track_left)
+                self.bump_time -= base.dt
+        else:
+            self.bump_time = 0.2
 
     def trigger_slip(self, left=True):
         if left:
@@ -180,16 +190,12 @@ class Car():
         self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=self.min_speed)
 
     def update(self):
-        if self.boost > 0:
-            self.speed.y += base.dt*20
-            self.boost -= base.dt
-
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
         self.track_left, self.track_right = base.trackgen.query(self.root.get_y())
         if not self.slipping:
             self.model.set_h(-self.speed.x/2)
-            self.bump()
+        self.bump()
 
 
 
@@ -200,15 +206,15 @@ class EnemyCar(Car):
         self.hp = 1
         self.steering = 100
         self.max_speed = 100
-        self.min_speed = 80
-        self.acceleration = 50
+        self.min_speed = 35
+        self.acceleration = 80
         self.root.set_pos(position)
         self.speed.y = self.max_speed
         self.speed.x = 0
         self.aim = randint(30,60)
         self.last_fire = 10.0
         self.hell = base.enemy_hell
-        base.player_hell.add_collider(self.root, radius=1, callback=self.get_hit)
+        base.player_hell.add_collider(self.root, radius=1.5, callback=self.get_hit)
 
     def __del__(self):
         if self in base.enemies:
@@ -218,11 +224,9 @@ class EnemyCar(Car):
         self.model.remove_node()
 
     async def get_hit(self):
-        splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
-        base.explosions.spawn_single(splode_type, self.root.get_pos(), self.speed)
         self.hp -= 1
         if self.hp < 0:
-            self.alive = False
+            self.die()
         else:
             self.root.set_color_scale((1, 0, 0, 1))
             await WaitInterval(0.1)
@@ -273,6 +277,7 @@ class EnemyCar(Car):
         else:
             self.__del__()
 
+
 class PlayerCar(Car):
     def __init__(self, model):
         Car.__init__(self, model)
@@ -291,8 +296,7 @@ class PlayerCar(Car):
         base.enemy_hell.add_collider(self.root, radius=0.8, callback=self.get_hit)
 
     async def get_hit(self):
-        splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
-        base.explosions.spawn_single(splode_type, self.root.get_pos(), self.speed)
+        base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)
         self.trigger_slip()
         self.root.set_color_scale((1, 0, 0, 1))
         await Wait(0.1)
@@ -308,24 +312,21 @@ class PlayerCar(Car):
             self.max_speed = self.max_speed_normal
 
     def input(self, dt):
-        context = base.device_listener.read_context('player')
-        if context["slip_debug"]:
-            self.slipping = choice((-1, 1))
-
-        if self.slipping:
-            self.slip(context['move'])
-        elif context['move']:
-            self.steer(context['move'])
-        else:
-            smoothing = (self.steering/2) * base.dt
-            self.speed.x = veer(self.speed.x, smoothing, smoothing)
-
-        if not self.slipping:
-            if True or context['accelerate']:
+        if self.alive:
+            context = base.device_listener.read_context('player')
+            if not self.slipping:
                 self.handle_turbo(context['turbo'])
                 self.accelerate()
+                if context['move']:
+                    self.steer(context['move'])
+                else:
+                    smoothing = (self.steering/2) * base.dt
+                    self.speed.x = veer(self.speed.x, smoothing, smoothing)
             else:
-                self.decelerate()
+                self.slip(context['move'])
+
+
+            self.fire_weapons()
         self.update()
 
         # Set counters
@@ -340,7 +341,6 @@ class PlayerCar(Car):
         base.gui.set_score_counter(int(self.root.get_y()+self.score))
         base.trackgen.update(self.root.get_pos())
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
-        self.fire_weapons()
 
 
 def spawn(point):
