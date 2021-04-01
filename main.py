@@ -39,10 +39,7 @@ class Base(ShowBase):
         self.set_background_color(0, 0, 0, 0)
         # Setup track generator
         self.levels = ("forest", "desert")
-        parts = {
-            "forest": loader.load_model("assets/models/forest.bam"),
-            "desert": loader.load_model("assets/models/desert.bam"),
-        }
+        parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
         self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
         self.trackgen = TrackGenerator()
         self.trackgen.register_spawn_callback(spawn)
