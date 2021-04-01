@@ -2,6 +2,11 @@
 
 from panda3d.core import Vec2
 
+# Music/SFX (SND_ prefix)
+
+SND_BGM = [f'assets/music/{i}.ogg' for i in range(1, 8)]
+
+
 # Difficulty (DF_ prefix)
 
 DF_SPLINE_PTS = [

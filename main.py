@@ -1,3 +1,6 @@
+import sys
+import random
+
 from direct.showbase.ShowBase import ShowBase
 from panda3d import core
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
@@ -8,7 +11,7 @@ from game.trackgen import TrackGenerator
 from game.util import set_faux_lights, spline_point
 from game.followcam import FollowCam
 from game.hell import BulletHell
-from game.common import DF_INC_PER_SEC
+from game.common import DF_INC_PER_SEC, SND_BGM
 
 core.load_prc_file(core.Filename.expand_from('$MAIN_DIR/settings.prc'))
 
@@ -71,6 +74,15 @@ class Base(ShowBase):
         self.gui.set_num_lives(self.num_lives)
         self.game_over = False
 
+        self.bgm = None
+        self.track = random.randrange(len(SND_BGM))
+
+        if core.ConfigVariableBool('esc-to-exit', False).get_value():
+            self.accept('escape', sys.exit)
+        self.musicManager.set_volume(
+            core.ConfigVariableDouble('audio-music-volume', 1.0).get_value()
+        )
+
     def lose_life(self):
         if self.game_over:
             return False
@@ -98,7 +110,19 @@ class Base(ShowBase):
         self.enemy_hell.update(self.dt)
         self.explosions.update(self.dt)
         self.specialfx.update(self.dt)
+        self.chk_bgm()
         return task.cont
+
+    def chk_bgm(self):
+        if self.bgm is None:
+            self.bgm = self.loader.load_music(SND_BGM[self.track])
+            self.bgm.play()
+        if self.bgm.status() != self.bgm.PLAYING:
+            print('next track')
+            self.track += 1
+            self.track = self.track % len(SND_BGM)
+            self.bgm = self.loader.load_music(SND_BGM[self.track])
+            self.bgm.play()
 
     def update_difficulty(self, task=None):
         self.progress += DF_INC_PER_SEC
