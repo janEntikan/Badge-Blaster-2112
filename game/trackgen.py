@@ -13,10 +13,14 @@ from . import part
 from .common import *
 
 
+ROAD_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/road.vert', 'assets/shaders/road.frag')
+PROP_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/prop.vert', 'assets/shaders/road.frag')
+
+
 def generate_part(model, bounds, hskew, scale_start, scale_end, hue):
     np = core.NodePath('track part')
     model.copy_to(np)
-    np.set_shader(core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/road.vert', 'assets/shaders/road.frag'))
+    np.set_shader(ROAD_SHADER)
     np.set_shader_input('i_hskew', hskew)
     np.set_shader_input('i_ymax', bounds.mmax.y)
     np.set_shader_input('i_scale', core.Vec2(scale_start, scale_end))
@@ -208,6 +212,8 @@ class TrackGenerator:
                         fail -= 1
                         break
                 if can_place:
+                    np.set_shader(PROP_SHADER)
+                    np.set_shader_input('i_hue', self._current_hue)
                     np.set_pos(x, y, z)
                     np.set_scale(PR_SCALE)
                     np.set_h(angle)
