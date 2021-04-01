@@ -98,7 +98,7 @@ class Car():
         self.model = model.copy_to(self.root)
 
         self.speed = Vec3()
-        self.max_speed = 60
+        self.max_speed = 50
         self.min_speed = 0
         self.max_speed_normal = self.max_speed
         self.acceleration = 40
@@ -245,10 +245,10 @@ class PlayerCar(Car):
     def __init__(self, model):
         Car.__init__(self, model)
 
-        self.turbo_threshold  = 50
+        self.turbo_threshold  = self.max_speed - 10
         self.max_speed_error  = 40
         self.max_speed_normal = self.max_speed
-        self.max_speed_turbo  = 120
+        self.max_speed_turbo  = 80
 
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
