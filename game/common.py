@@ -17,9 +17,9 @@ TG_MIN_SPAWN_DIST = 100     # Minimum distance between player and new enemy spaw
 TG_MAX_SPAWN_DIST = 200     # Maximum distance between player and new enemy spawn
 TG_WIDTHS = 12, 15, 20, 25  # Road widths
 TG_CURVE_RNG = -0.1, 1.6    # Range to sample to compare against diffculty. sample < difficulty == curve
-TG_VISIBLE = 150            # How far ahead of the car visible road parts have to be spawned
+TG_VISIBLE = 250            # How far ahead of the car visible road parts have to be spawned
 TG_UNIT = 20                # Track length
-TG_DESPAWN = TG_UNIT * 10   # Distance behind player car to despawn parts
+TG_DESPAWN = TG_UNIT * 15   # Distance behind player car to despawn parts
 TG_PART_CHG_RNG = 15, 30    # randint range for choosing a different part
 TG_LEVEL_CHG_RNG = 4, 8     # randint range for choosing when to transition to a new level (number of part changes)
 TG_TRANS_RNG = 5, 8         # randint range for choosing how many transition parts to place
