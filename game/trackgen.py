@@ -231,7 +231,6 @@ class TrackGenerator:
                     np.set_h(angle)
                     placed.append(mbb)
                     self._parts.append(np)
-                    print(part.part_type, z)
                     break
 
     def _place_dense(self, left, right):
