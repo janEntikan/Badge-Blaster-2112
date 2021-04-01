@@ -357,7 +357,7 @@ class PlayerCar(Car):
             self.max_speed = self.max_speed_normal
 
     def input(self, dt):
-        if self.alive:
+        if self.alive and not base.game_over:
             context = base.device_listener.read_context('player')
             if not self.slipping:
                 self.handle_turbo(context['turbo'])
