@@ -206,6 +206,9 @@ class BulletHell(DirectObject):
                     for i in range(begin, end):
                         rewriter.set_row(i)
                         pos = rewriter.get_data2()
+                        if pos.y > base.cam.get_y() + 150:
+                            delete_points.set_bit(i)
+                            continue
                         left, right = base.trackgen.query(pos.y)
                         if pos.x < left or pos.x > right:
                             delete_points.set_bit(i)
