@@ -107,18 +107,20 @@ class BulletHell:
         write = self._write_bullets(type, 1, LinearPattern(velocity))
         write(pos, velocity.xy.normalized())
 
-    def spawn_ring(self, type, num_bullets, pos, velocity, expand_speed=0, rotate_speed=0):
+    def spawn_ring(self, type, num_bullets, pos, velocity, expand_speed=0, rotate_speed=0, min_angle=0, max_angle=360):
         pattern = RadialPattern(pos, velocity)
         pattern.expand_speed = expand_speed
         pattern.rotate_speed = rotate_speed
         pattern.radius = 0.5
 
+        min_angle = math.radians(min_angle)
+        max_angle = math.radians(max_angle)
+
         frame_offset = int(FPS * globalClock.frame_time)
 
         write = self._write_bullets(type, num_bullets, pattern)
-        mult = math.pi * 2 / num_bullets
         for i in range(num_bullets):
-            phi = i * mult
+            phi = min_angle + i * (max_angle - min_angle) / num_bullets
             dir = math.cos(phi), math.sin(phi)
             write(pos + core.Vec3(*dir, 0) * pattern.radius, dir)
 
