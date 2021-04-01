@@ -113,6 +113,10 @@ class BulletHell(DirectObject):
         vdata = core.GeomVertexData('piiiyeeew', core.GeomVertexFormat.register_format(format), core.GeomEnums.UH_static)
         vdata.set_num_rows(pool_size)
 
+        writer = core.GeomVertexWriter(vdata, 'vertex')
+        for i in range(pool_size):
+            writer.set_data3(0, 0, -10000)
+
         prim = core.GeomPoints(core.GeomEnums.UH_static)
         prim.add_next_vertices(pool_size)
         geom = core.Geom(vdata)
