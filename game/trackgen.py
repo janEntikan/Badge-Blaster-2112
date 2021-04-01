@@ -2,7 +2,7 @@
 Generator for the racetrack and surrounding decoration.
 """
 
-from math import ceil, floor
+from math import ceil, floor, pi
 import random
 from typing import Dict, List
 
@@ -10,8 +10,19 @@ from panda3d import core
 
 from . import util
 from . import part
-from . import partgen
 from .common import *
+
+
+def generate_part(model, bounds, hskew, scale_start, scale_end, hue):
+    np = core.NodePath('track part')
+    model.copy_to(np)
+    np.set_shader(core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/road.vert', 'assets/shaders/road.frag'))
+    np.set_shader_input('i_hskew', hskew)
+    np.set_shader_input('i_ymax', bounds.mmax.y)
+    np.set_shader_input('i_scale', core.Vec2(scale_start, scale_end))
+    np.set_shader_input('i_len', bounds.hlen * 2)
+    np.set_shader_input('i_hue', hue)
+    return np
 
 
 class TrackGenerator:
@@ -35,6 +46,7 @@ class TrackGenerator:
         self._level_trans_new = -1
         self._level_after_trans = ''
         self._level_event_sent = False
+        self._current_hue = random.uniform(0, pi)
         self._part_mgr:part.PartMgr = base.part_mgr
         self.update(core.Vec3(0))
 
@@ -102,7 +114,7 @@ class TrackGenerator:
             hskew = (end_x - start_x) / 2
             scale_start = (start_w * 2) / part.bounds.width
             scale_end = (end_w * 2) / part.bounds.width
-            np = partgen.generate_part(part.model, part.bounds, hskew, scale_start, scale_end)
+            np = generate_part(part.model, part.bounds, hskew, scale_start, scale_end, self._current_hue)
             np.reparent_to(base.render)
             self._parts.append(np)
             x = (end_x - start_x) / 2 + start_x
@@ -137,6 +149,7 @@ class TrackGenerator:
             elif self._level_trans_new > 0:                             # Transition part new
                 if not self._level_event_sent:
                     messenger.send('level-transition', [self._level_after_trans])
+                    self._current_hue = random.uniform(0, pi)
                     self._level_event_sent = True
                 self._level = self._level_after_trans
                 self._level_trans_new -= 1
