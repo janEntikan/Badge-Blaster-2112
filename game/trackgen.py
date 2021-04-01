@@ -102,10 +102,10 @@ class TrackGenerator:
             self._y_offset += TG_UNITS_PER_CHUNK
 
     def _add_track_part(self):
-        part = self._select_part()
-        hlen = part.bounds.hlen
-        new_next = self._next_part_y + hlen * 2
+        new_next = self._next_part_y + TG_UNIT
         if new_next <= self._car_position.y + TG_VISIBLE:
+            part = self._select_part()
+            self._next_variant -= 1
             start = self._qry_center_w(self._next_part_y)
             end = self._qry_center_w(new_next)
             if not start or not end:
@@ -129,7 +129,6 @@ class TrackGenerator:
 
     def _select_part(self):
         # FIXME: actually do sensible selection
-        self._next_variant -= 1
         if self._next_variant <= 0:
             if self._next_level > 0:                                    # Change Variant
                 self._variant = random.randrange(self._part_mgr.num_roads(self._level))

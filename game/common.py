@@ -20,9 +20,9 @@ TG_CURVE_RNG = -0.1, 1.6    # Range to sample to compare against diffculty. samp
 TG_VISIBLE = 150            # How far ahead of the car visible road parts have to be spawned
 TG_UNIT = 20                # Track length
 TG_DESPAWN = TG_UNIT * 10   # Distance behind player car to despawn parts
-TG_PART_CHG_RNG = 250, 500  # randint range for choosing a different part
-TG_LEVEL_CHG_RNG = 3, 7     # randint range for choosing when to transition to a new level (number of part changes)
-TG_TRANS_RNG = 50, 120      # randint range for choosing how many transition parts to place
+TG_PART_CHG_RNG = 15, 30    # randint range for choosing a different part
+TG_LEVEL_CHG_RNG = 4, 8     # randint range for choosing when to transition to a new level (number of part changes)
+TG_TRANS_RNG = 5, 8         # randint range for choosing how many transition parts to place
 
 # Used internally
 TG_LOCAL_CURVE_DIV = TG_MAX_ROAD_X / TG_MAX_CURVE_X
