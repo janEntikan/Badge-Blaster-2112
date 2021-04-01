@@ -79,6 +79,8 @@ class Base(ShowBase):
 
         if core.ConfigVariableBool('esc-to-exit', False).get_value():
             self.accept('escape', sys.exit)
+        if core.ConfigVariableBool('god-mode', False).get_value():
+            self.player.invincible = True
         self.musicManager.set_volume(
             core.ConfigVariableDouble('audio-music-volume', 1.0).get_value()
         )
