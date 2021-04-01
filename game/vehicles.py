@@ -1,6 +1,7 @@
 from random import choice, randint
 from panda3d.core import Vec3
-from .hell import BulletHell, BulletType
+from .hell import BulletType
+from direct.interval.IntervalGlobal import *
 
 
 SLIP_STRENGTH = 45 # In degrees.
@@ -106,7 +107,6 @@ class Car():
         self.track_left, self.track_right = -100, 100
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
-        self.hell = BulletHell()
         self.guns = []
         for gun_empty in self.model.find_all_matches("**/*gun*"):
             self.guns.append(Gun(gun_empty))
@@ -178,7 +178,6 @@ class Car():
                 self.fire_weapons()
         else:
             self.fire_weapons()
-        self.hell.update(base.dt)
 
 
 class EnemyCar(Car):
@@ -194,6 +193,17 @@ class EnemyCar(Car):
         self.speed.x = 0
         self.aim = randint(30,60)
         self.last_fire = 10.0
+        self.hell = base.enemy_hell
+        base.player_hell.add_collider(self.root, radius=1, callback=self.get_hit)
+
+    def __del__(self):
+        base.player_hell.remove_collider(self.root)
+        self.root.remove_node()
+
+    async def get_hit(self):
+        self.root.set_color_scale((1, 0, 0, 1))
+        await WaitInterval(0.1)
+        self.root.clear_color_scale()
 
     def chase(self):
         if base.player.root.get_x() > self.root.get_x()+1:
@@ -244,6 +254,14 @@ class PlayerCar(Car):
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
         base.cam.look_at(render, (0, self.cam_height/3, 0))
         self.score = 0
+
+        self.hell = base.player_hell
+        base.enemy_hell.add_collider(self.root, radius=1, callback=self.get_hit)
+
+    async def get_hit(self):
+        self.root.set_color_scale((1, 0, 0, 1))
+        await Wait(0.1)
+        self.root.clear_color_scale()
 
     def handle_turbo(self, on=False):
         if on:

@@ -82,6 +82,7 @@ class BulletHell:
         self.patterns = []
         self.pool_usage = core.SparseArray()
         self.clock = 0
+        self.colliders = []
 
     def set_thickness(self, thickness):
         self.root.set_render_mode_thickness(thickness)
@@ -182,15 +183,21 @@ class BulletHell:
 
             # Delete vertices out of bounds.
             delete_points = core.SparseArray()
-            for sri in range(self.pool_usage.get_num_subranges()):
-                begin = self.pool_usage.get_subrange_begin(sri)
-                end = self.pool_usage.get_subrange_end(sri)
+            for sri in range(point_range.get_num_subranges()):
+                begin = point_range.get_subrange_begin(sri)
+                end = point_range.get_subrange_end(sri)
                 for i in range(begin, end):
                     rewriter.set_row(i)
-                    x, y = rewriter.get_data2()
-                    left, right = base.trackgen.query(y)
-                    if x < left or x > right:
+                    pos = rewriter.get_data2()
+                    left, right = base.trackgen.query(pos.y)
+                    if pos.x < left or pos.x > right:
                         delete_points.set_bit(i)
+                    else:
+                        for node, radius_sq, callback in self.colliders:
+                            collider_pos = node.get_pos()
+                            if (collider_pos.xy - pos).length_squared() < radius_sq:
+                                taskMgr.add(callback())
+                                delete_points.set_bit(i)
 
             if not delete_points.is_zero():
                 vdata.transform_vertices(core.Mat4.translate_mat((0, 0, -10000)), delete_points)
@@ -203,3 +210,10 @@ class BulletHell:
                     self.patterns.remove(pattern)
 
         self.clock += dt
+
+    def add_collider(self, node, radius, callback):
+        """Registers a collision callback.  If it returns True, the point is removed."""
+        self.colliders.append((node, radius * radius, callback))
+
+    def remove_collider(self, node):
+        self.colliders = [collider for collider in self.colliders if collider[0] != node]

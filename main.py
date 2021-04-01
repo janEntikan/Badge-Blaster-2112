@@ -7,6 +7,7 @@ from game import part
 from game.trackgen import TrackGenerator
 from game.util import set_faux_lights
 from game.followcam import FollowCam
+from game.hell import BulletHell
 
 core.load_prc_file(core.Filename.expand_from('$MAIN_DIR/settings.prc'))
 
@@ -46,6 +47,11 @@ class Base(ShowBase):
         self.trackgen = TrackGenerator()
         self.trackgen.register_spawn_callback(spawn)
         self.trackgen.set_difficulty(1)  # Adjust from 0..1
+
+        # Load hells
+        self.player_hell = BulletHell(self.render)
+        self.enemy_hell = BulletHell(self.render)
+
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
@@ -62,6 +68,8 @@ class Base(ShowBase):
     def tick(self, task=None):
         self.dt = globalClock.get_dt()
         self.followcam.update(self.dt)
+        self.player_hell.update(self.dt)
+        self.enemy_hell.update(self.dt)
         return task.cont
 
 if __name__ == "__main__":
