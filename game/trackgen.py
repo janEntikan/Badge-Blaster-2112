@@ -93,7 +93,7 @@ class TrackGenerator:
         start = 0 if len(self._track) == 0 else self._track[-1]
         num = ceil(TG_UNITS_PER_CHUNK * TG_UNIT_MULT)
         self._track += util.generate_track_offset(num, (-TG_MAX_ROAD_X, TG_MAX_ROAD_X),
-            self._difficulty, start)
+            self._difficulty, start, len(self._track) == 0)
         self._width += util.generate_width(num, TG_WIDTHS, self._width[-1] if self._width else TG_WIDTHS[-1])
         self._ymax += TG_UNITS_PER_CHUNK
         if drop and len(self._track) > num * 2:

@@ -13,12 +13,14 @@ from .common import TG_CURVE_RNG, TG_LOCAL_CURVE_DIV
 HPI = pi / 2
 
 
-def generate_track_offset(num, bounds, difficulty, start=None):
+def generate_track_offset(num, bounds, difficulty, start=None, start_straight=False):
     """
     Replacement for noise to generate a more sensible track
     """
     n = [start if start is not None else sum(bounds) / 2]
-    pc = 1
+    if start_straight:
+        n += n * 2
+    pc = len(n)
     curve_delta = ((max(bounds) - min(bounds)) / TG_LOCAL_CURVE_DIV) * difficulty
     while pc < num:
         if num - pc < 4:
