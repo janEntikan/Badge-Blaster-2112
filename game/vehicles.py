@@ -62,7 +62,6 @@ class Gun():
 
     def player(self, car):
         if self.timer.ready():
-            car.hell.set_thickness(16)
             y = car.speed.y + 100
             x = car.speed.x
             car.hell.spawn_single(BulletType.BULLET, self.root.get_pos(render),Vec3(x,y,0))
