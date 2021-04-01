@@ -185,8 +185,10 @@ class Car():
     def steer(self, x):
         if self.speed.y > 0:
             self.speed.x += (x * self.steering) * base.dt
-            if self.speed.y < self.max_speed_normal:
-                self.speed.x *= max((self.speed.y / self.max_speed_normal) ** 0.25, 0.1)
+            # if self.speed.y < self.max_speed_normal:
+            #     self.speed.x *= max((self.speed.y / self.max_speed_normal) ** 0.25, 0.1)
+            if hasattr(self, 'max_speed_turbo') and self.speed.y > self.max_speed_normal:
+                self.speed.x *= 1.0 - (self.speed.y / self.max_speed_turbo * 0.5) ** 5
             self.speed.x = clamp(self.speed.x, -self.max_steering, self.max_steering)
         else:
             self.speed.x = 0
