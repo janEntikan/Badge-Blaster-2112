@@ -272,7 +272,7 @@ class PlayerCar(Car):
         else:
             self.max_speed = self.max_speed_normal
 
-    def input(self, task):
+    def input(self, dt):
         context = base.device_listener.read_context('player')
         if context["slip_debug"]:
             self.slipping = choice((-1, 1))
@@ -305,7 +305,6 @@ class PlayerCar(Car):
         base.gui.set_score_counter(int(self.root.get_y()+self.score))
         base.trackgen.update(self.root.get_pos())
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
-        return task.cont
 
 
 def spawn(point):

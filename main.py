@@ -56,7 +56,6 @@ class Base(ShowBase):
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
-        self.task_mgr.add(self.player.input)
         self.task_mgr.add(self.tick)
         # Setup x-follow cam
         self.followcam = FollowCam()
@@ -67,6 +66,7 @@ class Base(ShowBase):
 
     def tick(self, task=None):
         self.dt = globalClock.get_dt()
+        self.player.input(self.dt)
         self.followcam.update(self.dt)
         self.player_hell.update(self.dt)
         self.enemy_hell.update(self.dt)
