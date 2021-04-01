@@ -13,19 +13,6 @@ from .common import TG_CURVE_RNG, TG_LOCAL_CURVE_DIV
 HPI = pi / 2
 
 
-def noise1D(num, bounds, max_delta, start=None):
-    """
-    Noise of `num` values inside `bounds` with `max_delta` between any two
-    neighboring points.
-    """
-    n = [start if start is not None else sum(bounds) / 2]
-    while len(n) < num:
-        t_bounds = (max(n[-1] - max_delta, bounds[0]),
-                    min(n[-1] + max_delta, bounds[1]))
-        n.append(uniform(*t_bounds))
-    return n
-
-
 def generate_track_offset(num, bounds, difficulty, start=None):
     """
     Replacement for noise to generate a more sensible track
