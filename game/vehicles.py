@@ -321,7 +321,7 @@ class PlayerCar(Car):
             self.speed.x = veer(self.speed.x, smoothing, smoothing)
 
         if not self.slipping:
-            if context['accelerate']:
+            if True or context['accelerate']:
                 self.handle_turbo(context['turbo'])
                 self.accelerate()
             else:

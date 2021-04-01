@@ -54,7 +54,7 @@ class Base(ShowBase):
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
-        self.task_mgr.add(self.tick)
+        self.task_mgr.do_method_later(0.01, self.tick, name='tick')
         # Setup x-follow cam
         self.followcam = FollowCam()
         self.accept("level-transition", self.level_transition_evt)
