@@ -1,3 +1,4 @@
+from direct.showbase.DirectObject import DirectObject
 from panda3d import core
 import enum
 import math
@@ -17,6 +18,12 @@ class BulletType(enum.IntEnum):
     RESERVED0 = 5
     RESERVED1 = 6
     RESERVED2 = 7
+
+
+class ExplosionType(enum.IntEnum):
+    MEDIUM = 0
+    LARGE = 1
+    SMALL = 2
 
 
 class LinearPattern:
@@ -56,13 +63,16 @@ class RadialPattern:
         return mat
 
 
-class BulletHell:
-    def __init__(self, render=None, pool_size=1024):
+class BulletHell(DirectObject):
+    def __init__(self, render=None, sprite_map='', sprite_layout=(8, 8), loop=True, pool_size=1024, check_bounds=False):
         self.render = render or base.render
+        self.check_bounds = check_bounds
 
-        tex = base.loader.load_texture('assets/fireworks/bullets.png')
+        tex = base.loader.load_texture(sprite_map)
         tex.set_minfilter(core.SamplerState.FT_nearest)
         tex.set_magfilter(core.SamplerState.FT_nearest)
+        tex.set_wrap_u(core.SamplerState.WM_repeat if loop else core.SamplerState.WM_clamp)
+        tex.set_wrap_v(core.SamplerState.WM_repeat)
 
         self.geom_node = core.GeomNode('fireworks')
         path = self.render.attach_new_node(self.geom_node)
@@ -72,9 +82,10 @@ class BulletHell:
         path.set_antialias(core.AntialiasAttrib.M_point)
         path.set_depth_test(True)
         path.set_depth_write(True)
-        path.set_z(0.5)
+        path.set_z(1.0)
         path.set_transparency(core.TransparencyAttrib.M_binary)
         path.set_shader(core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/bullet.vert', 'assets/shaders/bullet.frag'))
+        path.set_shader_input('sprite_layout', sprite_layout)
         self.root = path
 
         self._generate_pool(pool_size)
@@ -103,9 +114,12 @@ class BulletHell:
         self.geom_node.remove_all_geoms()
         self.geom_node.add_geom(geom)
 
-    def spawn_single(self, type, pos, velocity):
+    def spawn_single(self, type, pos, velocity=core.Vec3.zero()):
         write = self._write_bullets(type, 1, LinearPattern(velocity))
-        write(pos, velocity.xy.normalized())
+        dir = core.Vec2(velocity[0], velocity[1])
+        if not dir.normalize():
+            dir.set(1, 0)
+        write(pos, dir)
 
     def spawn_ring(self, type, num_bullets, pos, velocity, expand_speed=0, rotate_speed=0, min_angle=0, max_angle=360):
         pattern = RadialPattern(pos, velocity)
@@ -185,21 +199,22 @@ class BulletHell:
 
             # Delete vertices out of bounds.
             delete_points = core.SparseArray()
-            for sri in range(point_range.get_num_subranges()):
-                begin = point_range.get_subrange_begin(sri)
-                end = point_range.get_subrange_end(sri)
-                for i in range(begin, end):
-                    rewriter.set_row(i)
-                    pos = rewriter.get_data2()
-                    left, right = base.trackgen.query(pos.y)
-                    if pos.x < left or pos.x > right:
-                        delete_points.set_bit(i)
-                    else:
-                        for node, radius_sq, callback in self.colliders:
-                            collider_pos = node.get_pos()
-                            if (collider_pos.xy - pos).length_squared() < radius_sq:
-                                taskMgr.add(callback())
-                                delete_points.set_bit(i)
+            if self.colliders or self.check_bounds:
+                for sri in range(point_range.get_num_subranges()):
+                    begin = point_range.get_subrange_begin(sri)
+                    end = point_range.get_subrange_end(sri)
+                    for i in range(begin, end):
+                        rewriter.set_row(i)
+                        pos = rewriter.get_data2()
+                        left, right = base.trackgen.query(pos.y)
+                        if pos.x < left or pos.x > right:
+                            delete_points.set_bit(i)
+                        else:
+                            for node, radius_sq, callback in self.colliders:
+                                collider_pos = node.get_pos()
+                                if (collider_pos.xy - pos).length_squared() < radius_sq:
+                                    taskMgr.add(callback())
+                                    delete_points.set_bit(i)
 
             if not delete_points.is_zero():
                 vdata.transform_vertices(core.Mat4.translate_mat((0, 0, -10000)), delete_points)

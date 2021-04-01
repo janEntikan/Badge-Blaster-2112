@@ -46,8 +46,10 @@ class Base(ShowBase):
         self.trackgen.set_difficulty(1)  # Adjust from 0..1
 
         # Load hells
-        self.player_hell = BulletHell(self.render)
-        self.enemy_hell = BulletHell(self.render)
+        self.player_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True)
+        self.enemy_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True)
+        self.explosions = BulletHell(self.render, 'assets/fireworks/explosions.png', (12, 3), loop=False, check_bounds=False)
+        self.explosions.set_thickness(64)
 
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
@@ -67,6 +69,7 @@ class Base(ShowBase):
         self.followcam.update(self.dt)
         self.player_hell.update(self.dt)
         self.enemy_hell.update(self.dt)
+        self.explosions.update(self.dt)
         return task.cont
 
 if __name__ == "__main__":

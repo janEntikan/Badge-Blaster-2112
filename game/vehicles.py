@@ -1,6 +1,6 @@
 from random import choice, randint
 from panda3d.core import Vec3
-from .hell import BulletType
+from .hell import BulletType, ExplosionType
 from direct.interval.IntervalGlobal import *
 
 
@@ -218,6 +218,7 @@ class EnemyCar(Car):
         self.model.remove_node()
 
     async def get_hit(self):
+        base.explosions.spawn_single(ExplosionType.MEDIUM, self.root.get_pos(), self.speed)
         self.hp -= 1
         if self.hp < 0:
             self.alive = False
@@ -289,6 +290,7 @@ class PlayerCar(Car):
         base.enemy_hell.add_collider(self.root, radius=1, callback=self.get_hit)
 
     async def get_hit(self):
+        base.explosions.spawn_single(ExplosionType.MEDIUM, self.root.get_pos(), self.speed)
         self.trigger_slip()
         self.root.set_color_scale((1, 0, 0, 1))
         await Wait(0.1)
