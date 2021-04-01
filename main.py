@@ -72,9 +72,15 @@ class Base(ShowBase):
         self.game_over = False
 
     def lose_life(self):
+        if self.game_over:
+            return False
         if self.num_lives > 0:
             self.num_lives -= 1
             self.gui.set_num_lives(self.num_lives)
+            if self.num_lives == 1:
+                print(self.num_lives, "life left")
+            else:
+                print(self.num_lives, "lives left")
             return True
         else:
             print("GAME OVER!")

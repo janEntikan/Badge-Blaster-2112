@@ -308,7 +308,9 @@ class PlayerCar(Car):
         if self.invincible:
             return
 
-        base.lose_life()
+        if not base.lose_life():
+            base.explosions.spawn_single(ExplosionType.LARGE, self.root.get_pos(), self.speed)
+            return
 
         base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)
         #self.trigger_slip()
@@ -326,8 +328,8 @@ class PlayerCar(Car):
         if self.invincible:
             return
 
-        if not base.lose_life():
-            self.die()
+        if not base.game_over:
+            base.task_mgr.add(self.get_hit())
 
     def handle_turbo(self, on=False):
         if on:
