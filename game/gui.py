@@ -1,6 +1,8 @@
+from panda3d import core
 from panda3d.core import TextNode
 from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import Func, Wait
+from direct.gui.OnscreenImage import OnscreenImage
 
 
 class Gui():
@@ -34,6 +36,20 @@ class Gui():
         self.set_score_counter(0)
         self.score_counter.set_scale(0.05)
         self.score_counter.set_pos(-0.9,0,0.9)
+
+        self.lives = []
+        self.heart_tex = loader.load_texture('assets/gui/heart.png')
+        self.heart_tex.set_minfilter(core.SamplerState.FT_nearest)
+        self.heart_tex.set_magfilter(core.SamplerState.FT_nearest)
+
+    def set_num_lives(self, num_lives):
+        while num_lives > len(self.lives):
+            image = OnscreenImage(self.heart_tex, pos=(0.2 + len(self.lives) * 0.1, 0, -0.18), scale=0.04, parent=base.a2dTopLeft)
+            image.set_transparency(core.TransparencyAttrib.M_binary)
+            self.lives.append(image)
+
+        while num_lives < len(self.lives):
+            self.lives.pop().destroy()
 
     def set_speed_counter(self, speed, color=(1,1,1,0.8)):
         self.set_text(self.speed_counter, str(speed)+" kmph", color=color, align=1)

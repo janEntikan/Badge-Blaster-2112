@@ -132,6 +132,9 @@ class Car():
         self.speed *= 15
         self.alive = False
 
+    def maybe_die(self):
+        self.die()
+
     def fire_weapons(self):
         for gun in self.guns:
             gun.fire(self)
@@ -147,7 +150,7 @@ class Car():
         if x < self.track_left or x > self.track_right:
             base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos())
             if self.bump_time <= 0:
-                self.die()
+                self.maybe_die()
             else:
                 if self.bump_time > 0.15:
                     self.trigger_slip(x < self.track_left)
@@ -296,16 +299,35 @@ class PlayerCar(Car):
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
         base.cam.look_at(render, (0, self.cam_height/3, 0))
         self.score = 0
+        self.invincible = False
 
         self.hell = base.player_hell
         base.enemy_hell.add_collider(self.root, radius=0.8, callback=self.get_hit)
 
     async def get_hit(self):
+        if self.invincible:
+            return
+
+        base.lose_life()
+
         base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)
-        self.trigger_slip()
-        self.root.set_color_scale((1, 0, 0, 1))
-        await Wait(0.1)
-        self.root.clear_color_scale()
+        #self.trigger_slip()
+        self.invincible = True
+
+        for i in range(10):
+            await Wait(0.1)
+            self.root.hide()
+            await Wait(0.1)
+            self.root.show()
+
+        self.invincible = False
+
+    def maybe_die(self):
+        if self.invincible:
+            return
+
+        if not base.lose_life():
+            self.die()
 
     def handle_turbo(self, on=False):
         if on:
@@ -321,14 +343,18 @@ class PlayerCar(Car):
             context = base.device_listener.read_context('player')
             if not self.slipping:
                 self.handle_turbo(context['turbo'])
-                self.accelerate()
+                if base.game_over:
+                    self.speed.y *= 0.5 ** dt
+                else:
+                    self.accelerate()
                 if context['move']:
                     self.steer(context['move'])
                 else:
                     smoothing = (self.steering/2) * base.dt
                     self.speed.x = veer(self.speed.x, smoothing, smoothing)
 
-                self.fire_weapons()
+                if not base.game_over:
+                    self.fire_weapons()
             else:
                 self.slip(context['move'])
 

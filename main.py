@@ -67,6 +67,20 @@ class Base(ShowBase):
         self.progress = 0
         self.task_mgr.do_method_later(1, self.update_difficulty, name="update_difficulty")
 
+        self.num_lives = 3
+        self.gui.set_num_lives(self.num_lives)
+        self.game_over = False
+
+    def lose_life(self):
+        if self.num_lives > 0:
+            self.num_lives -= 1
+            self.gui.set_num_lives(self.num_lives)
+            return True
+        else:
+            print("GAME OVER!")
+            self.game_over = True
+            return False
+
     def level_transition_evt(self, level):
         print(f"We're about to enter the level {level.upper()}")
 
