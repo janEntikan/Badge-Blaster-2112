@@ -318,11 +318,12 @@ class PlayerCar(Car):
             return
 
         if not base.lose_life():
+            self.trigger_slip()
             base.explosions.spawn_single(ExplosionType.LARGE, self.root.get_pos(), self.speed)
             while True:
                 await Wait(0.3 * random())
                 splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
-                base.explosions.spawn_single(splode_type, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, 0) * 2, self.speed)
+                base.explosions.spawn_single(splode_type, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, 0), self.speed)
             return
 
         base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)
