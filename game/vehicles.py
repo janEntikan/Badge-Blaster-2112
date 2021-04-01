@@ -216,7 +216,7 @@ class EnemyCar(Car):
         self.hell = base.enemy_hell
         base.player_hell.add_collider(self.root, radius=1.5, callback=self.get_hit)
 
-    def __del__(self):
+    def destroy(self):
         if self in base.enemies:
             base.enemies.remove(self)
         base.player_hell.remove_collider(self.root)
@@ -230,7 +230,8 @@ class EnemyCar(Car):
         else:
             self.root.set_color_scale((1, 0, 0, 1))
             await WaitInterval(0.1)
-            self.root.clear_color_scale()
+            if self.root:
+                self.root.clear_color_scale()
 
 
     def chase(self):
@@ -275,7 +276,7 @@ class EnemyCar(Car):
         if self.alive:
             return task.cont
         else:
-            self.__del__()
+            self.destroy()
 
 
 class PlayerCar(Car):
