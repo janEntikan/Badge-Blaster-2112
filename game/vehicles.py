@@ -149,10 +149,11 @@ class Car():
             if not enemy == self:
                 distance = (enemy.root.get_pos()-self.root.get_pos()).length()
                 if distance <= 1.5 and not self.slipping:
+                    base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, random() - 0.5))
                     self.trigger_slip(enemy.root.get_x() > x)
                     enemy.trigger_slip(not enemy.root.get_x() > x)
         if x < self.track_left or x > self.track_right:
-            base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos())
+            base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, random() - 0.5))
             if self.bump_time <= 0:
                 self.maybe_die()
             else:
