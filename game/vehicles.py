@@ -2,7 +2,7 @@ from random import choice, randint
 from panda3d.core import Vec3
 from .hell import BulletType, ExplosionType, SpecialType
 from direct.interval.IntervalGlobal import *
-from random import choice
+from random import choice, random
 
 
 SLIP_STRENGTH = 45 # In degrees.
@@ -314,8 +314,15 @@ class PlayerCar(Car):
         if self.invincible:
             return
 
+        if base.game_over:
+            return
+
         if not base.lose_life():
             base.explosions.spawn_single(ExplosionType.LARGE, self.root.get_pos(), self.speed)
+            while True:
+                await Wait(0.02)
+                splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
+                base.explosions.spawn_single(splode_type, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, 0) * 2, self.speed)
             return
 
         base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)
