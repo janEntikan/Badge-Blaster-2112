@@ -57,13 +57,15 @@ class Gun():
             self.timer = CooldownTimer(2,0,0)
             self.fire = self.rocket
         elif 'player' in node.name:
-            self.timer = CooldownTimer(0.2,0,0)
+            self.timer = CooldownTimer(0.1,0,0)
             self.fire = self.player
 
     def player(self, car):
         if self.timer.ready():
-            s = car.speed.y + 100
-            car.hell.spawn_single(BulletType.BULLET, self.root.get_pos(render),Vec3(0,s,0))
+            car.hell.set_thickness(16)
+            y = car.speed.y + 100
+            x = car.speed.x
+            car.hell.spawn_single(BulletType.BULLET, self.root.get_pos(render),Vec3(x,y,0))
 
     def single(self, car):
         if self.timer.ready():
@@ -156,7 +158,6 @@ class Car():
         self.slipping -= (x*SLIP_TURN_SPEED) * base.dt
         if (self.slipping < 2 and self.slipping > -2) or self.slipping < -360 or self.slipping > 360:
             self.slipping = 0
-            self.boost = 2
         self.model.set_h(self.slipping)
 
     def steer(self, x):
@@ -199,16 +200,16 @@ class EnemyCar(Car):
         self.look_ahead = 10
         self.hp = 1
         self.steering = 100
-        self.max_speed = 200
+        self.max_speed = 100
         self.min_speed = 80
-        self.acceleration = 80
+        self.acceleration = 50
         self.root.set_pos(position)
         self.speed.y = self.max_speed
         self.speed.x = 0
         self.aim = randint(30,60)
         self.last_fire = 10.0
         self.hell = base.enemy_hell
-        base.player_hell.add_collider(self.root, radius=0.8, callback=self.get_hit)
+        base.player_hell.add_collider(self.root, radius=1, callback=self.get_hit)
 
     def __del__(self):
         if self in base.enemies:
@@ -288,7 +289,7 @@ class PlayerCar(Car):
         self.score = 0
 
         self.hell = base.player_hell
-        base.enemy_hell.add_collider(self.root, radius=1, callback=self.get_hit)
+        base.enemy_hell.add_collider(self.root, radius=0.8, callback=self.get_hit)
 
     async def get_hit(self):
         splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
@@ -355,7 +356,7 @@ def spawn(point):
 
     car = EnemyCar(base.models["cars"][cars[c]], point)
     car.max_speed = (110 - (10*c)) + randint(0,20)
-    car.hp = (1 + c) * 2
+    car.hp = (1 + c)
 
     base.task_mgr.add(car.act)
     base.enemies.append(car)
