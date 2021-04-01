@@ -41,13 +41,13 @@ class Gun():
     def __init__(self, node):
         self.root = node
         if 'single' in node.name:
-            self.timer = CooldownTimer(0.5,0,0)
+            self.timer = CooldownTimer(1,0,0)
             self.fire = self.single
         if 'rapid' in node.name:
             self.timer = CooldownTimer(0.2,0,0)
             self.fire = self.single
         elif 'full_spread'in node.name:
-            self.timer = CooldownTimer(2,0,0)
+            self.timer = CooldownTimer(1,0,0)
             self.fire = self.full
         elif 'spread' in node.name:
             self.timer = CooldownTimer(1,0,0)
@@ -67,29 +67,41 @@ class Gun():
 
     def single(self, car):
         if self.timer.ready():
-            if randint(0,1):
+            if not randint(0,2):
                 return
             if self.root.get_x(render) > car.root.get_x():
                 x = 10
             else:
                 x = -10
-            if self.root.get_y(render) < base.player.root.get_y():
+            if self.root.get_y(render) > base.player.root.get_y():
                 y = -40
             else:
                 y = 40
             car.hell.spawn_single(BulletType.GREEN, self.root.get_pos(render),Vec3(x,y,0))
 
-    def full(self, hell):
+    def full(self, car):
         if self.timer.ready():
-            hell.spawn_single(BulletType.PINK, self.root.get_pos(render),Vec3(0,-2,0))
+            type = BulletType.PURPLE
+            pos = self.root.get_pos(render)
+            velocity = car.speed
+            velocity.x = 0
+            velocity.y -= 5
+            expand_speed = 20
+            car.hell.spawn_ring(type, randint(10,20), pos, velocity, expand_speed)
 
-    def spread(self, hell):
+    def spread(self, car):
         if self.timer.ready():
-            hell.spawn_single(BulletType.PINK, self.root.get_pos(render),Vec3(0,-2,0))
+            type = BulletType.FIREBALL
+            pos = self.root.get_pos(render)
+            velocity = car.speed
+            velocity.x = 0
+            velocity.y -= randint(10,20)
+            expand_speed = 10
+            car.hell.spawn_ring(type, 5, pos, velocity, expand_speed, 140, 220)
 
-    def rocket(self, hell):
+    def rocket(self, car):
         if self.timer.ready():
-            hell.spawn_single(BulletType.PINK, self.root.get_pos(render),Vec3(0,-2,0))
+            car.hell.spawn_single(BulletType.PURPLE, self.root.get_pos(render),Vec3(0,-2,0))
 
 
 class Car():
@@ -206,9 +218,9 @@ class EnemyCar(Car):
         self.root.clear_color_scale()
 
     def chase(self):
-        if base.player.root.get_x() > self.root.get_x()+1:
+        if base.player.root.get_x() > self.root.get_x()+5:
             self.steer(1)
-        elif base.player.root.get_x() < self.root.get_x()-1:
+        elif base.player.root.get_x() < self.root.get_x()-5:
             self.steer(-1)
         else:
             smoothing = (self.steering/2) * base.dt
@@ -308,6 +320,18 @@ class PlayerCar(Car):
 
 
 def spawn(point):
-    car = EnemyCar(base.models["cars"]["cop_car_s"], point)
+    diff = base.trackgen._difficulty
+    cars = [
+        "cop_car_s",
+        "cop_car_m",
+        "cop_car_l",
+        "cop_truck",
+    ]
+    c = randint(0,3)#int(diff*4))
+
+    car = EnemyCar(base.models["cars"][cars[c]], point)
+    car.max_speed = (110 - (10*c)) + randint(0,20)
+    car.hp = c
+
     base.task_mgr.add(car.act)
     base.enemies.append(car)
