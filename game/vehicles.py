@@ -199,9 +199,9 @@ class EnemyCar(Car):
         self.look_ahead = 10
         self.hp = 1
         self.steering = 100
-        self.max_speed = 110
-        self.min_speed = 35
-        self.acceleration = 60
+        self.max_speed = 200
+        self.min_speed = 80
+        self.acceleration = 80
         self.root.set_pos(position)
         self.speed.y = self.max_speed
         self.speed.x = 0
@@ -274,11 +274,11 @@ class EnemyCar(Car):
 class PlayerCar(Car):
     def __init__(self, model):
         Car.__init__(self, model)
-
+        self.max_speed = 75
         self.turbo_threshold  = self.max_speed - 10
         self.max_speed_error  = 40
         self.max_speed_normal = self.max_speed
-        self.max_speed_turbo  = 80
+        self.max_speed_turbo  = 150
 
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
