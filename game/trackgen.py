@@ -42,7 +42,7 @@ class TrackGenerator:
         self._y_offset = 0
         self._next_spawn = 1
         self._next_variant = random.randint(*TG_PART_CHG_RNG)
-        self._level = random.choice(['forest', 'desert'])
+        self._level = random.choice(base.levels)
         self._variant = random.randrange(base.part_mgr.num_roads(self._level))
         self._dense_counter = 0
         self._next_level = random.randint(*TG_LEVEL_CHG_RNG)
@@ -173,11 +173,13 @@ class TrackGenerator:
         self._place_decoration(z, bl, br)
 
     def _place_decoration(self, z, bl, br):
+        ground = self._part_mgr.ground(self._level)
         remaining = random.randint(*PR_ATTEMPTS)
         placed = []
         while remaining:
             part = random.choice(self._part_mgr[(self._level, 'props')])
-            if part.density == 1:
+            dist = int(part.part_type[0])
+            if dist == 0:
                 continue
             chk = PR_DEFAULT_DENSITY if part.density < 0 else part.density
             remaining -= 1
@@ -190,26 +192,36 @@ class TrackGenerator:
             while fail > 0:
                 y = self._next_part_y + random.uniform(0, TG_UNIT)
                 x, w = self._qry_center_w(y)
-                dist = int(part.part_type[0])
-                if dist == 4:  # FIXME: Handle underneath the road placement
-                    pass
-                elif dist == 5:
-                    dist = random.randint(1, 3)
-                dist = (dist - 1) * PR_OFFSET
-                if random.random() < 0.5:
+                sdist = dist
+                if dist == 4:  # Underneath!!
+                    x = x
+                    z = ground
                     angle = 0
-                    x = x - w - dist - bl
                 else:
-                    angle = 180
-                    x = x + w + dist + br
+                    if dist == 1:
+                        z = 0
+                    else:
+                        z = ground
+                    if dist == 5:
+                        dist = random.randint(1, 3)
+
+                    dist = (dist - 1) * PR_OFFSET + (dist - 1) * (part.bounds.mmax.x * PR_SCALE)
+                    if random.random() < 0.5:
+                        angle = 0
+                        x = x - w - dist - bl
+                    else:
+                        angle = 180
+                        x = x + w + dist + br
+
                 hw = (part.bounds.width / 2) * PR_SCALE
-                hh = part.bounds.hlen
-                mbb = util.AABB(x + part.bounds.mmin.x + hw, y + part.bounds.mmin.y + hh, hw, hh)
+                hh = part.bounds.hlen * PR_SCALE
+                mbb = util.AABB(x + part.bounds.mmin.x * PR_SCALE + hw, y + part.bounds.mmin.y * PR_SCALE + hh, hw, hh)
                 can_place = True
                 for bb in placed:
                     if bb.overlap(mbb):
                         can_place = False
                         fail -= 1
+                        dist = sdist
                         break
                 if can_place:
                     np.set_shader(PROP_SHADER)
@@ -219,11 +231,14 @@ class TrackGenerator:
                     np.set_h(angle)
                     placed.append(mbb)
                     self._parts.append(np)
+                    print(part.part_type, z)
                     break
 
     def _place_dense(self, left, right):
         # FIXME: Account for possibly more than two prop with 100% density
         for i, part in enumerate(self._part_mgr.get_prop_by_density(self._level, 1)):
+            if i > 1:
+                break
             np = core.NodePath('prop')
             part.model.copy_to(np)
             np.reparent_to(base.render)

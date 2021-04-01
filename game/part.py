@@ -33,6 +33,12 @@ class PartMgr:
             else:
                 print(f'Unknown key "{k}"')
 
+    def _compute_ground(self, key):
+        ground = float('inf')
+        for part in self._parts[key]['road']:
+            ground = min(ground, part.bounds.depth)
+        self._parts[key]['ground'] = ground
+
     def _scan_road_parts(self, models):
         for key, model in models.items():
             if key not in self._parts:
@@ -49,6 +55,7 @@ class PartMgr:
                 else:
                     self._parts[key]['road'].append(part)
                 np.flatten_strong()
+            self._compute_ground(key)
 
     def _scan_props(self, models):
         for key, model in models.items():
@@ -90,6 +97,9 @@ class PartMgr:
 
     def num_props(self, part_type):
         return len(self._parts[part_type]['props'])
+
+    def ground(self, part_type):
+        return self._parts[part_type]['ground']
 
     def __getitem__(self, item):
         return self._parts[item[0]][item[1]]

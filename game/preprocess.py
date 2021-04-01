@@ -32,7 +32,7 @@ class Bounds:
         self.hlen = (self.rmax.y - self.rmin.y) / 2
         if self.hlen == 0:
             self.hlen = (self.mmax.y - self.mmin.y) / 2
-        self.depth = abs(self.mmin.z)
+        self.depth = self.mmin.z
 
 
 def _process_geom(geom, bounds, is_road):

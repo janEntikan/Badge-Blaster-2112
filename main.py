@@ -29,7 +29,7 @@ def child_dict(model):
 class Base(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
-        self.disable_mouse()
+        # self.disable_mouse()  # FIXME: Uncomment before release
         self.device_listener = DeviceListener(SinglePlayerAssigner())
         self.gui = Gui()
         self.dt = 1
@@ -38,7 +38,7 @@ class Base(ShowBase):
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
         # Setup track generator
-        self.levels = ("forest", "desert")
+        self.levels = ("forest", "desert", "express")
         parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
         self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
         self.trackgen = TrackGenerator()
