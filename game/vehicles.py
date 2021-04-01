@@ -108,7 +108,7 @@ class Car():
     def __init__(self, model):
         self.root = render.attach_new_node(model.name+'_root')
         self.model = model.copy_to(self.root)
-
+        self.alive = True
         self.speed = Vec3()
         self.max_speed = 50
         self.min_speed = 0
@@ -117,6 +117,7 @@ class Car():
         self.steering = 200
         self.max_steering = 40
         self.track_left, self.track_right = -100, 100
+        self.boost = 2
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
         self.guns = []
@@ -149,11 +150,13 @@ class Car():
         else:
             self.slipping = -SLIP_STRENGTH
             self.speed.x = -SLIP_BUMP
+        self.speed.y -= 10
 
     def slip(self, x):
         self.slipping -= (x*SLIP_TURN_SPEED) * base.dt
         if (self.slipping < 2 and self.slipping > -2) or self.slipping < -360 or self.slipping > 360:
             self.slipping = 0
+            self.boost = 2
         self.model.set_h(self.slipping)
 
     def steer(self, x):
@@ -177,6 +180,10 @@ class Car():
         self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=self.min_speed)
 
     def update(self):
+        if self.boost > 0:
+            self.speed.y += base.dt*20
+            self.boost -= base.dt
+
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
         self.track_left, self.track_right = base.trackgen.query(self.root.get_y())
@@ -184,18 +191,13 @@ class Car():
             self.model.set_h(-self.speed.x/2)
             self.bump()
 
-        if not self == base.player:
-            self.distance = (base.player.root.get_pos()-self.root.get_pos()).length()
-            if self.distance < 150:
-                self.fire_weapons()
-        else:
-            self.fire_weapons()
 
 
 class EnemyCar(Car):
     def __init__(self, model, position):
         Car.__init__(self, model)
         self.look_ahead = 10
+        self.hp = 1
         self.steering = 100
         self.max_speed = 110
         self.min_speed = 35
@@ -206,16 +208,24 @@ class EnemyCar(Car):
         self.aim = randint(30,60)
         self.last_fire = 10.0
         self.hell = base.enemy_hell
-        base.player_hell.add_collider(self.root, radius=1, callback=self.get_hit)
+        base.player_hell.add_collider(self.root, radius=0.8, callback=self.get_hit)
 
     def __del__(self):
+        if self in base.enemies:
+            base.enemies.remove(self)
         base.player_hell.remove_collider(self.root)
         self.root.remove_node()
+        self.model.remove_node()
 
     async def get_hit(self):
-        self.root.set_color_scale((1, 0, 0, 1))
-        await WaitInterval(0.1)
-        self.root.clear_color_scale()
+        self.hp -= 1
+        if self.hp < 0:
+            self.alive = False
+        else:
+            self.root.set_color_scale((1, 0, 0, 1))
+            await WaitInterval(0.1)
+            self.root.clear_color_scale()
+
 
     def chase(self):
         if base.player.root.get_x() > self.root.get_x()+5:
@@ -244,14 +254,22 @@ class EnemyCar(Car):
             return True
 
     def act(self, task):
+        self.distance = (base.player.root.get_pos()-self.root.get_pos()).length()
+        if self.distance < 150:
+            self.fire_weapons()
+
         if not self.slipping:
             if self.stay_on_the_road():
-                self.chase()
+                if self.distance < 100:
+                    self.chase()
             else:
                 self.decelerate()
-        self.update()
-        return task.cont
 
+        self.update()
+        if self.alive:
+            return task.cont
+        else:
+            self.__del__()
 
 class PlayerCar(Car):
     def __init__(self, model):
@@ -271,6 +289,7 @@ class PlayerCar(Car):
         base.enemy_hell.add_collider(self.root, radius=1, callback=self.get_hit)
 
     async def get_hit(self):
+        self.trigger_slip()
         self.root.set_color_scale((1, 0, 0, 1))
         await Wait(0.1)
         self.root.clear_color_scale()
@@ -317,6 +336,7 @@ class PlayerCar(Car):
         base.gui.set_score_counter(int(self.root.get_y()+self.score))
         base.trackgen.update(self.root.get_pos())
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
+        self.fire_weapons()
 
 
 def spawn(point):
@@ -331,7 +351,7 @@ def spawn(point):
 
     car = EnemyCar(base.models["cars"][cars[c]], point)
     car.max_speed = (110 - (10*c)) + randint(0,20)
-    car.hp = c
+    car.hp = (1 + c) * 2
 
     base.task_mgr.add(car.act)
     base.enemies.append(car)
