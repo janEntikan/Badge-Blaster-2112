@@ -214,7 +214,7 @@ class EnemyCar(Car):
         self.aim = randint(30,60)
         self.last_fire = 10.0
         self.hell = base.enemy_hell
-        base.player_hell.add_collider(self.root, radius=1.5, callback=self.get_hit)
+        base.player_hell.add_collider(self.root, radius=2, callback=self.get_hit)
 
     def destroy(self):
         if self in base.enemies:
