@@ -162,6 +162,9 @@ class Car():
             self.slipping = -SLIP_STRENGTH
             self.speed.x = -SLIP_BUMP
         self.speed.y -= 10
+        if self.speed.y < 0:
+            # Never slide backwards.
+            self.speed.y = 0
 
     def slip(self, x):
         self.slipping -= (x*SLIP_TURN_SPEED) * base.dt
