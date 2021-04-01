@@ -194,7 +194,9 @@ class Car():
             accel = self.acceleration / (max(self.speed.y / self.max_speed_normal ** 0.75, 0.1))
             self.speed.y += accel * base.dt
         else:
-            self.speed.y = self.max_speed
+            self.speed.y -= self.acceleration * base.dt
+            if self.speed.y < self.max_speed:
+                self.speed.y = self.max_speed
 
     def decelerate(self, multiplier=1):
         amount = self.acceleration * base.dt * multiplier
