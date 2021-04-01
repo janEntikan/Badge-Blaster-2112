@@ -271,6 +271,9 @@ class EnemyCar(Car):
             return True
 
     def act(self, task):
+        if not base.player.alive or not self.alive:
+            return task.done
+
         self.distance = (base.player.root.get_pos()-self.root.get_pos()).length()
         if self.distance < 150:
             self.fire_weapons()
