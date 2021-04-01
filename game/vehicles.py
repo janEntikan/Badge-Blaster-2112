@@ -148,7 +148,7 @@ class Car():
         for enemy in base.enemies:
             if not enemy == self:
                 distance = (enemy.root.get_pos()-self.root.get_pos()).length()
-                if distance <= 1.5:
+                if distance <= 1.5 and not self.slipping:
                     self.trigger_slip(enemy.root.get_x() > x)
                     enemy.trigger_slip(not enemy.root.get_x() > x)
         if x < self.track_left or x > self.track_right:
