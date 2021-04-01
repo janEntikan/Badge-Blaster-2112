@@ -323,11 +323,11 @@ class PlayerCar(Car):
                 else:
                     smoothing = (self.steering/2) * base.dt
                     self.speed.x = veer(self.speed.x, smoothing, smoothing)
+
+                self.fire_weapons()
             else:
                 self.slip(context['move'])
 
-
-            self.fire_weapons()
         self.update()
 
         # Set counters
