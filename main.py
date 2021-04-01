@@ -50,6 +50,7 @@ class Base(ShowBase):
         self.player_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.02)
         self.enemy_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.03)
         self.explosions = BulletHell(self.render, 'assets/fireworks/explosions.png', (12, 3), loop=False, check_bounds=False, scale=0.15)
+        self.specialfx = BulletHell(self.render, 'assets/fireworks/smokesparks.png', (10, 3), loop=False, check_bounds=False, scale=0.05)
 
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
@@ -76,6 +77,7 @@ class Base(ShowBase):
         self.player_hell.update(self.dt)
         self.enemy_hell.update(self.dt)
         self.explosions.update(self.dt)
+        self.specialfx.update(self.dt)
         return task.cont
 
     def update_difficulty(self, task=None):

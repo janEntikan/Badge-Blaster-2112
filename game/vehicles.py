@@ -1,6 +1,6 @@
 from random import choice, randint
 from panda3d.core import Vec3
-from .hell import BulletType, ExplosionType
+from .hell import BulletType, ExplosionType, SpecialType
 from direct.interval.IntervalGlobal import *
 from random import choice
 
@@ -145,6 +145,7 @@ class Car():
                     self.trigger_slip(enemy.root.get_x() > x)
                     enemy.trigger_slip(not enemy.root.get_x() > x)
         if x < self.track_left or x > self.track_right:
+            base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos())
             if self.bump_time <= 0:
                 self.die()
             else:

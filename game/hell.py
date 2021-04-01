@@ -26,6 +26,12 @@ class ExplosionType(enum.IntEnum):
     SMALL = 2
 
 
+class SpecialType(enum.IntEnum):
+    POOF = 0
+    SPARKS = 1
+    FUME = 2
+
+
 class LinearPattern:
     """Bullet that linearly moves in one direction."""
 
