@@ -203,7 +203,7 @@ class EnemyCar(Car):
     def __init__(self, model, position):
         Car.__init__(self, model)
         self.look_ahead = 10
-        self.hp = 1
+        self.hp = 40
         self.steering = 100
         self.max_speed = 100
         self.min_speed = 35
@@ -356,7 +356,6 @@ def spawn(point):
 
     car = EnemyCar(base.models["cars"][cars[c]], point)
     car.max_speed = (110 - (10*c)) + randint(0,20)
-    car.hp = (1 + c)
 
     base.task_mgr.add(car.act)
     base.enemies.append(car)
