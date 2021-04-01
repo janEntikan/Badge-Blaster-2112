@@ -98,7 +98,8 @@ class Gun():
             velocity.x = 0
             velocity.y -= randint(10,20)
             expand_speed = 10
-            car.hell.spawn_ring(type, 5, pos, velocity, expand_speed, 140, 220)
+            rotation = randint(-20, 20)
+            car.hell.spawn_ring(type, 5, pos, velocity, expand_speed, 140 + rotation, 220 + rotation)
 
     def rocket(self, car):
         if self.timer.ready():
