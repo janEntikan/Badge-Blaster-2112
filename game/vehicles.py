@@ -227,7 +227,7 @@ class EnemyCar(Car):
         self.hp -= 1
         if self.hp < 0:
             self.die()
-        else:
+        elif self.root:
             self.root.set_color_scale((1, 0, 0, 1))
             await WaitInterval(0.1)
             if self.root:
