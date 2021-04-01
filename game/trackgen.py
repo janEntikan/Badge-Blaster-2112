@@ -52,6 +52,7 @@ class TrackGenerator:
         self._level_event_sent = False
         self._current_hue = random.uniform(0, pi)
         self._part_mgr:part.PartMgr = base.part_mgr
+        self._first_piece = True
         self.update(core.Vec3(0))
 
     def update(self, car_position):
@@ -123,10 +124,17 @@ class TrackGenerator:
             self._parts.append(np)
             x = (end_x - start_x) / 2 + start_x
             np.set_pos(x, self._next_part_y + TG_UNIT / 2, 0)
-            scale = (scale_start + scale_end) / 2
-            self._populate_props(part.bounds.depth,
-                (part.bounds.rmin.x - part.bounds.mmin.x) * scale,
-                (part.bounds.mmax.x - part.bounds.rmax.x) * scale)
+            if self._first_piece:
+                self._first_piece = False
+                np = generate_part(part.model, part.bounds, hskew, scale_start, scale_start, self._current_hue)
+                np.reparent_to(base.render)
+                self._parts.append(np)
+                np.set_pos(start_x, self._next_part_y - TG_UNIT / 2, 0)
+            else:
+                scale = (scale_start + scale_end) / 2
+                self._populate_props(part.bounds.depth,
+                    (part.bounds.rmin.x - part.bounds.mmin.x) * scale,
+                    (part.bounds.mmax.x - part.bounds.rmax.x) * scale)
             self._next_part_y = new_next
             return True
         return False
@@ -192,6 +200,9 @@ class TrackGenerator:
             while fail > 0:
                 y = self._next_part_y + random.uniform(0, TG_UNIT)
                 x, w = self._qry_center_w(y)
+                if w == 0:
+                    fail -= 1
+                    continue
                 sdist = dist
                 if dist == 4:  # Underneath!!
                     x = x
