@@ -353,8 +353,10 @@ class PlayerCar(Car):
                 self.handle_turbo(context['turbo'])
                 if base.game_over:
                     self.speed.y *= 0.5 ** dt
-                else:
+                elif not context['decelerate']:
                     self.accelerate()
+                else:
+                    self.decelerate()
                 if context['move']:
                     self.steer(context['move'])
                 else:

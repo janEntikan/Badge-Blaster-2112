@@ -11,6 +11,12 @@
   gamepad = "face_x"
   keyboard = "z"
 
+  [player.decelerate]
+  _type = "button"
+  _device_order = ["gamepad", "keyboard"]
+  gamepad = "dpad_down"
+  keyboard = "arrow_down"
+
   [player.turbo]
   _type = "button"
   _device_order = ["gamepad", "keyboard"]
