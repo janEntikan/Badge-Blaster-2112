@@ -66,7 +66,6 @@ class PartMgr:
                 self._parts[key]['props'] = []
             for np in model.find_all_matches('**/props*'):
                 np.detach_node()
-                util.set_faux_lights(np)
                 np.clear_transform()
                 for child in np.get_children():
                     child.detach_node()
@@ -74,8 +73,16 @@ class PartMgr:
                     d = child.get_net_tag('density')
                     d = float(d) if d else PR_DEFAULT_DENSITY
                     part = Part(key, child.name, child, pp.get_model_bounds(np), d)
+
+                    lights = []
+                    for n in child.find_all_matches('**/*light*'):
+                        n.detach_node()
+                        lights.append(n)
+                    child.flatten_strong()
+                    for n in lights:
+                        n.reparent_to(child)
+                    util.set_faux_lights(child)
                     if part.bounds.width > 0:
-                        child.flatten_strong()
                         self._parts[key]['props'].append(part)
                     else:
                         print(f'Could not scan Prop, apparently width is 0: {part}')

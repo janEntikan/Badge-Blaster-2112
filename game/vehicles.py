@@ -7,7 +7,7 @@ from direct.gui.OnscreenText import OnscreenText
 from random import choice, random, uniform
 import math
 
-PROP_SHADER = Shader.load(Shader.SL_GLSL, 'assets/shaders/prop.vert', 'assets/shaders/prop.frag')
+LIGHT_SHADER = Shader.load(Shader.SL_GLSL, 'assets/shaders/light.vert', 'assets/shaders/light.frag')
 
 SLIP_STRENGTH = 45 # In degrees.
 SLIP_TURN_SPEED = 120
@@ -22,10 +22,20 @@ def set_light_shader(n):
     nodes = []
     for np in n.find_all_matches('**/*light*'):
         bmin, bmax = np.get_tight_bounds()
-        np.set_shader(PROP_SHADER)
+        origin = Vec3(
+            (bmax.x - bmin.x) / 2 + bmin.x,
+            bmin.y,
+            (bmax.z - bmin.z) / 2 + bmin.z
+        )
+        end = Vec3(
+            (bmax.x - bmin.x) / 2 + bmin.x,
+            bmax.y,
+            (bmax.z - bmin.z) / 2 + bmin.z
+        )
+        np.set_shader(LIGHT_SHADER)
         np.set_shader_input('i_hue', base.trackgen._current_hue)
-        np.set_shader_input('i_zmax', bmax.z)
-        np.set_shader_input('i_height', bmax.z - bmin.z)
+        np.set_shader_input('i_end', end)
+        np.set_shader_input('i_origin', origin)
         np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
         np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
         np.set_shader_input('i_alpha_f', 0.1)

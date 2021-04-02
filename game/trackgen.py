@@ -15,6 +15,7 @@ from .common import *
 
 ROAD_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/road.vert', 'assets/shaders/road.frag')
 PROP_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/prop.vert', 'assets/shaders/prop.frag')
+LIGHT_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/light.vert', 'assets/shaders/light.frag')
 
 
 def generate_part(model, bounds, hskew, scale_start, scale_end, hue):
@@ -288,6 +289,26 @@ class TrackGenerator:
             np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
             np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
             np.set_shader_input('i_alpha_f', 1.0)
+
+            for n in np.get_children():
+                bmin, bmax = np.get_tight_bounds()
+                origin = Vec3(
+                    (bmax.x - bmin.x) / 2 + bmin.x,
+                    (bmax.y - bmin.y) / 2 + bmin.y,
+                    bmax.z,
+                )
+                end = Vec3(
+                    (bmax.x - bmin.x) / 2 + bmin.x,
+                    (bmax.y - bmin.y) / 2 + bmin.y,
+                    bmin.z,
+                )
+                n.set_shader(LIGHT_SHADER)
+                n.set_shader_input('i_hue', self._current_hue)
+                n.set_shader_input('i_end', end)
+                n.set_shader_input('i_origin', origin)
+                n.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
+                n.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
+                n.set_shader_input('i_alpha_f', 0.1)
 
             if (self._dense_counter + placed) % 2:
                 np.set_scale(PR_SCALE)
