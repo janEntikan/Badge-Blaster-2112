@@ -61,7 +61,7 @@ class TrackGenerator:
         self._current_hue = random.uniform(0, pi)
         self._part_mgr:part.PartMgr = base.part_mgr
         self._first_piece = True
-        self._no_props = 5
+        self._no_props = 0
         self._dense_counter = 0
 
         while self._parts:
