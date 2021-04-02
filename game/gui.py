@@ -3,6 +3,7 @@ from panda3d.core import TextNode
 from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import Func, Wait
 from direct.gui.OnscreenImage import OnscreenImage
+from direct.gui.OnscreenText import OnscreenText
 
 
 class Gui():
@@ -41,6 +42,29 @@ class Gui():
         self.heart_tex = loader.load_texture('assets/gui/heart.png')
         self.heart_tex.set_minfilter(core.SamplerState.FT_nearest)
         self.heart_tex.set_magfilter(core.SamplerState.FT_nearest)
+
+    def announce_level(self, num, name):
+        text = OnscreenText(text='LEVEL ' + str(num), font=self.font, parent=base.aspect2d, pos=(0, 0.3), scale=0.1, fg=(1, 1, 1, 1))
+        text.set_transparency(1)
+        text.set_color_scale((1, 1, 1, 0))
+        Sequence(
+            Wait(1.0),
+            text.colorScaleInterval(1.0, (1, 1, 1, 1)),
+            Wait(2.0),
+            text.colorScaleInterval(1.0, (1, 1, 1, 0)),
+            Func(text.destroy),
+        ).start()
+
+        subtext = OnscreenText(text=name.upper(), font=self.font, parent=base.aspect2d, pos=(0, 0.1), scale=0.08, fg=(1, 1, 1, 1))
+        subtext.set_transparency(1)
+        subtext.set_color_scale((1, 1, 1, 0))
+        Sequence(
+            Wait(2.0),
+            subtext.colorScaleInterval(1.0, (1, 1, 1, 1)),
+            Wait(2.0),
+            subtext.colorScaleInterval(1.0, (1, 1, 1, 0)),
+            Func(subtext.destroy),
+        ).start()
 
     def set_num_lives(self, num_lives):
         while num_lives > len(self.lives):

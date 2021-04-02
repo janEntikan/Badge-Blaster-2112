@@ -90,6 +90,7 @@ class Base(ShowBase):
 
         self.score = 0.0
         self.num_lives = 3
+        self.level_counter = 1
         self.gui.set_num_lives(self.num_lives)
         self.game_over = False
 
@@ -109,6 +110,7 @@ class Base(ShowBase):
 
     def reset_game(self):
         self.num_lives = 3
+        self.level_counter = 1
         self.gui.set_num_lives(self.num_lives)
         self.score = 0
         self.progress = 0.0
@@ -171,6 +173,10 @@ class Base(ShowBase):
 
     def level_transition_evt(self, level):
         print(f"We're about to enter the level {level.upper()}")
+        if level == 'express':
+            level += 'way'
+        self.gui.announce_level(self.level_counter, level)
+        self.level_counter += 1
 
     def tick(self, task=None):
         self.dt = globalClock.get_dt()
