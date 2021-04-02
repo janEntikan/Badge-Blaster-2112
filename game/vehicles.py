@@ -281,7 +281,12 @@ class EnemyCar(Car):
             # Steer to avoid nearby cars.
             steer = 0
             for nearby_car in nearby_cars:
-                steer += 5 / (self.root.get_x() - nearby_car.root.get_x())
+                diff = self.root.get_x() - nearby_car.root.get_x()
+                if abs(diff) < 0.001:
+                    # (Near-)zero, steer randomly
+                    steer += choice((-5, 5))
+                else:
+                    steer += 5 / diff
             steer /= len(nearby_cars)
             self.steer(steer)
         elif base.player.root.get_x() > self.root.get_x()+5:
