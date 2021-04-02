@@ -70,6 +70,7 @@ class TrackGenerator:
         self._first_piece = True
         self._no_props = 0
         self._dense_counter = 0
+        self._aabb = []
 
         while self._parts:
             self._parts.pop().remove_node()
@@ -92,6 +93,9 @@ class TrackGenerator:
                 self._parts.pop(0)
                 continue
             break
+        if len(self._aabb) > TG_MIN_AABB * 2:
+            self._aabb = self._aabb[TG_MIN_AABB:]
+            print(f'Dropped {TG_MIN_AABB} AABB instances')
 
     def query(self, y):
         """Returns left and right border x at given y pos as tuple."""
@@ -215,7 +219,6 @@ class TrackGenerator:
     def _place_decoration(self, z, bl, br):
         ground = self._part_mgr.ground(self._level)
         remaining = random.randint(*PR_ATTEMPTS)
-        placed = []
         while remaining:
             part = random.choice(self._part_mgr[(self._level, 'props')])
             dist = int(part.part_type[0])
@@ -255,11 +258,22 @@ class TrackGenerator:
                         angle = 180
                         x = x + w + dist + br
 
-                hw = (part.bounds.width / 2) * PR_SCALE
-                hh = part.bounds.hlen * PR_SCALE
-                mbb = util.AABB(x + part.bounds.mmin.x * PR_SCALE + hw, y + part.bounds.mmin.y * PR_SCALE + hh, hw, hh)
+                if angle == 0:
+                    mbb = util.AABB(
+                        x + part.bounds.mmin.x * PR_SCALE,
+                        x + part.bounds.mmax.x * PR_SCALE,
+                        y + part.bounds.mmin.y * PR_SCALE,
+                        y + part.bounds.mmax.y * PR_SCALE
+                    )
+                else:
+                    mbb = util.AABB(
+                        x + part.bounds.mmax.x * PR_SCALE,
+                        x + part.bounds.mmin.x * PR_SCALE,
+                        y + part.bounds.mmin.y * PR_SCALE,
+                        y + part.bounds.mmax.y * PR_SCALE
+                    )
                 can_place = True
-                for bb in placed:
+                for bb in self._aabb:
                     if bb.overlap(mbb):
                         can_place = False
                         fail -= 1
@@ -277,7 +291,7 @@ class TrackGenerator:
                     np.set_pos(x, y, z)
                     np.set_scale(PR_SCALE)
                     np.set_h(angle)
-                    placed.append(mbb)
+                    self._aabb.append(mbb)
                     self._parts.append(np)
                     break
 

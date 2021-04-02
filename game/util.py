@@ -92,22 +92,21 @@ def set_faux_lights(node):
 
 
 class AABB:
-    def __init__(self, x, y, hw, hh):
-        self.x = x
-        self.y = y
-        self.hw = hw
-        self.hh = hh
+    def __init__(self, left, right, top, bottom):
+        self.left = min(left, right)
+        self.right = max(left, right)
+        self.top = max(top, bottom)
+        self.bottom = min(top, bottom)
 
     def overlap(self, other):
-        return (self.inside(other.x - other.hw, other.y - other.hh)
-            or self.inside(other.x + other.hw, other.y - other.hh)
-            or self.inside(other.x + other.hw, other.y + other.hh)
-            or self.inside(other.x - other.hw, other.y + other.hh)
-            or other.inside(self.x - self.hw, self.y - self.hh)
-            or other.inside(self.x + self.hw, self.y - self.hh)
-            or other.inside(self.x + self.hw, self.y + self.hh)
-            or other.inside(self.x - self.hw, self.y + self.hh))
+        return (self.inside(other.left, other.top)
+            or self.inside(other.left, other.bottom)
+            or self.inside(other.right, other.top)
+            or self.inside(other.right, other.bottom)
+            or other.inside(self.left, self.top)
+            or other.inside(self.left, self.bottom)
+            or other.inside(self.right, self.top)
+            or other.inside(self.right, self.bottom))
 
     def inside(self, x, y):
-        return self.x - self.hw <= x <= self.x + self.hw \
-            and self.y - self.hh <= y <= self.y + self.hh
+        return self.left <= x <= self.right and self.bottom <= y <= self.top
