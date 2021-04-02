@@ -537,18 +537,18 @@ class EnemyFleet:
             "cop_car_m",
             "cop_car_l",
             "cop_truck",
+            "tank",
         ]
         if c > 4:
             c = 4
-        if c == 4:
-            car = EnemyCar(base.models["cars"]['tank'], point)
-        else:
-            car = EnemyCar(base.models["cars"][cars[c]], point)
+        car = EnemyCar(base.models["cars"][cars[c]], point)
 
         car.wave = self.wave_counter
         self.wave_car_count[car.wave] += 1
 
         car.hp = c+1*2 # not really random
+        if c == 4:
+            car.hp = 14
         self.cars.add(car)
         return car
 
@@ -569,11 +569,26 @@ class EnemyFleet:
         else:
             num_cars = 1
 
+        width = right - left - 20
+
         if num_cars == 1:
             x = uniform(left + 10, right - 10)
             self.make_car(c, Vec3(x, y, 0))
+        elif num_cars > 4:
+            # 2 rows
+            row1_cars = num_cars // 2
+            row1_mult = width / (row1_cars - 1)
+            for i in range(row1_cars):
+                x = left + 10 + i * row1_mult
+                self.make_car(c, Vec3(x, y + random() - 0.5, 0))
+
+            row2_cars = num_cars - row1_cars
+            row2_mult = width / (row2_cars - 1)
+            for i in range(row2_cars):
+                x = left + 10 + i * row2_mult
+                self.make_car(c, Vec3(x, y + 20 + random() - 0.5, 0))
+
         elif num_cars > 0:
-            width = right - left - 20
             mult = width / (num_cars - 1)
             for i in range(num_cars):
                 x = left + 10 + i * mult
