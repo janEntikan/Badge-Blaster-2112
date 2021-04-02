@@ -4,10 +4,10 @@ In charge of indexing and preprocessing road parts.
 
 from dataclasses import dataclass, field
 from hashlib import sha384
-import pickle
 
 from panda3d import core
 from direct.stdpy.file import *
+from direct.stdpy import pickle
 
 from .common import PR_DEFAULT_DENSITY
 from . import preprocess as pp
