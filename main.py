@@ -111,7 +111,6 @@ class Base(ShowBase):
         self.gui.set_num_lives(self.num_lives)
         self.game_over = False
         self.player.remove()
-        self.player = PlayerCar(self.models["cars"]["player"])
         self.trackgen.reset()
 
         self.enemy_fleet.reset()
@@ -120,6 +119,9 @@ class Base(ShowBase):
         self.explosions.reset()
         self.specialfx.reset()
         self.powerups.reset()
+
+        self.player = PlayerCar(self.models["cars"]["player"])
+
         if self.bgm:
             self.bgm.stop()
         self.chk_bgm()
