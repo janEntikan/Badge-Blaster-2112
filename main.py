@@ -178,6 +178,8 @@ class Base(ShowBase):
         print(f"We're about to enter the level {level.upper()}")
         if level == 'express':
             level += 'way'
+        elif level == 'farm':
+            level += 's'
         self.gui.announce_level(self.level_counter, level)
         self.level_counter += 1
 
