@@ -240,13 +240,15 @@ class EnemyCar(Car):
         Car.__init__(self, model)
         self.look_ahead = 10
         self.steering = 100
-        self.max_speed = 100
+        self.max_speed = 200
+        self.max_speed_normal = 200
         self.min_speed = 35
         self.acceleration = 80
         self.root.set_pos(position)
-        self.speed.y = self.max_speed
+        self.speed.y = 10
         self.speed.x = 0
-        self.aim = randint(30,60)
+        self.aim = uniform(50, 60) # target distance they try to stay ahead of player
+        self.aim_hysteresis = uniform(5, 25) # how far they are allowed to stray from aim distance
         self.last_fire = 10.0
         self.hell = base.enemy_hell
         base.player_hell.add_collider(self.root, radius=2, callback=self.get_hit)
@@ -268,6 +270,12 @@ class EnemyCar(Car):
 
 
     def chase(self):
+        aim_y = base.player.root.get_y() + self.aim
+        if aim_y > self.root.get_y() + self.aim_hysteresis:
+            self.accelerate()
+        elif aim_y < self.root.get_y() - self.aim_hysteresis:
+            self.decelerate()
+
         nearby_cars = base.enemy_fleet.get_nearby_cars(self, 10, foresight=0.25)
         if nearby_cars:
             # Steer to avoid nearby cars.
@@ -276,20 +284,13 @@ class EnemyCar(Car):
                 steer += 5 / (self.root.get_x() - nearby_car.root.get_x())
             steer /= len(nearby_cars)
             self.steer(steer)
-            return
-
-        if base.player.root.get_x() > self.root.get_x()+5:
+        elif base.player.root.get_x() > self.root.get_x()+5:
             self.steer(0.4)
         elif base.player.root.get_x() < self.root.get_x()-5:
             self.steer(-0.4)
         else:
             smoothing = (self.steering/2) * base.dt
             self.speed.x = veer(self.speed.x, smoothing, smoothing)
-
-        if base.player.root.get_y()+self.aim > self.root.get_y():
-            self.accelerate()
-        else:
-            self.decelerate()
 
     def stay_on_the_road(self):
         ahead = self.root.get_pos()
@@ -496,10 +497,8 @@ class EnemyFleet:
             c = 4
         if c == 4:
             car = EnemyCar(base.models["cars"]['tank'], point)
-            car.max_speed = (110 - (10*c))
         else:
             car = EnemyCar(base.models["cars"][cars[c]], point)
-            car.max_speed = (110 - (10*c))
 
         car.hp = c+1*2 # not really random
 
