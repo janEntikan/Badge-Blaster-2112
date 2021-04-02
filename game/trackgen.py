@@ -278,6 +278,5 @@ class TrackGenerator:
         self._next_spawn += enemy_y * (4 - self._difficulty)
         enemy_y += self._car_position.y
         left, right = self.query(enemy_y)
-        offset = (right - left) * 0.1
         if self._spawn_callback:
-            self._spawn_callback(enemy_y, left + offset, right - offset)
+            self._spawn_callback(enemy_y, left, right)

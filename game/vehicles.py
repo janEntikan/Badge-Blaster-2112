@@ -2,7 +2,7 @@ from random import choice, randint, uniform
 from panda3d.core import Vec3
 from .hell import BulletType, ExplosionType, SpecialType
 from direct.interval.IntervalGlobal import *
-from random import choice, random
+from random import choice, random, uniform
 import math
 
 
@@ -515,13 +515,20 @@ class EnemyFleet:
             if randint(0,1):
                 c+=1
 
-        x = (left + right) * 0.5
-
         if c == 0:
-            self.make_car(c, Vec3(x - 8, y, 0))
-            self.make_car(c, Vec3(x - 4, y, 0))
-            self.make_car(c, Vec3(x, y, 0))
-            self.make_car(c, Vec3(x + 4, y, 0))
-            self.make_car(c, Vec3(x + 8, y, 0))
+            num_cars = int(3 + diff * 6)
+        elif c == 1:
+            num_cars = int(1.5 + diff * 4)
+        elif c == 2:
+            num_cars = int(1 + diff * 2)
         else:
+            num_cars = 1
+
+        if num_cars == 1:
+            x = uniform(left + 10, right - 10)
             self.make_car(c, Vec3(x, y, 0))
+        elif num_cars > 0:
+            width = right - left - 30
+            for i in range(num_cars):
+                x = left + 15 + i / (num_cars + 1)
+                self.make_car(c, Vec3(x, y + random() - 0.5, 0))
