@@ -99,7 +99,7 @@ class Gun():
             velocity.x = 0
             velocity.y -= 5
             expand_speed = 20
-            car.hell.spawn_ring(type, randint(10,20), pos, velocity, expand_speed)
+            car.hell.spawn_ring(type, randint(5,10), pos, velocity, expand_speed, min_angle=-180, max_angle=0)
 
     def spread(self, car):
         if self.timer.ready():
