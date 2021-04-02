@@ -95,10 +95,10 @@ class Gun():
             self.timer = CooldownTimer(0.2,0,0)
             self.fire = self.single
         elif 'full_spread'in node.name:
-            self.timer = CooldownTimer(1,0,0)
+            self.timer = CooldownTimer(2,0,0)
             self.fire = self.full
         elif 'spread' in node.name:
-            self.timer = CooldownTimer(1,0,0)
+            self.timer = CooldownTimer(1.5,0,0)
             self.fire = self.spread
         elif 'rocket' in node.name:
             self.timer = CooldownTimer(2,0,0)
