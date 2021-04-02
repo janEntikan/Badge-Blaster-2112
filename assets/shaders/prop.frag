@@ -4,7 +4,6 @@ uniform float i_hue;
 uniform float osg_FrameTime;
 
 varying vec4 v_color;
-varying vec4 v_pos;
 
 vec3 hue_shift(vec3 color, float hue) {
     const vec3 k = vec3(0.57735, 0.57735, 0.57735);
@@ -14,6 +13,6 @@ vec3 hue_shift(vec3 color, float hue) {
 
 
 void main() {
-    vec4 color = vec4(hue_shift(v_color.rgb, i_hue), 1.0f);
+  vec4 color = vec4(hue_shift(v_color.rgb, i_hue), 1.0f);
 	gl_FragColor = color;
 }
