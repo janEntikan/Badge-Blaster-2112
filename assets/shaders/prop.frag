@@ -1,9 +1,13 @@
 #version 120
 
 uniform float i_hue;
-uniform float osg_FrameTime;
+uniform float i_zmax;
+uniform float i_height;
+uniform vec3 i_shade;
+uniform float i_shade_exp;
 
 varying vec4 v_color;
+varying vec4 v_pos;
 
 vec3 hue_shift(vec3 color, float hue) {
     const vec3 k = vec3(0.57735, 0.57735, 0.57735);
@@ -13,6 +17,8 @@ vec3 hue_shift(vec3 color, float hue) {
 
 
 void main() {
+  float f = clamp((i_zmax - v_pos.z) / i_height, 0.1, 0.8);
   vec4 color = vec4(hue_shift(v_color.rgb, i_hue), 1.0f);
+  color.rgb = mix(i_shade, color.rgb, pow(f, i_shade_exp));
 	gl_FragColor = color;
 }

@@ -1,6 +1,12 @@
 """Constants for easier tuning in one place"""
 
-from panda3d.core import Vec2
+from panda3d.core import Vec2, Vec3
+
+# Shader constants (SH_ prefix)
+
+SH_Z_SHADE_COLOR = Vec3(0.002, 0.001, 0.0005)
+SH_Z_SHADE_EXP = 1.1
+
 
 # Music/SFX (SND_ prefix)
 

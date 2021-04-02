@@ -26,6 +26,10 @@ def generate_part(model, bounds, hskew, scale_start, scale_end, hue):
     np.set_shader_input('i_scale', core.Vec2(scale_start, scale_end))
     np.set_shader_input('i_len', bounds.hlen * 2)
     np.set_shader_input('i_hue', hue)
+    np.set_shader_input('i_zmax', bounds.mmax.z)
+    np.set_shader_input('i_height', bounds.mmax.z - bounds.mmin.z)
+    np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
+    np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
     return np
 
 
@@ -242,6 +246,10 @@ class TrackGenerator:
                 if can_place:
                     np.set_shader(PROP_SHADER)
                     np.set_shader_input('i_hue', self._current_hue)
+                    np.set_shader_input('i_zmax', part.bounds.mmax.z)
+                    np.set_shader_input('i_height', part.bounds.mmax.z - part.bounds.mmin.z)
+                    np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
+                    np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
                     np.set_pos(x, y, z)
                     np.set_scale(PR_SCALE)
                     np.set_h(angle)
