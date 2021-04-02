@@ -425,8 +425,10 @@ class PlayerCar(Car):
 
         self.update()
         engine_rate = ((self.speed.y/self.max_speed_turbo)*2)
-        base.sfx['engine'].set_volume(max(0,(engine_rate/2)-1))
         base.sfx['engine'].set_play_rate(engine_rate)
+        engine_volume = (self.speed.y/self.max_speed_turbo)/3
+        base.sfx['engine'].set_volume(engine_volume)
+
         # Set counters
         color = (1,1,1,0.8)
         if self.slipping or self.max_speed == self.max_speed_error:
