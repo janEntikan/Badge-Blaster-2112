@@ -285,6 +285,8 @@ class Car():
         self.track_left, self.track_right = base.trackgen.query(self.root.get_y())
         if not self.slipping:
             self.model.set_h(-self.speed.x/2)
+        if base.game_over:
+            self.speed *= 0.995
         self.bump()
 
 
