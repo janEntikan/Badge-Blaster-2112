@@ -427,7 +427,7 @@ class PlayerCar(Car):
                     smoothing = (self.steering/2) * base.dt
                     self.speed.x = veer(self.speed.x, smoothing, smoothing)
 
-                if not base.game_over:
+                if not base.game_over and len(base.enemy_fleet.cars) > 0:
                     self.fire_weapons()
             else:
                 if not base.sfx['slide'].status() == 0:
