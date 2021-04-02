@@ -268,15 +268,17 @@ class EnemyCar(Car):
 
 
     def chase(self):
-        nearby_cars = base.enemy_fleet.get_nearby_cars(self, 10)
+        nearby_cars = base.enemy_fleet.get_nearby_cars(self, 10, foresight=0.25)
         if nearby_cars:
             # Steer to avoid nearby cars.
             steer = 0
             for nearby_car in nearby_cars:
-                steer += (self.root.get_x() - nearby_car.root.get_x()) / 2
+                steer += 5 / (self.root.get_x() - nearby_car.root.get_x())
             steer /= len(nearby_cars)
             self.steer(steer)
-        elif base.player.root.get_x() > self.root.get_x()+5:
+            return
+
+        if base.player.root.get_x() > self.root.get_x()+5:
             self.steer(0.4)
         elif base.player.root.get_x() < self.root.get_x()-5:
             self.steer(-0.4)
@@ -291,12 +293,12 @@ class EnemyCar(Car):
 
     def stay_on_the_road(self):
         ahead = self.root.get_pos()
-        ahead.y += self.speed.y/4
+        ahead += self.speed * 0.25
         left, right = base.trackgen.query(ahead.y)
-        if ahead.x-10 < left:
+        if ahead.x-5 < left:
             self.steer(1)
             self.decelerate(multiplier=0.5)
-        elif ahead.x+10 > right:
+        elif ahead.x+5 > right:
             self.steer(-1)
             self.decelerate(multiplier=0.5)
         else:
@@ -465,17 +467,17 @@ class EnemyFleet:
         if min_dist_sq <= max_dist_sq:
             return min_car
 
-    def get_nearby_cars(self, car, max_dist):
+    def get_nearby_cars(self, car, max_dist, foresight=0.0):
         max_dist_sq = max_dist * max_dist
 
-        pos = car.root.get_pos().xy
+        pos = (car.root.get_pos() + car.speed * foresight).xy
         cars = []
 
         for other in self.cars:
             if car is other:
                 continue
 
-            dist_sq = (other.root.get_pos().xy - pos).length_squared()
+            dist_sq = ((other.root.get_pos() + other.speed * foresight).xy - pos).length_squared()
             if dist_sq < max_dist_sq:
                 cars.append(other)
 
