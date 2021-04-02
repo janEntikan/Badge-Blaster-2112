@@ -98,6 +98,8 @@ class Base(ShowBase):
             core.ConfigVariableDouble('audio-music-volume', 1.0).get_value()
         )
 
+        self.accept('f12', self.screenshot)
+
     def lose_life(self):
         if self.game_over:
             return False
