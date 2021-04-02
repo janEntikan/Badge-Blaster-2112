@@ -1,5 +1,8 @@
 import sys
 import random
+s = random.randint(-(2**31), 2**31 - 1)
+random.seed(s)
+print('Using seed: ', s)
 
 from direct.showbase.ShowBase import ShowBase
 from panda3d import core

@@ -204,7 +204,7 @@ class TrackGenerator:
                 continue
             np = core.NodePath('prop')
             part.model.copy_to(np)
-            np.reparent_to(base.render)
+
             fail = PR_PLACE_ATTEMPTS
             while fail > 0:
                 y = self._next_part_y + random.uniform(TG_UNIT, TG_UNIT * 2)
@@ -244,6 +244,7 @@ class TrackGenerator:
                         dist = sdist
                         break
                 if can_place:
+                    np.reparent_to(base.render)
                     np.set_shader(PROP_SHADER)
                     np.set_shader_input('i_hue', self._current_hue)
                     np.set_shader_input('i_zmax', part.bounds.mmax.z)
