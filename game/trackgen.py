@@ -207,7 +207,7 @@ class TrackGenerator:
             np.reparent_to(base.render)
             fail = PR_PLACE_ATTEMPTS
             while fail > 0:
-                y = self._next_part_y + random.uniform(0, TG_UNIT)
+                y = self._next_part_y + random.uniform(TG_UNIT, TG_UNIT * 2)
                 x, w = self._qry_center_w(y)
                 if w == 0:
                     fail -= 1
