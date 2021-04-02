@@ -220,10 +220,11 @@ class Base(ShowBase):
             self.bgm.play()
 
     def update_difficulty(self, task=None):
-        self.progress += DF_INC_PER_SEC
-        self.difficulty = spline_point(min(self.progress, 1.0))
-        self.trackgen.set_difficulty(self.difficulty)
-        print(self.difficulty)
+        if not self.game_over:
+            self.progress += DF_INC_PER_SEC
+            self.difficulty = spline_point(min(self.progress, 1.0))
+            self.trackgen.set_difficulty(self.difficulty)
+            print("Difficulty is now %.1f %%" % (self.difficulty * 100))
         return task.again
 
 
