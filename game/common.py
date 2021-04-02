@@ -31,7 +31,7 @@ DF_SPLINE_PTS = [
     Vec2(12, 0.75),
     Vec2(13, 1.1)
 ]                           # Spline points representing difficulty
-DF_INC_PER_SEC = 0.001
+DF_INC_PER_SEC = 0.003
 
 
 # Follow Cam constants (FC_ prefix)
@@ -55,7 +55,7 @@ TG_VISIBLE = 250            # How far ahead of the car visible road parts have t
 TG_UNIT = 20                # Track length
 TG_DESPAWN = TG_UNIT * 15   # Distance behind player car to despawn parts
 TG_PART_CHG_RNG = 15, 30    # randint range for choosing a different part
-TG_LEVEL_CHG_RNG = 6, 6     # randint range for choosing when to transition to a new level (number of part changes)
+TG_LEVEL_CHG_RNG = 3, 3     # randint range for choosing when to transition to a new level (number of part changes)
 TG_TRANS_RNG = 12, 12       # randint range for choosing how many transition parts to place
 TG_MIN_AABB = 50            # The minimum number of AABB instances to keep for prop placement logic
 
