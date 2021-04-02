@@ -77,12 +77,15 @@ class Gun():
         if self.timer.ready():
             base.sfx['shoot_2'].set_play_rate(uniform(0.4,0.6))
             base.sfx['shoot_2'].play()
-            if not randint(0,2):
-                return
-            if self.root.get_x(render) > car.root.get_x():
-                x = 10
+            if 'rapid' in self.root.name:
+                x = math.sin(car.root.get_y() * 0.05) * 20
             else:
-                x = -10
+                if not randint(0,2):
+                    return
+                elif self.root.get_x(render) > car.root.get_x():
+                    x = 10
+                else:
+                    x = -10
             if self.root.get_y(render) > base.player.root.get_y():
                 y = -10
             else:
