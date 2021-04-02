@@ -121,6 +121,7 @@ class Base(ShowBase):
         self.powerups.reset()
 
         self.player = PlayerCar(self.models["cars"]["player"])
+        self.powerups.add_collider(self.player.root, radius=2, callback=self.pickup)
 
         if self.bgm:
             self.bgm.stop()
