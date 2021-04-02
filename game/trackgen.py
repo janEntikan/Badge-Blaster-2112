@@ -280,6 +280,12 @@ class TrackGenerator:
             np = core.NodePath('prop')
             part.model.copy_to(np)
             np.reparent_to(base.render)
+            np.set_shader(PROP_SHADER)
+            np.set_shader_input('i_hue', self._current_hue)
+            np.set_shader_input('i_zmax', part.bounds.mmax.z)
+            np.set_shader_input('i_height', part.bounds.mmax.z - part.bounds.mmin.z)
+            np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
+            np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
 
             if (self._dense_counter + placed) % 2:
                 np.set_scale(PR_SCALE)
