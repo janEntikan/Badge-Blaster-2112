@@ -111,6 +111,7 @@ class Base(ShowBase):
         self.num_lives = 3
         self.gui.set_num_lives(self.num_lives)
         self.score = 0
+        self.progress = 0.0
         self.gui.set_score_counter(self.score)
         self.game_over = False
         self.player.remove()
