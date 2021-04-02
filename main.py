@@ -56,7 +56,7 @@ class Base(ShowBase):
             sfx.set_play_rate(0.6)
 
         # Setup track generator
-        self.levels = ("forest", "desert", "express", "farm", "bridge")
+        self.levels = ("forest", "desert", "express", "farm", "bridge", "city", "village")
         parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
         self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
         self.trackgen = TrackGenerator()
