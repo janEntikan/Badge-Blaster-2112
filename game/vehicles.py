@@ -633,6 +633,10 @@ class EnemyFleet:
             if randint(0,1):
                 c+=1
 
+        if random() < 0.15:
+            print("Lucky enemy promotion")
+            c += randint(1, 2)
+
         if c == 0:
             num_cars = int(3 + diff * 6)
         elif c == 1:
