@@ -127,7 +127,7 @@ class Car():
         self.alive = True
         self.speed = Vec3()
         self.max_speed = 50
-        self.min_speed = 0
+        self.min_speed = 20
         self.max_speed_normal = self.max_speed
         self.acceleration = 40
         self.steering = 200
