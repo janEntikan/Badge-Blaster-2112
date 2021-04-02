@@ -8,7 +8,7 @@ from random import uniform, randint, choice
 
 from panda3d import core
 
-from .common import TG_CURVE_RNG, TG_LOCAL_CURVE_DIV, TG_UNITS_PER_CHUNK, DF_SPLINE_PTS
+from .common import TG_CURVE_RNG, TG_LOCAL_CURVE_DIV, TG_MAX_CURVE_X, TG_UNITS_PER_CHUNK, DF_SPLINE_PTS
 
 HPI = pi / 2
 
@@ -41,7 +41,7 @@ def generate_track_offset(num, bounds, difficulty, start=None, start_straight=Fa
     if start_straight:
         n += n * 5
     pc = len(n)
-    curve_delta = ((max(bounds) - min(bounds)) / TG_LOCAL_CURVE_DIV) * difficulty
+    curve_delta = TG_MAX_CURVE_X * max(0.1, difficulty ** 0.7)
     while pc < num:
         if num - pc < 4:
             n += [n[-1]] * (num - pc)
@@ -49,8 +49,9 @@ def generate_track_offset(num, bounds, difficulty, start=None, start_straight=Fa
 
         clen = randint(4, num - pc)
         if uniform(*TG_CURVE_RNG) < difficulty:  # Curve
-            cdelta = curve_delta + 1
-            while cdelta > curve_delta:
+            curve_max = clen * curve_delta
+            cdelta = curve_max + 1
+            while abs(cdelta) > curve_max:
                 cdelta = uniform(*bounds) - n[-1]
             n += [sin((i / clen) * HPI) * cdelta + n[-1] for i in range(1, clen + 1)]
         else:
