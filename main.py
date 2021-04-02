@@ -5,7 +5,7 @@ from direct.showbase.ShowBase import ShowBase
 from panda3d import core
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
 from game.gui import Gui
-from game.vehicles import PlayerCar, spawn
+from game.vehicles import PlayerCar, EnemyFleet
 from game import part
 from game.trackgen import TrackGenerator
 from game.util import set_faux_lights, spline_point
@@ -38,7 +38,6 @@ class Base(ShowBase):
         self.gui = Gui()
         self.dt = 1
         self.camx = 0
-        self.enemies = []
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
         # Setup track generator
@@ -46,7 +45,6 @@ class Base(ShowBase):
         parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
         self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
         self.trackgen = TrackGenerator()
-        self.trackgen.register_spawn_callback(spawn)
         self.trackgen.set_difficulty(1)  # Adjust from 0..1
 
         # Load hells
@@ -60,6 +58,9 @@ class Base(ShowBase):
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
         self.task_mgr.do_method_later(0.01, self.tick, name='tick')
+
+        self.enemy_fleet = EnemyFleet()
+        self.trackgen.register_spawn_callback(self.enemy_fleet.spawn)
 
         # Setup x-follow cam
         self.followcam = FollowCam()

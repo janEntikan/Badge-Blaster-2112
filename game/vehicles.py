@@ -146,7 +146,7 @@ class Car():
 
     def bump(self):
         x, y, z = self.root.get_pos()
-        for enemy in base.enemies:
+        for enemy in base.enemy_fleet.cars:
             if not enemy == self:
                 distance = (enemy.root.get_pos()-self.root.get_pos()).length()
                 if distance <= 1.5 and not self.slipping:
@@ -234,8 +234,7 @@ class EnemyCar(Car):
 
     def die(self):
         Car.die(self)
-        if self in base.enemies:
-            base.enemies.remove(self)
+        base.enemy_fleet.remove_car(self)
         base.player_hell.remove_collider(self.root)
 
     async def get_hit(self):
@@ -397,29 +396,50 @@ class PlayerCar(Car):
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
 
 
-def spawn(point):
-    diff = base.trackgen._difficulty
-    cars = [
-        "cop_car_s",
-        "cop_car_m",
-        "cop_car_l",
-        "cop_truck",
-    ]
-    c = 0
-    for i in range(int(diff*5)):
-        if randint(0,1):
-            c+=1
-    if c > 4:
-        c = 4
-    if c == 4:
-        car = EnemyCar(base.models["cars"]['tank'], point)
-        car.max_speed = (110 - (10*c))
-    else:
-        car = EnemyCar(base.models["cars"][cars[c]], point)
-        car.max_speed = (110 - (10*c))
+class EnemyFleet:
+    def __init__(self):
+        self.cars = set()
 
-    car.hp = c+1*2 # not really random
+    def remove_car(self, car):
+        self.cars.discard(car)
 
+    def make_car(self, c, point):
+        cars = [
+            "cop_car_s",
+            "cop_car_m",
+            "cop_car_l",
+            "cop_truck",
+        ]
+        if c > 4:
+            c = 4
+        if c == 4:
+            car = EnemyCar(base.models["cars"]['tank'], point)
+            car.max_speed = (110 - (10*c))
+        else:
+            car = EnemyCar(base.models["cars"][cars[c]], point)
+            car.max_speed = (110 - (10*c))
 
-    base.task_mgr.add(car.act)
-    base.enemies.append(car)
+        car.hp = c+1*2 # not really random
+
+        base.task_mgr.add(car.act)
+        self.cars.add(car)
+        return car
+
+    def spawn(self, y, left, right):
+        diff = base.trackgen._difficulty
+
+        c = 0
+        for i in range(int(diff*5)):
+            if randint(0,1):
+                c+=1
+
+        x = (left + right) * 0.5
+
+        if c == 0:
+            self.make_car(c, Vec3(x - 8, y, 0))
+            self.make_car(c, Vec3(x - 4, y, 0))
+            self.make_car(c, Vec3(x, y, 0))
+            self.make_car(c, Vec3(x + 4, y, 0))
+            self.make_car(c, Vec3(x + 8, y, 0))
+        else:
+            self.make_car(c, Vec3(x, y, 0))

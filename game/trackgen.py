@@ -279,6 +279,5 @@ class TrackGenerator:
         enemy_y += self._car_position.y
         left, right = self.query(enemy_y)
         offset = (right - left) * 0.1
-        enemy_x = random.uniform(left + offset, right - offset)
         if self._spawn_callback:
-            self._spawn_callback(core.Point3(enemy_x, enemy_y, 0))
+            self._spawn_callback(enemy_y, left + offset, right - offset)
