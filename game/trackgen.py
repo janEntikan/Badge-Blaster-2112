@@ -66,6 +66,7 @@ class TrackGenerator:
         self._y_trans_end = -1
         self._level_event_sent = False
         self._current_hue = random.uniform(0, pi)
+        self._next_hue = self._current_hue
         self._part_mgr:part.PartMgr = base.part_mgr
         self._first_piece = True
         self._no_props = 0
@@ -196,7 +197,8 @@ class TrackGenerator:
             elif self._level_trans_new > 0:                             # Transition part new
                 if not self._level_event_sent:
                     messenger.send('level-transition', [self._level_after_trans])
-                    self._current_hue = random.uniform(0, pi)
+                    self._current_hue = self._next_hue
+                    self._next_hue = random.uniform(0, pi)
                     self._level_event_sent = True
                 self._level = self._level_after_trans
                 self._level_trans_new -= 1
