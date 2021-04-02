@@ -143,6 +143,13 @@ class Car():
         for gun_empty in self.model.find_all_matches("**/*gun*"):
             self.guns.append(Gun(gun_empty))
 
+    def remove(self):
+        if self.root:
+            base.player_hell.remove_collider(self.root)
+            base.enemy_hell.remove_collider(self.root)
+        self.root.remove_node()
+        self.model.remove_node()
+
     def die(self):
         if not self.alive:
             return
@@ -151,8 +158,7 @@ class Car():
         sound = 'explosion_'+str(randint(1,3))
         base.sfx[sound].play()
         base.sfx[sound].set_play_rate(uniform(0.3,0.9))
-        self.root.remove_node()
-        self.model.remove_node()
+        self.remove()
         self.speed.normalize()
         self.speed *= 15
         self.alive = False
@@ -255,11 +261,13 @@ class EnemyCar(Car):
         self.last_fire = 10.0
         self.hell = base.enemy_hell
         base.player_hell.add_collider(self.root, radius=2, callback=self.get_hit)
+        self.task = base.task_mgr.add(self.act)
 
-    def die(self):
-        base.enemy_fleet.remove_car(self)
-        Car.die(self)
+    def remove(self):
+        base.enemy_fleet.car_removed(self)
+        self.task.remove()
         base.player_hell.remove_collider(self.root)
+        Car.remove(self)
 
     async def get_hit(self):
         self.hp -= 1
@@ -372,12 +380,13 @@ class PlayerCar(Car):
         self.speed.y = max(self.min_speed, self.speed.y - 30)
 
         if not base.lose_life():
+            base.enemy_hell.remove_collider(self.root)
             self.trigger_slip()
-            base.explosions.spawn_single(ExplosionType.LARGE, self.root.get_pos(), self.speed)
-            while True:
-                await Wait(0.3 * random())
+            while self.root and base.bgm.status() != 1:
                 splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
                 base.explosions.spawn_single(splode_type, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, 0), self.speed)
+                await Wait(0.3 * random())
+            base.reset_game()
             return
         base.sfx['explosion_1'].play()
         base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)
@@ -449,7 +458,8 @@ class PlayerCar(Car):
         elif self.speed.y > self.turbo_threshold:
             color = (0,1,0,0.8)
         base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
-        base.gui.set_score_counter(int(self.root.get_y()+self.score))
+        if not base.game_over:
+            base.gui.set_score_counter(int(self.root.get_y()+self.score))
         base.trackgen.update(self.root.get_pos())
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
 
@@ -460,7 +470,16 @@ class EnemyFleet:
         self.wave_counter = 0
         self.wave_car_count = {0: 0}
 
-    def remove_car(self, car):
+    def reset(self):
+        for car in tuple(self.cars):
+            car.remove()
+
+        assert not self.cars
+
+        self.wave_counter = 0
+        self.wave_car_count = {0: 0}
+
+    def car_removed(self, car):
         if car in self.cars:
             self.cars.remove(car)
             self.wave_car_count[car.wave] -= 1
@@ -530,8 +549,6 @@ class EnemyFleet:
         self.wave_car_count[car.wave] += 1
 
         car.hp = c+1*2 # not really random
-
-        base.task_mgr.add(car.act)
         self.cars.add(car)
         return car
 

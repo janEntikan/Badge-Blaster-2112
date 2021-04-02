@@ -104,6 +104,25 @@ class Base(ShowBase):
         )
 
         self.accept('f12', self.screenshot)
+        self.accept('r', self.reset_game)
+
+    def reset_game(self):
+        self.num_lives = 3
+        self.gui.set_num_lives(self.num_lives)
+        self.game_over = False
+        self.player.remove()
+        self.player = PlayerCar(self.models["cars"]["player"])
+        self.trackgen.reset()
+
+        self.enemy_fleet.reset()
+        self.player_hell.reset()
+        self.enemy_hell.reset()
+        self.explosions.reset()
+        self.specialfx.reset()
+        self.powerups.reset()
+        if self.bgm:
+            self.bgm.stop()
+        self.chk_bgm()
 
     async def pickup(self):
         if self.game_over:
@@ -152,7 +171,7 @@ class Base(ShowBase):
             self.bgm = self.loader.load_music(SND_BGM[self.track])
             self.bgm.play()
             self.bgm.set_volume(0.6)
-        if self.bgm.status() != self.bgm.PLAYING:
+        if self.bgm.status() != self.bgm.PLAYING and not self.game_over:
             print('next track')
             self.track += 1
             self.track = self.track % len(SND_BGM)

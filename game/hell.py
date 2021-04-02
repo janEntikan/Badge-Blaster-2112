@@ -105,6 +105,18 @@ class BulletHell(DirectObject):
         self.accept('window-event', self._update_size)
         self._update_size(base.win)
 
+    def reset(self):
+        self.clock = 0
+        self.pool_usage.clear()
+        self.patterns = []
+        self.colliders = []
+
+        geom = self.geom_node.modify_geom(0)
+        vdata = geom.modify_vertex_data()
+        writer = core.GeomVertexWriter(vdata, 'vertex')
+        for i in range(vdata.get_num_rows()):
+            writer.set_data3(0, 0, -10000)
+
     def _update_size(self, win):
         if win == base.win:
             size = min(win.size.x, win.size.y)
