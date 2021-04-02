@@ -122,6 +122,10 @@ class Base(ShowBase):
             return True
         else:
             print("GAME OVER!")
+            self.bgm.stop()
+            self.bgm = self.loader.load_music('assets/music/gameover.ogg')
+            self.bgm.play()
+
             self.game_over = True
             return False
 
