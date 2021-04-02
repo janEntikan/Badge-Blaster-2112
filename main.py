@@ -95,6 +95,8 @@ class Base(ShowBase):
         self.game_over = False
 
         self.bgm = None
+        self.playlist = [self.loader.load_music(track) for track in SND_BGM]
+        random.shuffle(self.playlist)
         self.track = 0
 
         if core.ConfigVariableBool('esc-to-exit', False).get_value():
@@ -206,14 +208,14 @@ class Base(ShowBase):
 
     def chk_bgm(self):
         if self.bgm is None:
-            self.bgm = self.loader.load_music(SND_BGM[self.track])
+            self.bgm = self.playlist[self.track]
             self.bgm.play()
             self.bgm.set_volume(0.6)
         if self.bgm.status() != self.bgm.PLAYING and not self.game_over:
             print('next track')
             self.track += 1
-            self.track = self.track % len(SND_BGM)
-            self.bgm = self.loader.load_music(SND_BGM[self.track])
+            self.track = self.track % len(self.playlist)
+            self.bgm = self.playlist[self.track]
             self.bgm.set_volume(0.6)
             self.bgm.play()
 
