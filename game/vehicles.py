@@ -288,6 +288,13 @@ class EnemyCar(Car):
                     self.chase()
             else:
                 self.decelerate()
+        else:
+            # Eventually reach out of slip
+            self.slipping *= 0.05 ** base.dt
+            self.speed.x *= 0.05 ** base.dt
+            if abs(self.slipping) < 0.1:
+                self.speed.x = 0
+                self.slipping = 0
 
         self.update()
         if self.alive:
