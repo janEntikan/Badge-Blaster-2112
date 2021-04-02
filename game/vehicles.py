@@ -57,14 +57,14 @@ class Gun():
             self.timer = CooldownTimer(2,0,0)
             self.fire = self.rocket
         elif 'player' in node.name:
-            self.timer = CooldownTimer(0.1,0,0)
+            self.timer = CooldownTimer(0.2,0,0)
             self.fire = self.player
 
     def player(self, car):
         if self.timer.ready():
             y = car.speed.y + 100
             x = car.speed.x
-            car.hell.spawn_single(BulletType.BULLET, self.root.get_pos(render),Vec3(x,y,0))
+            car.hell.spawn_single(BulletType.BULLET, self.root.get_pos(render),Vec3(0,y,0))
 
     def single(self, car):
         if self.timer.ready():
@@ -220,7 +220,6 @@ class EnemyCar(Car):
     def __init__(self, model, position):
         Car.__init__(self, model)
         self.look_ahead = 10
-        self.hp = 40
         self.steering = 100
         self.max_speed = 100
         self.min_speed = 35
@@ -406,10 +405,21 @@ def spawn(point):
         "cop_car_l",
         "cop_truck",
     ]
-    c = randint(0,3)#int(diff*4))
+    c = 0
+    for i in range(int(diff*5)):
+        if randint(0,1):
+            c+=1
+    if c > 4:
+        c = 4
+    if c == 4:
+        car = EnemyCar(base.models["cars"]['tank'], point)
+        car.max_speed = (110 - (10*c))
+    else:
+        car = EnemyCar(base.models["cars"][cars[c]], point)
+        car.max_speed = (110 - (10*c))
 
-    car = EnemyCar(base.models["cars"][cars[c]], point)
-    car.max_speed = (110 - (10*c)) + randint(0,20)
+    car.hp = c+1*2 # not really random
+
 
     base.task_mgr.add(car.act)
     base.enemies.append(car)
