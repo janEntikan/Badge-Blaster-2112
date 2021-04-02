@@ -84,9 +84,9 @@ class Gun():
             else:
                 x = -10
             if self.root.get_y(render) > base.player.root.get_y():
-                y = -40
+                y = -10
             else:
-                y = 40
+                return
             car.hell.spawn_single(BulletType.GREEN, self.root.get_pos(render),Vec3(x,y,0))
 
     def full(self, car):
