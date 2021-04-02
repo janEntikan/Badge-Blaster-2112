@@ -131,7 +131,8 @@ class Base(ShowBase):
         if self.game_over:
             return
         self.sfx['pickup'].play()
-        if type == 1:
+        print("Picked up pickup of type", type)
+        if type == 0:
             self.num_lives += 1
             self.gui.set_num_lives(self.num_lives)
         else:

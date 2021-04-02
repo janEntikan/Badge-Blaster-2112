@@ -93,6 +93,7 @@ class BulletHell(DirectObject):
         path.set_transparency(core.TransparencyAttrib.M_binary)
         path.set_shader(core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/bullet.vert', 'assets/shaders/bullet.frag'))
         path.set_shader_input('sprite_layout', sprite_layout)
+        self.sprite_layout = sprite_layout
         self.root = path
 
         self._generate_pool(pool_size)
@@ -197,7 +198,7 @@ class BulletHell(DirectObject):
         offset_writer.set_row(offset)
         frame_offset = FPS * globalClock.frame_time
         for i in range(num_bullets):
-            offset_writer.add_data2(frame_offset, type)
+            offset_writer.set_data2(frame_offset, type)
 
         vertex_writer = core.GeomVertexWriter(vdata, 'vertex')
         vertex_writer.set_row(offset)
@@ -245,7 +246,7 @@ class BulletHell(DirectObject):
                                 collider_pos = node.get_pos()
                                 if (collider_pos.xy - pos).length_squared() < radius_sq:
                                     # Read out sprite type to pass to collide callback, then call it
-                                    reader = core.GeomVertexReader(vdata, 'vertex')
+                                    reader = core.GeomVertexReader(vdata, 'offset')
                                     reader.set_row(i)
                                     type = int(reader.get_data2()[1])
                                     taskMgr.add(callback(type))
