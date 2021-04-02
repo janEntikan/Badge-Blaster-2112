@@ -63,6 +63,7 @@ class Base(ShowBase):
         self.enemy_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.03)
         self.explosions = BulletHell(self.render, 'assets/fireworks/explosions.png', (12, 3), loop=False, check_bounds=False, scale=0.15)
         self.specialfx = BulletHell(self.render, 'assets/fireworks/smokesparks.png', (10, 3), loop=False, check_bounds=False, scale=0.05)
+        self.powerups = BulletHell(self.render, 'assets/gui/heart.png', (1, 1), check_bounds=False, scale=0.03, pool_size=8)
 
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
@@ -72,6 +73,8 @@ class Base(ShowBase):
 
         self.enemy_fleet = EnemyFleet()
         self.trackgen.register_spawn_callback(self.enemy_fleet.spawn)
+
+        self.powerups.add_collider(self.player.root, radius=2, callback=self.pickup)
 
         # Setup x-follow cam
         self.followcam = FollowCam()
@@ -98,6 +101,13 @@ class Base(ShowBase):
         )
 
         self.accept('f12', self.screenshot)
+
+    async def pickup(self):
+        if self.game_over:
+            return
+        self.sfx['pickup'].play()
+        self.num_lives += 1
+        self.gui.set_num_lives(self.num_lives)
 
     def lose_life(self):
         if self.game_over:
@@ -126,6 +136,7 @@ class Base(ShowBase):
         self.enemy_hell.update(self.dt)
         self.explosions.update(self.dt)
         self.specialfx.update(self.dt)
+        self.powerups.update(self.dt)
         self.chk_bgm()
         return task.cont
 

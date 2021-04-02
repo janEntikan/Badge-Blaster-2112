@@ -254,8 +254,8 @@ class EnemyCar(Car):
         base.player_hell.add_collider(self.root, radius=2, callback=self.get_hit)
 
     def die(self):
-        Car.die(self)
         base.enemy_fleet.remove_car(self)
+        Car.die(self)
         base.player_hell.remove_collider(self.root)
 
     async def get_hit(self):
@@ -452,9 +452,25 @@ class PlayerCar(Car):
 class EnemyFleet:
     def __init__(self):
         self.cars = set()
+        self.wave_counter = 0
+        self.wave_car_count = {0: 0}
 
     def remove_car(self, car):
-        self.cars.discard(car)
+        if car in self.cars:
+            self.cars.remove(car)
+            self.wave_car_count[car.wave] -= 1
+            if self.wave_car_count[car.wave] == 0:
+                self.wave_killed(car)
+
+    def wave_killed(self, car):
+        # Last car in wave killed.  Powerup?  Chance increases with low health.
+        #print("Killed wave", car.wave)
+        chance = 0.31 - 0.1 * base.num_lives
+        if chance <= 0:
+            return
+
+        if random() < chance:
+            base.powerups.spawn_single(0, car.root.get_pos(), Vec3(-0.001, 0, 0))
 
     def get_closest_car(self, car, max_dist=None):
         max_dist_sq = max_dist * max_dist if max_dist is not None else math.inf
@@ -505,6 +521,9 @@ class EnemyFleet:
         else:
             car = EnemyCar(base.models["cars"][cars[c]], point)
 
+        car.wave = self.wave_counter
+        self.wave_car_count[car.wave] += 1
+
         car.hp = c+1*2 # not really random
 
         base.task_mgr.add(car.act)
@@ -537,3 +556,6 @@ class EnemyFleet:
             for i in range(num_cars):
                 x = left + 10 + i * mult
                 self.make_car(c, Vec3(x, y + random() - 0.5, 0))
+
+        self.wave_counter += 1
+        self.wave_car_count[self.wave_counter] = 0
