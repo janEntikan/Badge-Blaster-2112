@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice, randint, uniform
 from panda3d.core import Vec3
 from .hell import BulletType, ExplosionType, SpecialType
 from direct.interval.IntervalGlobal import *
@@ -62,12 +62,16 @@ class Gun():
 
     def player(self, car):
         if self.timer.ready():
+            base.sfx['shoot_1'].set_play_rate(uniform(0.4,0.6))
+            base.sfx['shoot_1'].play()
             y = car.speed.y + 100
             x = car.speed.x
             car.hell.spawn_single(BulletType.BULLET, self.root.get_pos(render),Vec3(0,y,0))
 
     def single(self, car):
         if self.timer.ready():
+            base.sfx['shoot_2'].set_play_rate(uniform(0.4,0.6))
+            base.sfx['shoot_2'].play()
             if not randint(0,2):
                 return
             if self.root.get_x(render) > car.root.get_x():
@@ -82,6 +86,8 @@ class Gun():
 
     def full(self, car):
         if self.timer.ready():
+            base.sfx['shoot_3'].set_play_rate(uniform(0.4,0.6))
+            base.sfx['shoot_3'].play()
             type = BulletType.PURPLE
             pos = self.root.get_pos(render)
             velocity = car.speed
@@ -92,6 +98,8 @@ class Gun():
 
     def spread(self, car):
         if self.timer.ready():
+            base.sfx['shoot_3'].set_play_rate(uniform(0.4,0.6))
+            base.sfx['shoot_3'].play()
             type = BulletType.FIREBALL
             pos = self.root.get_pos(render)
             velocity = car.speed
@@ -103,6 +111,7 @@ class Gun():
 
     def rocket(self, car):
         if self.timer.ready():
+            base.sfx['impact'].play()
             car.hell.spawn_single(BulletType.PURPLE, self.root.get_pos(render),Vec3(0,-2,0))
 
 
@@ -131,6 +140,9 @@ class Car():
             return
         splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
         base.explosions.spawn_single(splode_type, self.root.get_pos())
+        sound = 'explosion_'+str(randint(1,3))
+        base.sfx[sound].play()
+        base.sfx[sound].set_play_rate(uniform(0.3,0.9))
         self.root.remove_node()
         self.model.remove_node()
         self.speed.normalize()
@@ -171,6 +183,7 @@ class Car():
         else:
             self.slipping = -SLIP_STRENGTH
             self.speed.x = -SLIP_BUMP
+        base.sfx['bounce'].play()
         self.speed.y -= 10
         if self.speed.y < 0:
             # Never slide backwards.
@@ -311,7 +324,9 @@ class PlayerCar(Car):
         self.max_speed_error  = 40
         self.max_speed_normal = self.max_speed
         self.max_speed_turbo  = 150
-
+        base.sfx['engine'].set_play_rate(0.1)
+        base.sfx['engine'].set_loop(True)
+        base.sfx['engine'].play()
         self.cam_height = 60
         base.cam.set_pos(0, -self.cam_height, self.cam_height)
         base.cam.look_at(render, (0, self.cam_height/3, 0))
@@ -336,7 +351,7 @@ class PlayerCar(Car):
                 splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
                 base.explosions.spawn_single(splode_type, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, 0), self.speed)
             return
-
+        base.sfx['explosion_1'].play()
         base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)
         #self.trigger_slip()
         self.invincible = True
@@ -346,6 +361,7 @@ class PlayerCar(Car):
             self.root.hide()
             await Wait(0.1)
             self.root.show()
+            base.sfx['pong_hi'].play()
 
         self.invincible = False
 
@@ -369,6 +385,7 @@ class PlayerCar(Car):
         if self.alive and not base.game_over:
             context = base.device_listener.read_context('player')
             if not self.slipping:
+                base.sfx['slide'].stop()
                 self.handle_turbo(context['turbo'])
                 if base.game_over:
                     self.speed.y *= 0.5 ** dt
@@ -385,10 +402,14 @@ class PlayerCar(Car):
                 if not base.game_over:
                     self.fire_weapons()
             else:
+                if not base.sfx['slide'].status() == 0:
+                    base.sfx['slide'].play()
                 self.slip(context['move'])
 
         self.update()
-
+        engine_rate = ((self.speed.y/self.max_speed_turbo)*2)
+        base.sfx['engine'].set_volume(max(0,(engine_rate/2)-1))
+        base.sfx['engine'].set_play_rate(engine_rate)
         # Set counters
         color = (1,1,1,0.8)
         if self.slipping or self.max_speed == self.max_speed_error:

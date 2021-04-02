@@ -40,6 +40,18 @@ class Base(ShowBase):
         self.camx = 0
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
+        # Load sounds
+        filenames = [
+            'bounce', 'engine', 'explosion_1', 'explosion_2',
+            'explosion_3', 'impact', 'pickup', 'pong_hi', 'pong_lo',
+            'scratch', 'shoot_1', 'shoot_2', 'shoot_3', 'slide'
+        ]
+        self.sfx = {}
+        for filename in filenames:
+
+            sfx = self.sfx[filename] = loader.load_sfx('assets/sfx/'+filename+'.wav')
+            sfx.set_play_rate(0.6)
+
         # Setup track generator
         self.levels = ("forest", "desert", "express")
         parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
@@ -76,7 +88,7 @@ class Base(ShowBase):
         self.game_over = False
 
         self.bgm = None
-        self.track = random.randrange(len(SND_BGM))
+        self.track = 0
 
         if core.ConfigVariableBool('esc-to-exit', False).get_value():
             self.accept('escape', sys.exit)
@@ -120,11 +132,13 @@ class Base(ShowBase):
         if self.bgm is None:
             self.bgm = self.loader.load_music(SND_BGM[self.track])
             self.bgm.play()
+            self.bgm.set_volume(0.6)
         if self.bgm.status() != self.bgm.PLAYING:
             print('next track')
             self.track += 1
             self.track = self.track % len(SND_BGM)
             self.bgm = self.loader.load_music(SND_BGM[self.track])
+            self.bgm.set_volume(0.6)
             self.bgm.play()
 
     def update_difficulty(self, task=None):
