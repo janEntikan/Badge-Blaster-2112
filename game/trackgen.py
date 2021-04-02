@@ -46,9 +46,11 @@ class TrackGenerator:
         self._variant = random.randrange(base.part_mgr.num_roads(self._level))
         self._dense_counter = 0
         self._next_level = random.randint(*TG_LEVEL_CHG_RNG)
-        self._level_trans_old = -1
-        self._level_trans_new = -1
+        self._level_trans_old = -2
+        self._level_trans_new = -2
         self._level_after_trans = ''
+        self._y_trans_start = -1
+        self._y_trans_end = -1
         self._level_event_sent = False
         self._current_hue = random.uniform(0, pi)
         self._part_mgr:part.PartMgr = base.part_mgr
@@ -131,7 +133,7 @@ class TrackGenerator:
                 np.reparent_to(base.render)
                 self._parts.append(np)
                 np.set_pos(start_x, self._next_part_y - TG_UNIT / 2, 0)
-            elif self._no_props <= 0:
+            elif self._no_props <= 0 and self._level_trans_new == self._level_trans_old == -2:
                 scale = (scale_start + scale_end) / 2
                 self._populate_props(part.bounds.depth,
                     (part.bounds.rmin.x - part.bounds.mmin.x) * scale,
@@ -151,6 +153,8 @@ class TrackGenerator:
             elif self._level_trans_new == self._level_trans_old == -2:  # Setup transition
                 self._level_trans_old = random.randint(*TG_TRANS_RNG) - 1
                 self._level_trans_new = random.randint(*TG_TRANS_RNG)
+                self._y_trans_start = self._next_part_y - TG_UNIT
+                self._y_trans_end = self._next_part_y + (self._level_trans_new + self._level_trans_old + 1) * TG_UNIT
                 self._level_after_trans = self._level
                 while self._level_after_trans == self._level:
                     self._level_after_trans = random.choice(base.levels)
@@ -274,9 +278,11 @@ class TrackGenerator:
 
     def _spawn_enemy(self):
         # FIXME: make spawning better
-        enemy_y = 100
+        enemy_y = random.uniform(TG_MIN_SPAWN_DIST, TG_MAX_SPAWN_DIST)
         self._next_spawn += enemy_y * (4 - self._difficulty)
         enemy_y += self._car_position.y
+        if self._y_trans_start <= enemy_y <= self._y_trans_end:
+            return
         left, right = self.query(enemy_y)
         if self._spawn_callback:
             self._spawn_callback(enemy_y, left, right)
