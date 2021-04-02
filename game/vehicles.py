@@ -104,7 +104,7 @@ class Gun():
             self.timer = CooldownTimer(2,0,0)
             self.fire = self.rocket
         elif 'player' in node.name:
-            self.timer = CooldownTimer(0.2,0,0)
+            self.timer = CooldownTimer(0.15,0,0)
             self.fire = self.player
 
     def player(self, car):
@@ -421,10 +421,10 @@ class PlayerCar(Car):
     def __init__(self, model):
         Car.__init__(self, model)
         self.max_speed = 75
-        self.turbo_threshold  = self.max_speed - 10
+        self.turbo_threshold  = 50
         self.max_speed_error  = 40
         self.max_speed_normal = self.max_speed
-        self.max_speed_turbo  = 150
+        self.max_speed_turbo  = 100
         base.sfx['engine'].set_play_rate(0.1)
         base.sfx['engine'].set_loop(True)
         base.sfx['engine'].play()
@@ -517,7 +517,7 @@ class PlayerCar(Car):
 
         engine_rate = ((self.speed.y/self.max_speed_turbo)*2)
         base.sfx['engine'].set_play_rate(engine_rate)
-        engine_volume = (self.speed.y/self.max_speed_turbo)/3
+        engine_volume = max(0,(self.speed.y/self.max_speed_turbo)/3)
         base.sfx['engine'].set_volume(engine_volume)
 
         # Set counters
