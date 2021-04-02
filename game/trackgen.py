@@ -14,7 +14,7 @@ from .common import *
 
 
 ROAD_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/road.vert', 'assets/shaders/road.frag')
-PROP_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/prop.vert', 'assets/shaders/road.frag')
+PROP_SHADER = core.Shader.load(core.Shader.SL_GLSL, 'assets/shaders/prop.vert', 'assets/shaders/prop.frag')
 
 
 def generate_part(model, bounds, hskew, scale_start, scale_end, hue):
