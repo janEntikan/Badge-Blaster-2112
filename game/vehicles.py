@@ -53,12 +53,26 @@ class CooldownTimer():
         self.time = a
         self.repeats = repeat
         self.repeat = repeat
+        self.rate_multiplier = 1.0
+        self.boosting = 0.0
 
     def ready(self):
         self.time -= base.dt
+        if self.boosting:
+            self.boosting -= base.dt
+            if self.boosting <= 0:
+                self.boosting = 0.0
+                self.rate_multiplier = 1.0
+                print("Fire rate boost expired")
         if self.time < 0:
-            self.time = self.a
+            self.time = self.a * self.rate_multiplier
             return True
+
+    def boost_rate(self, mult, howlong):
+        self.rate_multiplier = 1.0 / mult
+        if howlong > self.boosting:
+            self.boosting = howlong
+
 
 class Gun():
     def __init__(self, node):
@@ -289,7 +303,7 @@ class EnemyCar(Car):
         base.player_hell.remove_collider(self.root)
         Car.remove(self)
 
-    async def get_hit(self):
+    async def get_hit(self, bullet_type=None):
         self.hp -= 1
         if self.hp < 0:
             self.die()
@@ -390,7 +404,7 @@ class PlayerCar(Car):
         self.hell = base.player_hell
         base.enemy_hell.add_collider(self.root, radius=0.8, callback=self.get_hit)
 
-    async def get_hit(self):
+    async def get_hit(self, bullet_type=None):
         if self.invincible:
             return
 
@@ -456,7 +470,8 @@ class PlayerCar(Car):
                     smoothing = (self.steering/2) * base.dt
                     self.speed.x = veer(self.speed.x, smoothing, smoothing)
 
-                if not base.game_over and len(base.enemy_fleet.cars) > 0:
+                # Always fire while boosting fire rate so effect is more obvious
+                if not base.game_over and (len(base.enemy_fleet.cars) > 0 or self.guns[0].timer.boosting):
                     self.fire_weapons()
             else:
                 if not base.sfx['slide'].status() == 0:
@@ -515,6 +530,9 @@ class EnemyFleet:
 
         if random() < chance:
             base.powerups.spawn_single(0, car.root.get_pos(), Vec3(-0.001, 0, 0))
+        elif random() < 0.25:
+            # 25% chance of fire rate boost.
+            base.powerups.spawn_single(1, car.root.get_pos(), Vec3(0.001, 0, 0))
 
     def get_closest_car(self, car, max_dist=None):
         max_dist_sq = max_dist * max_dist if max_dist is not None else math.inf

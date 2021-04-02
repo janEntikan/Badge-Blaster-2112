@@ -244,7 +244,11 @@ class BulletHell(DirectObject):
                             for node, radius_sq, callback in self.colliders:
                                 collider_pos = node.get_pos()
                                 if (collider_pos.xy - pos).length_squared() < radius_sq:
-                                    taskMgr.add(callback())
+                                    # Read out sprite type to pass to collide callback, then call it
+                                    reader = core.GeomVertexReader(vdata, 'vertex')
+                                    reader.set_row(i)
+                                    type = int(reader.get_data2()[1])
+                                    taskMgr.add(callback(type))
                                     delete_points.set_bit(i)
 
             if not delete_points.is_zero():

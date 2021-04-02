@@ -66,7 +66,7 @@ class Base(ShowBase):
         self.enemy_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.03)
         self.explosions = BulletHell(self.render, 'assets/fireworks/explosions.png', (12, 3), loop=False, check_bounds=False, scale=0.15)
         self.specialfx = BulletHell(self.render, 'assets/fireworks/smokesparks.png', (10, 3), loop=False, check_bounds=False, scale=0.05)
-        self.powerups = BulletHell(self.render, 'assets/gui/heart.png', (1, 1), check_bounds=False, scale=0.03, pool_size=8)
+        self.powerups = BulletHell(self.render, 'assets/fireworks/powerups.png', (8, 2), check_bounds=False, scale=0.03, pool_size=8)
 
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
@@ -126,12 +126,17 @@ class Base(ShowBase):
             self.bgm.stop()
         self.chk_bgm()
 
-    async def pickup(self):
+    async def pickup(self, type):
         if self.game_over:
             return
         self.sfx['pickup'].play()
-        self.num_lives += 1
-        self.gui.set_num_lives(self.num_lives)
+        if type == 1:
+            self.num_lives += 1
+            self.gui.set_num_lives(self.num_lives)
+        else:
+            for gun in self.player.guns:
+                # Multiply gun rate by 2.5 for 5 seconds
+                gun.timer.boost_rate(2.5, 5.0)
 
     def lose_life(self):
         if self.game_over:
