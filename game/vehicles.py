@@ -3,6 +3,7 @@ from panda3d.core import Vec3
 from .hell import BulletType, ExplosionType, SpecialType
 from direct.interval.IntervalGlobal import *
 from random import choice, random
+import math
 
 
 SLIP_STRENGTH = 45 # In degrees.
@@ -23,6 +24,10 @@ def veer(n, amount, threshold, center=0):
     else:
         n = center
     return n
+
+
+def distance(car1, car2):
+    return (car1.root.get_pos().xy - car2.root.get_pos().xy).length()
 
 
 class CooldownTimer():
@@ -160,11 +165,12 @@ class Car():
         x, y, z = self.root.get_pos()
         for enemy in base.enemy_fleet.cars:
             if not enemy == self:
-                distance = (enemy.root.get_pos()-self.root.get_pos()).length()
-                if distance <= 1.5 and not self.slipping:
+                distance = (enemy.root.get_pos()-self.root.get_pos()).length_squared()
+                if distance <= 1.5 ** 2 and not self.slipping:
                     base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, random() - 0.5))
-                    self.trigger_slip(enemy.root.get_x() > x)
-                    enemy.trigger_slip(not enemy.root.get_x() > x)
+                    if self == base.player:
+                        self.trigger_slip(enemy.root.get_x() > x)
+                        enemy.trigger_slip(not enemy.root.get_x() > x)
         if x < self.track_left or x > self.track_right:
             base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, random() - 0.5))
             if self.bump_time <= 0:
@@ -262,13 +268,22 @@ class EnemyCar(Car):
 
 
     def chase(self):
-        if base.player.root.get_x() > self.root.get_x()+5:
-            self.steer(1)
+        nearby_cars = base.enemy_fleet.get_nearby_cars(self, 10)
+        if nearby_cars:
+            # Steer to avoid nearby cars.
+            steer = 0
+            for nearby_car in nearby_cars:
+                steer += (self.root.get_x() - nearby_car.root.get_x()) / 2
+            steer /= len(nearby_cars)
+            self.steer(steer)
+        elif base.player.root.get_x() > self.root.get_x()+5:
+            self.steer(0.4)
         elif base.player.root.get_x() < self.root.get_x()-5:
-            self.steer(-1)
+            self.steer(-0.4)
         else:
             smoothing = (self.steering/2) * base.dt
             self.speed.x = veer(self.speed.x, smoothing, smoothing)
+
         if base.player.root.get_y()+self.aim > self.root.get_y():
             self.accelerate()
         else:
@@ -279,10 +294,10 @@ class EnemyCar(Car):
         ahead.y += self.speed.y/4
         left, right = base.trackgen.query(ahead.y)
         if ahead.x-10 < left:
-            self.steer(2)
+            self.steer(1)
             self.decelerate(multiplier=0.5)
         elif ahead.x+10 > right:
-            self.steer(-2)
+            self.steer(-1)
             self.decelerate(multiplier=0.5)
         else:
             return True
@@ -297,8 +312,8 @@ class EnemyCar(Car):
 
         if not self.slipping:
             if self.stay_on_the_road():
-                if self.distance < 100:
-                    self.chase()
+                #if self.distance < 100:
+                self.chase()
             else:
                 self.decelerate()
         else:
@@ -430,6 +445,41 @@ class EnemyFleet:
 
     def remove_car(self, car):
         self.cars.discard(car)
+
+    def get_closest_car(self, car, max_dist=None):
+        max_dist_sq = max_dist * max_dist if max_dist is not None else math.inf
+
+        pos = car.root.get_pos().xy
+        min_dist_sq = math.inf
+        min_car = None
+
+        for other in self.cars:
+            if car is other:
+                continue
+
+            dist_sq = (other.root.get_pos().xy - pos).length_squared()
+            if dist_sq < min_dist_sq:
+                min_dist_sq = dist_sq
+                min_car = other
+
+        if min_dist_sq <= max_dist_sq:
+            return min_car
+
+    def get_nearby_cars(self, car, max_dist):
+        max_dist_sq = max_dist * max_dist
+
+        pos = car.root.get_pos().xy
+        cars = []
+
+        for other in self.cars:
+            if car is other:
+                continue
+
+            dist_sq = (other.root.get_pos().xy - pos).length_squared()
+            if dist_sq < max_dist_sq:
+                cars.append(other)
+
+        return cars
 
     def make_car(self, c, point):
         cars = [
