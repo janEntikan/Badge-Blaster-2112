@@ -66,7 +66,7 @@ class Base(ShowBase):
         self.enemy_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.03)
         self.explosions = BulletHell(self.render, 'assets/fireworks/explosions.png', (12, 3), loop=False, check_bounds=False, scale=0.15)
         self.specialfx = BulletHell(self.render, 'assets/fireworks/smokesparks.png', (10, 3), loop=False, check_bounds=False, scale=0.05)
-        self.powerups = BulletHell(self.render, 'assets/fireworks/powerups.png', (8, 2), check_bounds=False, scale=0.03, pool_size=8)
+        self.powerups = BulletHell(self.render, 'assets/fireworks/powerups.png', (8, 2), check_bounds=False, scale=0.04, pool_size=8)
 
         # Load cars
         car_models = loader.load_model("assets/models/cars.bam")
@@ -77,7 +77,7 @@ class Base(ShowBase):
         self.enemy_fleet = EnemyFleet()
         self.trackgen.register_spawn_callback(self.enemy_fleet.spawn)
 
-        self.powerups.add_collider(self.player.root, radius=2, callback=self.pickup)
+        self.powerups.add_collider(self.player.root, radius=3, callback=self.pickup)
 
         # Setup x-follow cam
         self.followcam = FollowCam()
