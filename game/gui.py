@@ -66,6 +66,17 @@ class Gui():
             Func(subtext.destroy),
         ).start()
 
+    def announce_game_over(self):
+        text = OnscreenText(text='GAME OVER', font=self.font, parent=base.aspect2d, pos=(0, 0.3), scale=0.1, fg=(1, 1, 1, 1))
+        text.set_transparency(1)
+        text.set_color_scale((1, 1, 1, 0))
+        Sequence(
+            text.colorScaleInterval(2.0, (1, 1, 1, 1)),
+            Wait(4.0),
+            text.colorScaleInterval(3.5, (1, 0, 0, 0)),
+            Func(text.destroy),
+        ).start()
+
     def set_num_lives(self, num_lives):
         while num_lives > len(self.lives):
             image = OnscreenImage(self.heart_tex, pos=(0.2 + len(self.lives) * 0.1, 0, -0.18), scale=0.04, parent=base.a2dTopLeft)
