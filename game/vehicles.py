@@ -3,6 +3,7 @@ from panda3d.core import Vec3, Shader
 from .hell import BulletType, ExplosionType, SpecialType
 from .common import SH_Z_SHADE_COLOR, SH_Z_SHADE_EXP
 from direct.interval.IntervalGlobal import *
+from direct.gui.OnscreenText import OnscreenText
 from random import choice, random, uniform
 import math
 
@@ -288,6 +289,7 @@ class EnemyCar(Car):
         self.min_speed = 35
         self.acceleration = 80
         self.root.set_pos(position)
+        self.score_gain = 500
         self.speed.y = 10
         self.speed.x = 0
         self.aim = uniform(50, 60) # target distance they try to stay ahead of player
@@ -304,15 +306,34 @@ class EnemyCar(Car):
         Car.remove(self)
 
     async def get_hit(self, bullet_type=None):
+        if not self.root:
+            return
+
         self.hp -= 1
         if self.hp < 0:
+            # Score gain flies off.
+            scale = math.sqrt(self.score_gain) / 25.0
+            base.add_score(self.score_gain)
+            text = OnscreenText(str(self.score_gain), font=base.gui.font, parent=base.render, scale=scale, fg=(1, 1, 1, 1))
+            text.set_light_off(True)
+            text.set_z(10)
+            text.set_pos(self.root.get_pos())
+            text.set_depth_test(False)
+            dir = base.player.root.get_x() - self.root.get_x()
+            if dir == 0:
+                dir = choice((-1, 1))
+            if dir < 5:
+                dir *= 5 / abs(dir)
+            text.posInterval(1.0, self.root.get_pos() + (-dir, base.player.speed.y * 0.6, 0)).start()
+            text.scaleInterval(1.0, scale*2).start()
+            text.set_transparency(1)
+            Sequence(Wait(0.25), text.colorScaleInterval(0.75, (1, 0, 0, 0))).start()
             self.die()
-        elif self.root:
+        else:
             self.root.set_color_scale((1, 0, 0, 1))
             await WaitInterval(0.1)
             if self.root:
                 self.root.clear_color_scale()
-
 
     def chase(self):
         aim_y = base.player.root.get_y() + self.aim
@@ -478,7 +499,10 @@ class PlayerCar(Car):
                     base.sfx['slide'].play()
                 self.slip(context['move'])
 
+        last_y = self.root.get_y()
         self.update()
+        base.add_score(self.root.get_y() - last_y)
+
         engine_rate = ((self.speed.y/self.max_speed_turbo)*2)
         base.sfx['engine'].set_play_rate(engine_rate)
         engine_volume = (self.speed.y/self.max_speed_turbo)/3
@@ -493,8 +517,6 @@ class PlayerCar(Car):
         elif self.speed.y > self.turbo_threshold:
             color = (0,1,0,0.8)
         base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
-        if not base.game_over:
-            base.gui.set_score_counter(int(self.root.get_y()+self.score))
         base.trackgen.update(self.root.get_pos())
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
 
@@ -580,6 +602,7 @@ class EnemyFleet:
         if c > 4:
             c = 4
         car = EnemyCar(base.models["cars"][cars[c]], point)
+        car.score_gain = int(10 * (c + 1) * (base.difficulty + 1)) * 50
 
         car.wave = self.wave_counter
         self.wave_car_count[car.wave] += 1

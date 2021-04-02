@@ -88,6 +88,7 @@ class Base(ShowBase):
         self.progress = 0
         self.task_mgr.do_method_later(1, self.update_difficulty, name="update_difficulty")
 
+        self.score = 0.0
         self.num_lives = 3
         self.gui.set_num_lives(self.num_lives)
         self.game_over = False
@@ -109,6 +110,8 @@ class Base(ShowBase):
     def reset_game(self):
         self.num_lives = 3
         self.gui.set_num_lives(self.num_lives)
+        self.score = 0
+        self.gui.set_score_counter(self.score)
         self.game_over = False
         self.player.remove()
         self.trackgen.reset()
@@ -126,6 +129,11 @@ class Base(ShowBase):
         if self.bgm:
             self.bgm.stop()
         self.chk_bgm()
+
+    def add_score(self, score):
+        if not self.game_over:
+            self.score += score
+            self.gui.set_score_counter(int(self.score))
 
     async def pickup(self, type):
         if self.game_over:
