@@ -5,6 +5,7 @@ uniform float i_zmax;
 uniform float i_height;
 uniform vec3 i_shade;
 uniform float i_shade_exp;
+uniform float i_alpha_f;
 
 varying vec4 v_color;
 varying vec4 v_pos;
@@ -18,7 +19,7 @@ vec3 hue_shift(vec3 color, float hue) {
 
 void main() {
   float f = clamp((i_zmax - v_pos.z) / i_height, 0.1, 0.8);
-  vec4 color = vec4(hue_shift(v_color.rgb, i_hue), v_color.a);
+  vec4 color = vec4(hue_shift(v_color.rgb, i_hue), v_color.a * i_alpha_f);
   color.rgb = mix(i_shade, color.rgb, pow(f, i_shade_exp));
 	gl_FragColor = color;
 }

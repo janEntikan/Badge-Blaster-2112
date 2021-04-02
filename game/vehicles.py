@@ -1,10 +1,12 @@
 from random import choice, randint, uniform
-from panda3d.core import Vec3
+from panda3d.core import Vec3, Shader
 from .hell import BulletType, ExplosionType, SpecialType
+from .common import SH_Z_SHADE_COLOR, SH_Z_SHADE_EXP
 from direct.interval.IntervalGlobal import *
 from random import choice, random, uniform
 import math
 
+PROP_SHADER = Shader.load(Shader.SL_GLSL, 'assets/shaders/prop.vert', 'assets/shaders/prop.frag')
 
 SLIP_STRENGTH = 45 # In degrees.
 SLIP_TURN_SPEED = 120
@@ -13,6 +15,21 @@ SLIP_BUMP = 10
 
 def clamp(n, mini, maxi):
     return max(min(n, maxi), mini)
+
+
+def set_light_shader(n):
+    nodes = []
+    for np in n.find_all_matches('**/*light*'):
+        bmin, bmax = np.get_tight_bounds()
+        np.set_shader(PROP_SHADER)
+        np.set_shader_input('i_hue', base.trackgen._current_hue)
+        np.set_shader_input('i_zmax', bmax.z)
+        np.set_shader_input('i_height', bmax.z - bmin.z)
+        np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
+        np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
+        np.set_shader_input('i_alpha_f', 0.1)
+        nodes.append(np)
+    return nodes
 
 
 # Veers a number to a center within a threshold
@@ -137,6 +154,7 @@ class Car():
         self.max_steering = 40
         self.track_left, self.track_right = -100, 100
         self.bump_time = 0.2
+        self.light_nodes = set_light_shader(self.root)
 
         self.slipping = 0 #-1 is slip left, 1 is slip right
         self.guns = []
@@ -235,6 +253,8 @@ class Car():
         self.speed.y = veer(self.speed.y, amount, threshold=0.2, center=self.min_speed)
 
     def update(self):
+        for n in self.light_nodes:
+            n.set_shader_input('i_hue', base.trackgen._current_hue)
         self.root.set_y(self.root, self.speed.y * base.dt)
         self.root.set_x(self.root, self.speed.x * base.dt)
         self.track_left, self.track_right = base.trackgen.query(self.root.get_y())

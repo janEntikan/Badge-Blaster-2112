@@ -260,6 +260,7 @@ class TrackGenerator:
                     np.set_shader_input('i_height', part.bounds.mmax.z - part.bounds.mmin.z)
                     np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
                     np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
+                    np.set_shader_input('i_alpha_f', 1.0)
                     np.set_pos(x, y, z)
                     np.set_scale(PR_SCALE)
                     np.set_h(angle)
@@ -286,6 +287,7 @@ class TrackGenerator:
             np.set_shader_input('i_height', part.bounds.mmax.z - part.bounds.mmin.z)
             np.set_shader_input('i_shade', SH_Z_SHADE_COLOR)
             np.set_shader_input('i_shade_exp', SH_Z_SHADE_EXP)
+            np.set_shader_input('i_alpha_f', 1.0)
 
             if (self._dense_counter + placed) % 2:
                 np.set_scale(PR_SCALE)
