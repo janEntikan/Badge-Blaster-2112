@@ -235,22 +235,25 @@ class BulletHell(DirectObject):
                     for i in range(begin, end):
                         rewriter.set_row(i)
                         pos = rewriter.get_data2()
-                        if pos.y > base.cam.get_y() + 150:
-                            delete_points.set_bit(i)
-                            continue
-                        left, right = base.trackgen.query(pos.y)
-                        if pos.x < left or pos.x > right:
-                            delete_points.set_bit(i)
-                        else:
-                            for node, radius_sq, callback in self.colliders:
-                                collider_pos = node.get_pos()
-                                if (collider_pos.xy - pos).length_squared() < radius_sq:
-                                    # Read out sprite type to pass to collide callback, then call it
-                                    reader = core.GeomVertexReader(vdata, 'offset')
-                                    reader.set_row(i)
-                                    type = int(reader.get_data2()[1])
-                                    taskMgr.add(callback(type))
-                                    delete_points.set_bit(i)
+                        if self.check_bounds:
+                            if pos.y > base.cam.get_y() + 150:
+                                delete_points.set_bit(i)
+                                continue
+
+                            left, right = base.trackgen.query(pos.y)
+                            if pos.x < left or pos.x > right:
+                                delete_points.set_bit(i)
+                                continue
+
+                        for node, radius_sq, callback in self.colliders:
+                            collider_pos = node.get_pos()
+                            if (collider_pos.xy - pos).length_squared() < radius_sq:
+                                # Read out sprite type to pass to collide callback, then call it
+                                reader = core.GeomVertexReader(vdata, 'offset')
+                                reader.set_row(i)
+                                type = int(reader.get_data2()[1])
+                                taskMgr.add(callback(type))
+                                delete_points.set_bit(i)
 
             if not delete_points.is_zero():
                 vdata.transform_vertices(core.Mat4.translate_mat((0, 0, -10000)), delete_points)

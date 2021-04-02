@@ -179,6 +179,19 @@ class Base(ShowBase):
         self.gui.announce_level(self.level_counter, level)
         self.level_counter += 1
 
+        # Throw the player a life if they have none
+        if self.num_lives > 1:
+            return
+
+        # If you have one life, 50% that one spawns, decreasing with difficulty
+        if self.num_lives == 1 and (random.randint(0, 1) or random.random() < self.difficulty):
+            return
+
+        y = self.player.root.get_y() + 100
+        l, r = self.trackgen.query(y)
+        x = (l + r) * 0.5
+        self.powerups.spawn_single(0, core.Point3(x, y, 0), core.Vec3(-0.001, 0, 0))
+
     def tick(self, task=None):
         self.dt = globalClock.get_dt()
         self.player.input(self.dt)
