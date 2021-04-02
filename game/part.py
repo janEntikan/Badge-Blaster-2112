@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 
 from panda3d import core
 
+from .common import PR_DEFAULT_DENSITY
 from . import preprocess as pp
 from . import util
 
@@ -71,11 +72,13 @@ class PartMgr:
                     child.detach_node()
                     child.clear_transform()
                     d = child.get_net_tag('density')
-                    d = float(d) if d else -1.0
+                    d = float(d) if d else PR_DEFAULT_DENSITY
                     part = Part(key, child.name, child, pp.get_model_bounds(np), d)
                     if part.bounds.width > 0:
                         child.flatten_strong()
                         self._parts[key]['props'].append(part)
+                    else:
+                        print(f'Could not scan Prop, apparently width is 0: {part}')
 
     def get_road_part(self, part_type, variant):
         return self._parts[part_type]['road'][variant]
@@ -88,6 +91,9 @@ class PartMgr:
 
     def get_prop_by_density(self, part_type, density_min):
         return [i for i in self._parts[part_type]['props'] if i.density >= density_min]
+
+    def get_prop_by_prefix(self, part_type, prefix):
+        return [i for i in self._parts[part_type]['props'] if i.part_type.startswith(f'{prefix}')]
 
     def get_part_types(self):
         return list(self._parts.keys())

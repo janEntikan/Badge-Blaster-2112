@@ -53,6 +53,7 @@ class TrackGenerator:
         self._current_hue = random.uniform(0, pi)
         self._part_mgr:part.PartMgr = base.part_mgr
         self._first_piece = True
+        self._no_props = 5
         self.update(core.Vec3(0))
 
     def update(self, car_position):
@@ -130,11 +131,12 @@ class TrackGenerator:
                 np.reparent_to(base.render)
                 self._parts.append(np)
                 np.set_pos(start_x, self._next_part_y - TG_UNIT / 2, 0)
-            else:
+            elif self._no_props <= 0:
                 scale = (scale_start + scale_end) / 2
                 self._populate_props(part.bounds.depth,
                     (part.bounds.rmin.x - part.bounds.mmin.x) * scale,
                     (part.bounds.mmax.x - part.bounds.rmax.x) * scale)
+            self._no_props -= 1
             self._next_part_y = new_next
             return True
         return False
@@ -189,9 +191,8 @@ class TrackGenerator:
             dist = int(part.part_type[0])
             if dist == 0:
                 continue
-            chk = PR_DEFAULT_DENSITY if part.density < 0 else part.density
             remaining -= 1
-            if random.random() > chk:
+            if random.random() > part.density:
                 continue
             np = core.NodePath('prop')
             part.model.copy_to(np)
@@ -246,14 +247,19 @@ class TrackGenerator:
 
     def _place_dense(self, left, right):
         # FIXME: Account for possibly more than two prop with 100% density
-        for i, part in enumerate(self._part_mgr.get_prop_by_density(self._level, 1)):
-            if i > 1:
+        placed = 0
+        dense_parts = self._part_mgr.get_prop_by_prefix(self._level, 0)
+        random.shuffle(dense_parts)
+        for part in dense_parts:
+            if placed > 1:
                 break
+            if random.random() > part.density:
+                continue
             np = core.NodePath('prop')
             part.model.copy_to(np)
             np.reparent_to(base.render)
 
-            if (self._dense_counter + i) % 2:
+            if (self._dense_counter + placed) % 2:
                 np.set_scale(PR_SCALE)
                 np.set_pos(left, self._next_part_y, 0)
             else:
@@ -262,6 +268,8 @@ class TrackGenerator:
                 np.set_pos(right, self._next_part_y, 0)
 
             self._parts.append(np)
+            placed += 1
+
         self._dense_counter += 1
 
     def _spawn_enemy(self):
