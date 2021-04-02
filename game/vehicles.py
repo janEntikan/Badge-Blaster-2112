@@ -369,6 +369,8 @@ class PlayerCar(Car):
         if base.game_over:
             return
 
+        self.speed.y = max(self.min_speed, self.speed.y - 30)
+
         if not base.lose_life():
             self.trigger_slip()
             base.explosions.spawn_single(ExplosionType.LARGE, self.root.get_pos(), self.speed)
