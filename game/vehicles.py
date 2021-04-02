@@ -304,7 +304,7 @@ class EnemyCar(Car):
         self.score_gain = 500
         self.speed.y = 10
         self.speed.x = 0
-        self.aim = uniform(50, 60) # target distance they try to stay ahead of player
+        self.aim = uniform(60, 70) # target distance they try to stay ahead of player
         self.aim_hysteresis = uniform(5, 25) # how far they are allowed to stray from aim distance
         self.last_fire = 10.0
         self.hell = base.enemy_hell
