@@ -532,7 +532,8 @@ class EnemyFleet:
             x = uniform(left + 10, right - 10)
             self.make_car(c, Vec3(x, y, 0))
         elif num_cars > 0:
-            width = right - left - 30
+            width = right - left - 20
+            mult = width / (num_cars - 1)
             for i in range(num_cars):
-                x = left + 15 + i / (num_cars + 1)
+                x = left + 10 + i * mult
                 self.make_car(c, Vec3(x, y + random() - 0.5, 0))
