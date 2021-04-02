@@ -57,7 +57,6 @@ class Base(ShowBase):
         parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
         self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
         self.trackgen = TrackGenerator()
-        self.trackgen.set_difficulty(1)  # Adjust from 0..1
 
         # Load hells
         self.player_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.02)
