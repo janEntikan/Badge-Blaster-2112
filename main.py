@@ -21,6 +21,8 @@ from game.nameEntry import NameEntry
 from game.mainMenu import GUI as MainMenu
 from game.highscore import GUI as Highscore
 
+from game.lbclient import LeaderBoard
+
 core.load_prc_file(core.Filename.expand_from('$MAIN_DIR/settings.prc'))
 
 USER_CONFIG_PATH = core.Filename.expand_from('$MAIN_DIR/user.prc')
@@ -43,6 +45,8 @@ class Base(ShowBase, FSM):
         ShowBase.__init__(self)
         FSM.__init__(self, "FSM-Game")
         self.set_background_color(0.8, 0.2, 0.2, 1)
+
+        self.leaderboard = LeaderBoard()
 
         self.request("MainMenu")
 
@@ -188,6 +192,9 @@ class Base(ShowBase, FSM):
         self.ne = NameEntry()
 
     def exitNameEntry(self):
+        print(self.ne.get())
+        print(self.score)
+        self.leaderboard.submit(self.ne.get(), int(self.score))
         self.ne.destroy()
 
     def reset_game(self):
