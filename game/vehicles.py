@@ -259,7 +259,7 @@ class Car():
 
     def steer(self, x):
         sign = -1 if x < 0 else 1
-        x = (max(min(x, 1), -1) ** 2) * sign
+        x = (max(min(abs(x), 1), 0) ** 2) * sign
         if self.speed.y > 0:
             self.speed.x += (x * self.steering) * base.dt
             # if self.speed.y < self.max_speed_normal:
