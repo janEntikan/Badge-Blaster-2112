@@ -49,6 +49,7 @@ def child_dict(model):
 class Base(ShowBase, FSM):
     def __init__(self):
         ShowBase.__init__(self)
+        self.disable_mouse()
         self.device_listener = DeviceListener(SinglePlayerAssigner())
         FSM.__init__(self, "FSM-Game")
         self.set_background_color(0,0,0)
