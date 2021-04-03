@@ -218,6 +218,8 @@ class Base(ShowBase, FSM):
     def exitGame(self):
         print("Exiting state Game")
 
+        self.sfx['engine'].stop()
+
         self.noConnection.show()
 
         self.game_over = True
