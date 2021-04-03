@@ -3,7 +3,7 @@ import sys
 try:
     from panda3d.core import PandaSystem
     import keybindings
-except ImportError:
+except ImportError as ex:
     print("You have not installed the required dependencies!")
     print("Please run:")
     print("")
