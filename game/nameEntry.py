@@ -77,10 +77,20 @@ class NameEntry:
             self.spinnerNode.reparentTo(render)
 
     def destroy(self):
+
+
+        base.ignore("arrow_left")
+        base.ignore("arrow_right")
+        base.ignore("arrow_up")
+        base.ignore("arrow_down")
+
         self.spinnerNode.removeNode()
         self.first.destroy()
         self.second.destroy()
         self.third.destroy()
+        self.arrowA.destroy()
+        self.arrowB.destroy()
+        self.help.destroy()
 
     def addSign(self):
         if SIGNS[self.currentSign] == "end":
