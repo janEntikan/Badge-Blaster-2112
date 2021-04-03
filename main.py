@@ -231,6 +231,7 @@ class Base(ShowBase, FSM):
         print("Exiting state Game")
 
         self.sfx['engine'].stop()
+        self.sfx['slide'].stop()
 
         self.noConnection.show()
 
