@@ -198,7 +198,7 @@ class TrackGenerator:
                 if not self._level_event_sent:
                     messenger.send('level-transition', [self._level_after_trans])
                     self._current_hue = self._next_hue
-                    self._next_hue = random.uniform(0, pi) if base.level_counter > 2 else 0
+                    self._next_hue = random.uniform(0, pi) if base.level_counter > 3 else 0
                     self._level_event_sent = True
                 self._level = self._level_after_trans
                 self._level_trans_new -= 1
