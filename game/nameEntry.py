@@ -20,6 +20,13 @@ class NameEntry:
         self.currentFrameID = 0
         self.currentFrame = None
 
+        self.sound_lo = loader.load_sfx("assets/sfx/pong_lo.wav")
+        self.sound_lo.set_volume(0.4)
+        self.sound_ye = loader.load_sfx("assets/sfx/pickup.wav")
+        self.sound_ye.set_volume(0.4)
+        self.sound_no = loader.load_sfx("assets/sfx/bounce.wav")
+        self.sound_no.set_volume(0.4)
+
         self.repeating = 0
 
         self.spinnerNode = NodePath("spinner")
@@ -72,6 +79,7 @@ class NameEntry:
         self.delay = 0.2
 
     def activate(self):
+        self.sound_ye.play()
         if self.currentSign == 0:
             base.messenger.send("do_start")
         elif self.currentSign == 1:
@@ -141,6 +149,7 @@ class NameEntry:
             self.activate()
             return
         else:
+            self.sound_ye.play()
             if self.items[self.currentSign] == "end":
                 base.messenger.send("nameEntryDone")
                 return
@@ -164,6 +173,7 @@ class NameEntry:
             return
 
         if self.currentFrameID > 0:
+            self.sound_no.play()
             self.arrowA.setX(self.arrowA.getX() - 0.4)
             self.currentFrameID -= 1
             if self.currentFrameID == 0:
@@ -177,11 +187,13 @@ class NameEntry:
         return "{}{}{}".format(self.first["text"], self.second["text"], self.third["text"])
 
     def rotateLeft(self):
+        self.sound_lo.play()
         self.currentSign -= 1
         if self.currentSign < 0:
             self.currentSign = len(self.items)-1
 
     def rotateRight(self):
+        self.sound_lo.play()
         self.currentSign += 1
         if self.currentSign >= len(self.items):
             self.currentSign = 0

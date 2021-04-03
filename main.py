@@ -103,6 +103,15 @@ class Base(ShowBase, FSM):
         self.bgm.set_loop(True)
         self.bgm.play()
 
+        cardmaker = core.CardMaker("titlecard")
+        cardmaker.set_frame(-0.5,0.5,-0.5,0.5)
+        title_texture = loader.load_texture("assets/titlecard.png")
+        titlecard = render2d.attach_new_node(cardmaker.generate())
+        titlecard.set_texture(title_texture)
+        titlecard.set_transparency(True)
+        titlecard.set_z(0.4)
+        self.titlecard = titlecard
+
     def exitMainMenu(self):
         print("Exiting state MainMenu")
         self.ignore("do_start")
@@ -111,7 +120,8 @@ class Base(ShowBase, FSM):
         self.mainMenu.destroy()
         self.background.detach_node()
         self.background = None
-
+        self.titlecard.detach_node()
+        self.titlecard = None
 
     def enterHighscore(self):
         print("Entering state Highscore")
