@@ -111,11 +111,11 @@ class NameEntry:
                 else:
                     self.delay = 0.2
                     self.repeating = 1
-            elif context["accelerate"]:
+            elif context["accelerate"] or context["select"]:
                 self.addSign()
                 self.delay = 0.2
                 self.repeating = False
-            elif context["decelerate"]:
+            elif context["decelerate"] or context["backspace"]:
                 self.removeSign()
                 self.delay = 0.2
                 self.repeating = False

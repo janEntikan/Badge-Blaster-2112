@@ -17,6 +17,19 @@
   gamepad = "face_y"
   keyboard = "arrow_down"
 
+  [player.select]
+  _type = "trigger"
+  _device_order = ["gamepad", "keyboard"]
+  gamepad = "face_x"
+  keyboard = "enter"
+
+  [player.backspace]
+  _type = "trigger"
+  _device_order = ["gamepad", "keyboard"]
+  gamepad = "face_y"
+  keyboard = "backspace"
+
+
 [game]
   [game.move]
   _type = "axis"
@@ -24,17 +37,6 @@
   gamepad = "left_x"
   keyboard = "arrow_left,arrow_right"
 
-  [game.select]
-  _type = "trigger"
-  _device_order = ["gamepad", "keyboard"]
-  gamepad = "face_x"
-  keyboard = "enter"
-
-  [game.backspace]
-  _type = "trigger"
-  _device_order = ["gamepad", "keyboard"]
-  gamepad = "face_y"
-  keyboard = "backspace"
 
   [game.quit]
   _type = "trigger"
