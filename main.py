@@ -173,7 +173,7 @@ class Base(ShowBase, FSM):
         car_models = loader.load_model("assets/models/cars.bam")
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
-        self.task_mgr.do_method_later(0.01, self.tick, name='tick')
+        self.task_mgr.do_method_later(0.1, self.tick, name='tick')
 
         self.enemy_fleet = EnemyFleet()
         self.trackgen.register_spawn_callback(self.enemy_fleet.spawn)
@@ -314,7 +314,7 @@ class Base(ShowBase, FSM):
         self.powerups.spawn_single(0, core.Point3(x, y, 0), core.Vec3(-0.001, 0, 0))
 
     def tick(self, task=None):
-        self.dt = globalClock.get_dt()
+        self.dt = (1/60.0) if task.frame == 0 else globalClock.get_dt()
         self.player.input(self.dt)
         self.followcam.update(self.dt)
         self.player_hell.update(self.dt)
