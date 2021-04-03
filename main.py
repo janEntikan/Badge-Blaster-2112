@@ -7,6 +7,7 @@ print('Using seed: ', s)
 from direct.showbase.ShowBase import ShowBase
 from direct.gui.DirectGui import DGG
 from direct.fsm.FSM import FSM
+from direct.gui.DirectLabel import DirectLabel
 from panda3d import core
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
 from game.gui import Gui
@@ -23,6 +24,10 @@ from game.mainMenu import GUI as MainMenu
 from game.highscore import GUI as Highscore
 
 from game.lbclient import LeaderBoard
+
+import asyncio
+from direct.stdpy import thread
+from lbserver import server
 
 core.load_prc_file(core.Filename.expand_from('$MAIN_DIR/settings.prc'))
 
@@ -51,6 +56,22 @@ class Base(ShowBase, FSM):
 
         self.leaderboard = LeaderBoard()
 
+        if not self.leaderboard.submit("AAA", -1):
+            #setup local server
+
+            self.noConnection = DirectLabel(text="NO CONNECTION TO LEADERBOARD - USING LOCAL SERVER",
+                frameColor=(0,0,0,0),
+                text_fg=(50.2/100,0.4/100,29.4/100,1),
+                pos=(0,0,-0.93),
+                scale=0.05)
+
+            thread.start_new_thread(asyncio.run, (server.main(),))
+            self.leaderboard = LeaderBoard("")
+
+        self.request("MainMenu")
+
+    def setLocalServer(self, task):
+        self.leaderboard = LeaderBoard("")
         self.request("MainMenu")
 
     def enterMainMenu(self):
@@ -103,6 +124,8 @@ class Base(ShowBase, FSM):
         self.highScore.destroy()
 
     def enterGame(self):
+
+        self.noConnection.hide()
 
         # self.disable_mouse()  # FIXME: Uncomment before release
         self.device_listener = DeviceListener(SinglePlayerAssigner())
@@ -183,6 +206,9 @@ class Base(ShowBase, FSM):
         self.reset_game()
 
     def exitGame(self):
+
+        self.noConnection.show()
+
         self.player_hell.reset()
         self.enemy_hell.reset()
         self.explosions.reset()

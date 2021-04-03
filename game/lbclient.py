@@ -29,6 +29,9 @@ class LeaderBoard:
         lb = reply.split(',')
         if len(lb) == 10:
             self._lb = [tuple(i.split('-')) for i in lb]
+        if len(self._lb) < 10:
+            for i in range(10 - len(self._lb)):
+                self._lb.append(("AAA", 0))
 
     def _send_msg(self, msg):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
