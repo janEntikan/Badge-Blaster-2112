@@ -85,6 +85,9 @@ class Base(ShowBase, FSM):
         self.enemy_fleet = EnemyFleet()
         self.trackgen.register_spawn_callback(self.enemy_fleet.spawn)
 
+        self.bgm = None
+        self.title_music = loader.load_music("assets/music/title.ogg")
+
         self.request("MainMenu")
 
     def setLocalServer(self, task):
@@ -100,9 +103,11 @@ class Base(ShowBase, FSM):
         self.background = loader.load_model("assets/models/menuBack.bam")
         set_faux_lights(self.background)
         self.background.reparent_to(render)
-        self.bgm = loader.load_music("assets/music/title.ogg")
-        self.bgm.set_loop(True)
-        self.bgm.play()
+
+        if self.bgm != self.title_music:
+            self.bgm = self.title_music
+            self.bgm.set_loop(True)
+            self.bgm.play()
 
         cardmaker = core.CardMaker("titlecard")
         cardmaker.set_frame(-0.5,0.5,-0.5,0.5)
@@ -267,6 +272,11 @@ class Base(ShowBase, FSM):
     def enterNameEntry(self):
         print("Entering state NameEntry")
         self.set_background_color(0,0,0)
+        if self.bgm:
+            self.bgm.stop()
+        self.bgm = loader.load_music("assets/music/highscore.ogg")
+        self.bgm.set_loop(True)
+        self.bgm.play()
         #self.set_background_color(20/255, 16/255, 16/255, 1)
         self.accept("nameEntryDone", self.request, ["Highscore"])
         self.ne = NameEntry()

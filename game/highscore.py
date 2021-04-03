@@ -16,9 +16,6 @@ from panda3d.core import (
 
 class GUI:
     def __init__(self, rootParent=None):
-        base.bgm = loader.load_music("assets/music/highscore.ogg")
-        base.bgm.set_loop(True)
-        base.bgm.play()
         self.background = loader.load_model("assets/models/highscoreBack.bam")
         self.background.reparent_to(render)
 
