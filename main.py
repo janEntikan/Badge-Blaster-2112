@@ -154,6 +154,8 @@ class Base(ShowBase):
                 gun.timer.boost_rate(2.5, 5.0)
 
     def lose_life(self):
+        if self.player.invincible:
+            return True
         if self.game_over:
             return False
         if self.num_lives > 0:
