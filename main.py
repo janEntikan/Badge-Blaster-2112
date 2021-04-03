@@ -106,7 +106,7 @@ class Base(ShowBase, FSM):
 
         cardmaker = core.CardMaker("titlecard")
         cardmaker.set_frame(-0.5,0.5,-0.5,0.5)
-        title_texture = loader.load_texture("assets/titlecard.png")
+        title_texture = loader.load_texture("assets/gui/titlecard.png")
         titlecard = render2d.attach_new_node(cardmaker.generate())
         titlecard.set_texture(title_texture)
         titlecard.set_transparency(True)
