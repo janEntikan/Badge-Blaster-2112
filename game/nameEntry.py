@@ -13,18 +13,14 @@ class NameEntry:
     def __init__(self, items=SIGNS, menu=False):
         self.items = items
         self.menu = menu
-        self.font = loader.load_font("assets/fonts/computerspeak.ttf")
-        try:
-            self.font.setPixelsPerUnit(100)
-        except:
-            #HACK: somehow this results in an exception sometimes
-            pass
         base.cam.set_pos(0,0,0)
         base.cam.set_hpr(0,0,0)
 
         self.currentSign = 0
         self.currentFrameID = 0
         self.currentFrame = None
+
+        self.repeating = False
 
         self.spinnerNode = NodePath("spinner")
         self.spinnerNode.setPos(0, 3, -0.2)
@@ -41,9 +37,9 @@ class NameEntry:
                 text_fg=(1,1,1,1),
                 pos=(0,0,-0.8),
                 scale=0.07)
-            self.first = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(-0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
-            self.second = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
-            self.third = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
+            self.first = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(-0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=base.font, text_align=TextNode.ACenter)
+            self.second = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=base.font, text_align=TextNode.ACenter)
+            self.third = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=base.font, text_align=TextNode.ACenter)
             self.currentFrame = self.first
 
             self.arrowA = DirectFrame(frameSize=(-0.1, 0.1, -0.1, 0.1), frameColor=(0,0,0,0), pos=(-0.4,0,z-0.15), image="assets/gui/arrow.png", image_scale=0.2, scale=0.5)
@@ -93,18 +89,29 @@ class NameEntry:
             context = base.device_listener.read_context('player')
             if context["move"]>0.2:
                 self.rotateRight()
-                self.delay = 0.1
+                if self.repeating:
+                    self.delay = 0.15
+                else:
+                    self.delay = 0.3
+                    self.repeating = True
             elif context['move']<-0.2:
                 self.rotateLeft()
-                self.delay = 0.1
+                if self.repeating:
+                    self.delay = 0.15
+                else:
+                    self.delay = 0.3
+                    self.repeating = True
             elif context["accelerate"]:
                 self.addSign()
-                self.delay = 0.2
+                self.delay = 0.3
+                self.repeating = False
             elif context["decelerate"]:
                 self.removeSign()
-                self.delay = 0.2
+                self.delay = 0.3
+                self.repeating = False
             else:
-                self.delay = 0.2
+                self.delay = 0
+                self.repeating = False
 
         if self.spinnerNode:
             desired_h = -self.currentSign * 360/len(self.items) - 90
