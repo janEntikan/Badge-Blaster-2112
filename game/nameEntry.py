@@ -90,26 +90,26 @@ class NameEntry:
             if context["move"]>0.2:
                 self.rotateRight()
                 if self.repeating:
-                    self.delay = 0.15 * (0.95 ** self.repeating)
+                    self.delay = 0.2 * (0.9 ** self.repeating)
                     self.repeating += 1
                 else:
-                    self.delay = 0.3
+                    self.delay = 0.2
                     self.repeating = 1
             elif context['move']<-0.2:
                 self.rotateLeft()
                 if self.repeating:
-                    self.delay = 0.15 * (0.95 ** self.repeating)
+                    self.delay = 0.2 * (0.9 ** self.repeating)
                     self.repeating += 1
                 else:
-                    self.delay = 0.3
+                    self.delay = 0.2
                     self.repeating = 1
             elif context["accelerate"]:
                 self.addSign()
-                self.delay = 0.3
+                self.delay = 0.2
                 self.repeating = False
             elif context["decelerate"]:
                 self.removeSign()
-                self.delay = 0.3
+                self.delay = 0.2
                 self.repeating = False
             else:
                 self.delay = 0
