@@ -120,7 +120,7 @@ class Gun():
             base.sfx['shoot_2'].set_play_rate(uniform(0.4,0.6))
             base.sfx['shoot_2'].play()
             if 'rapid' in self.root.name:
-                x = math.sin(car.root.get_y() * 0.05) * 20
+                x = math.sin(car.root.get_y() * 0.05) * 15
             else:
                 if not randint(0,2):
                     return
@@ -157,7 +157,7 @@ class Gun():
             velocity.y -= randint(10,20)
             expand_speed = 10
             rotation = randint(-20, 20)
-            car.hell.spawn_ring(type, 5, pos, velocity, expand_speed, 140 + rotation, 220 + rotation)
+            car.hell.spawn_ring(type, 6, pos, velocity, expand_speed, 160 + rotation, 240 + rotation)
 
     def rocket(self, car):
         if self.timer.ready():
@@ -632,8 +632,7 @@ class EnemyFleet:
         for i in range(int(diff*5)):
             if randint(0,1):
                 c+=1
-
-        if random() < 0.15:
+        if random() < 0.15 and diff > 0.3:
             print("Lucky enemy promotion")
             c += randint(1, 2)
 
