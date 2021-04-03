@@ -61,7 +61,7 @@ def distance(car1, car2):
 class CooldownTimer():
     def __init__(self,a, b=0, repeat=0):
         self.a, self.b = a, b
-        self.time = a
+        self.time = 0
         self.repeats = repeat
         self.repeat = repeat
         self.rate_multiplier = 1.0
@@ -490,7 +490,7 @@ class PlayerCar(Car):
             context = base.device_listener.read_context('player')
             if not self.slipping:
                 base.sfx['slide'].stop()
-                self.handle_turbo(context['turbo'])
+                self.handle_turbo(context['accelerate'])
                 if base.game_over:
                     self.speed.y *= 0.5 ** dt
                 elif not context['decelerate']:
