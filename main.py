@@ -80,18 +80,21 @@ class Base(ShowBase, FSM):
         self.request("MainMenu")
 
     def enterMainMenu(self):
+        print("Entering state MainMenu")
         self.accept("do_start", self.request, ["Game"])
         self.accept("do_highscore", self.request, ["Highscore"])
         self.accept("do_quit", sys.exit)
         self.mainMenu = MainMenu()
 
     def exitMainMenu(self):
+        print("Exiting state MainMenu")
         self.ignore("do_start")
         self.ignore("do_highscore")
         self.ignore("do_quit")
         self.mainMenu.destroy()
 
     def enterHighscore(self):
+        print("Entering state Highscore")
         self.accept("do_back", self.request, ["MainMenu"])
         self.highScore = Highscore()
         ival = self.highScore.lbl1.posInterval(1, self.highScore.lbl1.getPos(), (2, self.highScore.lbl1.getY(), self.highScore.lbl1.getZ()))
@@ -125,11 +128,12 @@ class Base(ShowBase, FSM):
         ival.start()
 
     def exitHighscore(self):
+        print("Exiting state Highscore")
         self.ignore("do_back")
         self.highScore.destroy()
 
     def enterGame(self):
-
+        print("Entering state Game")
         self.noConnection.hide()
 
         # self.disable_mouse()  # FIXME: Uncomment before release
@@ -190,6 +194,8 @@ class Base(ShowBase, FSM):
         self.level_counter = 1
         self.gui.set_num_lives(self.num_lives)
         self.game_over = False
+        self.progress = 0.0
+        self.gui.set_score_counter(self.score)
 
         self.bgm = None
         self.playlist = [self.loader.load_music(track) for track in SND_BGM]
@@ -205,45 +211,14 @@ class Base(ShowBase, FSM):
         )
 
         self.accept('f12', self.screenshot)
-        self.accept('r', self.reset_game)
         self.accept('d', self.lose_life)
 
-        self.reset_game()
-
     def exitGame(self):
+        print("Exiting state Game")
 
         self.noConnection.show()
 
-        self.player_hell.reset()
-        self.enemy_hell.reset()
-        self.explosions.reset()
-        self.specialfx.reset()
-        self.powerups.reset()
-        taskMgr.remove('tick')
-        self.enemy_fleet.reset()
-        self.trackgen.destroy()
-        self.player.remove()
-        self.gui.destroy()
-
-    def enterNameEntry(self):
-        self.set_background_color(20/100, 16/100, 16/100, 1)
-        self.accept("nameEntryDone", self.request, ["Highscore"])
-        self.ne = NameEntry()
-
-    def exitNameEntry(self):
-        print(self.ne.get())
-        print(self.score)
-        self.leaderboard.submit(self.ne.get(), int(self.score))
-        self.ne.destroy()
-
-    def reset_game(self):
-        self.num_lives = 3
-        self.level_counter = 1
-        self.gui.set_num_lives(self.num_lives)
-        self.score = 0
-        self.progress = 0.0
-        self.gui.set_score_counter(self.score)
-        self.game_over = False
+        self.game_over = True
         self.player.remove()
         self.trackgen.reset()
 
@@ -254,12 +229,26 @@ class Base(ShowBase, FSM):
         self.specialfx.reset()
         self.powerups.reset()
 
-        self.player = PlayerCar(self.models["cars"]["player"])
-        self.powerups.add_collider(self.player.root, radius=2, callback=self.pickup)
+        taskMgr.remove('tick')
+        self.gui.destroy()
 
         if self.bgm:
             self.bgm.stop()
         self.chk_bgm()
+
+    def enterNameEntry(self):
+        print("Entering state NameEntry")
+
+        self.set_background_color(20/100, 16/100, 16/100, 1)
+        self.accept("nameEntryDone", self.request, ["Highscore"])
+        self.ne = NameEntry()
+
+    def exitNameEntry(self):
+        print("Exiting state NameEntry")
+        print(self.ne.get())
+        print(self.score)
+        self.leaderboard.submit(self.ne.get(), int(self.score))
+        self.ne.destroy()
 
     def add_score(self, score):
         if not self.game_over:
