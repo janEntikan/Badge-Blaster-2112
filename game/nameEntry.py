@@ -35,12 +35,13 @@ class NameEntry:
 
         self.help = DirectLabel(text="left/right = Choose sign | up = Select sign | down = remove/back",
             frameColor=(0,0,0,0),
+            text_fg=(1,1,1,1),
             pos=(0,0,-0.8),
             scale=0.07)
 
-        self.first = DirectFrame(text="", frameSize=size, pos=(-0.4,0,z), text_scale=0.35, text_font=self.font, text_align=TextNode.ACenter)
-        self.second = DirectFrame(text="", frameSize=size, pos=(0,0,z), text_scale=0.35, text_font=self.font, text_align=TextNode.ACenter)
-        self.third = DirectFrame(text="", frameSize=size, pos=(0.4,0,z), text_scale=0.35, text_font=self.font, text_align=TextNode.ACenter)
+        self.first = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(-0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
+        self.second = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
+        self.third = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
 
         self.currentFrame = self.first
 
@@ -65,7 +66,7 @@ class NameEntry:
             s.setText(sign)
             s.setAlign(TextNode.ACenter)
             s.setFont(self.font)
-            s.setTextColor(0,0,0,1)
+            s.setTextColor(1,1,1,1)
 
             snp = self.spinnerNode.attachNewNode(s)
             snp.setScale(0.2)

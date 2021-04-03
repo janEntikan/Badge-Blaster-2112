@@ -5,6 +5,7 @@ random.seed(s)
 print('Using seed: ', s)
 
 from direct.showbase.ShowBase import ShowBase
+from direct.gui.DirectGui import DGG
 from direct.fsm.FSM import FSM
 from panda3d import core
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
@@ -44,7 +45,9 @@ class Base(ShowBase, FSM):
     def __init__(self):
         ShowBase.__init__(self)
         FSM.__init__(self, "FSM-Game")
-        self.set_background_color(0.8, 0.2, 0.2, 1)
+        self.set_background_color(20/100, 16/100, 16/100, 1)
+
+        DGG.setDefaultFont(loader.loadFont("assets/fonts/computerspeak.ttf"))
 
         self.leaderboard = LeaderBoard()
 
@@ -180,6 +183,11 @@ class Base(ShowBase, FSM):
         self.reset_game()
 
     def exitGame(self):
+        self.player_hell.reset()
+        self.enemy_hell.reset()
+        self.explosions.reset()
+        self.specialfx.reset()
+        self.powerups.reset()
         taskMgr.remove('tick')
         self.enemy_fleet.reset()
         self.trackgen.destroy()
@@ -187,7 +195,7 @@ class Base(ShowBase, FSM):
         self.gui.destroy()
 
     def enterNameEntry(self):
-        self.set_background_color(0.8, 0.2, 0.2, 1)
+        self.set_background_color(20/100, 16/100, 16/100, 1)
         self.accept("nameEntryDone", self.request, ["Highscore"])
         self.ne = NameEntry()
 
