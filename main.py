@@ -73,6 +73,15 @@ class Base(ShowBase, FSM):
         else:
             self.noConnection = core.NodePath("dummy")
 
+        # Setup track generator
+        self.levels = ("forest", "desert", "express", "farm", "bridge", "city", "village")
+        parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
+        self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
+        self.trackgen = TrackGenerator()
+
+        self.enemy_fleet = EnemyFleet()
+        self.trackgen.register_spawn_callback(self.enemy_fleet.spawn)
+
         self.request("MainMenu")
 
     def setLocalServer(self, task):
@@ -156,12 +165,6 @@ class Base(ShowBase, FSM):
             sfx = self.sfx[filename] = loader.load_sfx('assets/sfx/'+filename+'.wav')
             sfx.set_play_rate(0.6)
 
-        # Setup track generator
-        self.levels = ("forest", "desert", "express", "farm", "bridge", "city", "village")
-        parts = {i: loader.load_model(f"assets/models/{i}.bam") for i in self.levels}
-        self.part_mgr = part.PartMgr(parts, ('parts', 'props'))
-        self.trackgen = TrackGenerator()
-
         # Load hells
         self.player_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.02)
         self.enemy_hell = BulletHell(self.render, 'assets/fireworks/bullets.png', (8, 8), check_bounds=True, scale=0.03)
@@ -174,9 +177,6 @@ class Base(ShowBase, FSM):
         self.models["cars"] = child_dict(car_models)
         self.player = PlayerCar(self.models["cars"]["player"])
         self.task_mgr.do_method_later(0.1, self.tick, name='tick')
-
-        self.enemy_fleet = EnemyFleet()
-        self.trackgen.register_spawn_callback(self.enemy_fleet.spawn)
 
         self.powerups.add_collider(self.player.root, radius=3, callback=self.pickup)
 
@@ -212,6 +212,8 @@ class Base(ShowBase, FSM):
 
         self.accept('f12', self.screenshot)
         self.accept('d', self.lose_life)
+
+        self.trackgen.update(core.Vec3(0))
 
     def exitGame(self):
         print("Exiting state Game")
@@ -289,9 +291,13 @@ class Base(ShowBase, FSM):
             self.bgm.play()
 
             self.game_over = True
+            self.request("NameEntry")
             return False
 
     def level_transition_evt(self, level):
+        if self.game_over:
+            return
+
         print(f"We're about to enter the level {level.upper()}")
         if level == 'express':
             level += 'way'
