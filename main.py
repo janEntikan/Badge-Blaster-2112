@@ -199,7 +199,9 @@ class Base(ShowBase, FSM):
 
         self.bgm = None
         self.playlist = [self.loader.load_music(track) for track in SND_BGM]
+        first = self.playlist.pop(0)
         random.shuffle(self.playlist)
+        self.playlist.insert(0, first)
         self.track = 0
 
         if core.ConfigVariableBool('esc-to-exit', False).get_value():
