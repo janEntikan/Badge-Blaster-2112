@@ -578,7 +578,7 @@ class EnemyFleet:
     def wave_killed(self, car):
         # Last car in wave killed.  Powerup?  Chance increases with low health.
         #print("Killed wave", car.wave)
-        chance = 0.31 - 0.1 * base.num_lives
+        chance = 0.36 - 0.1 * base.num_lives
         if chance <= 0:
             return
 
