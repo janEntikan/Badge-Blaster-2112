@@ -6,3 +6,4 @@ venv
 .vscode
 *.bak
 user.prc
+assets/cache/*
