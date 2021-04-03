@@ -31,7 +31,7 @@ DF_SPLINE_PTS = [
     Vec2(12, 0.75),
     Vec2(13, 1.1)
 ]                           # Spline points representing difficulty
-DF_INC_PER_SEC = 0.002
+DF_INC_PER_SEC = 0.0015
 
 
 # Follow Cam constants (FC_ prefix)

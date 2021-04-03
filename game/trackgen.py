@@ -357,7 +357,7 @@ class TrackGenerator:
         # FIXME: make spawning better
         tilt = 1 + base.player.cam_tilt
         enemy_y = random.uniform(TG_MIN_SPAWN_DIST * tilt, TG_MAX_SPAWN_DIST * tilt)
-        self._next_spawn += enemy_y * (2 - self._difficulty)
+        self._next_spawn += enemy_y * (2.8 - self._difficulty)
         enemy_y += self._car_position.y
         if self._y_trans_start <= enemy_y <= self._y_trans_end:
             return
