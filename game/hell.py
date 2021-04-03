@@ -236,7 +236,7 @@ class BulletHell(DirectObject):
                         rewriter.set_row(i)
                         pos = rewriter.get_data2()
                         if self.check_bounds:
-                            if pos.y > base.cam.get_y() + 150:
+                            if pos.y > base.cam.get_y() + 150 + base.player.cam_tilt * 32:
                                 delete_points.set_bit(i)
                                 continue
 
