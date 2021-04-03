@@ -163,6 +163,8 @@ class NameEntry:
                     self.currentFrame = self.second
                 elif self.currentFrameID == 2:
                     self.currentFrame = self.third
+            else:
+                self.currentSign = SIGNS.index("end")
 
     def removeSign(self):
         if self.menu:
