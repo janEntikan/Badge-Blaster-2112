@@ -16,7 +16,7 @@ from . import util
 
 def chk_timestamp(key, base_type):
     h = sha384(f'{key}-{base_type}'.encode()).hexdigest()
-    lvl_fname = core.Filename(core.Filename.get_user_appdata_directory() + f'/cache/{h}')
+    lvl_fname = core.Filename(f'assets/cache/{h}')
     bam_fname = core.Filename(f'assets/models/{key}.bam')
     timestamp = 0
     need_reload = True
@@ -39,7 +39,7 @@ def chk_timestamp(key, base_type):
 
 def get_bounds(need_reload, key, np):
     h = sha384(f'{key}-road-{np.name}'.encode()).hexdigest()
-    fname = core.Filename(core.Filename.get_user_appdata_directory() + f'/cache/{h}')
+    fname = core.Filename(f'assets/cache/{h}')
     if need_reload:
         bounds = pp.get_model_bounds(np)
         with open(fname.to_os_specific(), 'wb') as f:
