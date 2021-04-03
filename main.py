@@ -49,8 +49,9 @@ def child_dict(model):
 class Base(ShowBase, FSM):
     def __init__(self):
         ShowBase.__init__(self)
+        self.device_listener = DeviceListener(SinglePlayerAssigner())
         FSM.__init__(self, "FSM-Game")
-        self.set_background_color(20/100, 16/100, 16/100, 1)
+        self.set_background_color(20/255, 16/255, 16/255, 1)
 
         self.font = loader.loadFont("assets/fonts/computerspeak.ttf")
         self.font.set_pixels_per_unit(100)
@@ -93,7 +94,7 @@ class Base(ShowBase, FSM):
         self.accept("do_start", self.request, ["Game"])
         self.accept("do_highscore", self.request, ["Highscore"])
         self.accept("do_quit", sys.exit)
-        self.mainMenu = MainMenu()
+        self.mainMenu = NameEntry(["< START >", "< HIGHSCORE >", "< QUIT GAME >"], True)
 
     def exitMainMenu(self):
         print("Exiting state MainMenu")
@@ -146,7 +147,6 @@ class Base(ShowBase, FSM):
         self.noConnection.hide()
 
         # self.disable_mouse()  # FIXME: Uncomment before release
-        self.device_listener = DeviceListener(SinglePlayerAssigner())
         self.gui = Gui()
         self.dt = 1
         self.camx = 0
@@ -240,8 +240,7 @@ class Base(ShowBase, FSM):
 
     def enterNameEntry(self):
         print("Entering state NameEntry")
-
-        self.set_background_color(20/100, 16/100, 16/100, 1)
+        self.set_background_color(20/255, 16/255, 16/255, 1)
         self.accept("nameEntryDone", self.request, ["Highscore"])
         self.ne = NameEntry()
 
