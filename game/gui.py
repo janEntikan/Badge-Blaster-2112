@@ -78,9 +78,9 @@ class Gui():
         text.set_transparency(1)
         text.set_color_scale((1, 1, 1, 0))
         Sequence(
-            text.colorScaleInterval(2.0, (1, 1, 1, 1)),
-            Wait(4.0),
-            text.colorScaleInterval(3.5, (1, 0, 0, 0)),
+            text.colorScaleInterval(1.0, (1, 1, 1, 1)),
+            Wait(2.0),
+            text.colorScaleInterval(1.75, (1, 0, 0, 0)),
             Func(text.destroy),
         ).start()
 
