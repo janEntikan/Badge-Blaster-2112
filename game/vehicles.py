@@ -258,6 +258,8 @@ class Car():
         base.specialfx.spawn_single(SpecialType.SPARKS, spark_pos + Vec3(random() - 0.5, random() - 0.5, random() - 0.5))
 
     def steer(self, x):
+        sign = -1 if x < 0 else 1
+        x = (max(min(x, 1), -1) ** 2) * sign
         if self.speed.y > 0:
             self.speed.x += (x * self.steering) * base.dt
             # if self.speed.y < self.max_speed_normal:
