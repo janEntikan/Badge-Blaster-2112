@@ -213,7 +213,7 @@ class Base(ShowBase, FSM):
         )
 
         self.accept('f12', self.screenshot)
-        self.accept('d', self.lose_life)
+        self.accept('d', self.player.get_hit)
 
         self.trackgen.update(core.Vec3(0))
 
