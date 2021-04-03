@@ -1,4 +1,27 @@
 import sys
+
+try:
+    from panda3d.core import PandaSystem
+    import keybindings
+except ImportError:
+    print("You have not installed the required dependencies!")
+    print("Please run:")
+    print("")
+    print("  python -m pip install -r requirements.txt")
+    print("")
+    sys.exit(1)
+
+
+pv = (PandaSystem.major_version, PandaSystem.minor_version, PandaSystem.sequence_version)
+if pv < (1, 10, 9):
+    print(f"Your version of Panda3D is too old!  You have {PandaSystem.version_string} but need 1.10.9.")
+    print("Please run:")
+    print("")
+    print("  python -m pip install -r requirements.txt")
+    print("")
+    sys.exit(1)
+
+import sys
 import random
 s = random.randint(-(2**31), 2**31 - 1)
 random.seed(s)
