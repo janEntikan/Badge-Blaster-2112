@@ -27,8 +27,7 @@ class LeaderBoard:
     def _update_lb(self):
         reply = self._send_msg(chr(31).encode()).decode()
         lb = reply.split(',')
-        if len(lb) == 10:
-            self._lb = [tuple(i.split('-')) for i in lb]
+        self._lb = [tuple(i.split('-')) for i in lb]
         if len(self._lb) < 10:
             for i in range(10 - len(self._lb)):
                 self._lb.append(("AAA", 0))
