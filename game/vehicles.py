@@ -89,10 +89,10 @@ class Gun():
     def __init__(self, node):
         self.root = node
         if 'single' in node.name:
-            self.timer = CooldownTimer(0.6,0,0)
+            self.timer = CooldownTimer(0.8,0,0)
             self.fire = self.single
         if 'rapid' in node.name:
-            self.timer = CooldownTimer(0.2,0,0)
+            self.timer = CooldownTimer(0.3,0,0)
             self.fire = self.single
         elif 'full_spread'in node.name:
             self.timer = CooldownTimer(2,0,0)
