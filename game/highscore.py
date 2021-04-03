@@ -25,26 +25,6 @@ class GUI:
 
         lb = base.leaderboard.leaderboard()
 
-        self.pg7646 = DirectButton(
-            frameColor=(0.8, 0.8, 0.8, 0.0),
-            frameSize=(-1.093750035762787, 1.268750047683716, -0.225, 0.8250000238418579),
-            hpr=LVecBase3f(0, 0, 0),
-            pos=LPoint3f(-0.875, 0, -0.65),
-            scale=LVecBase3f(0.1, 0.1, 0.1),
-            text='Back',
-            text_align=TextNode.A_center,
-            text_scale=(1, 1),
-            text_pos=(0, 0),
-            text_fg=LVecBase4f(1, 1, 1, 1),
-            text_bg=LVecBase4f(0, 0, 0, 0),
-            text_wordwrap=None,
-            parent=rootParent,
-            command=base.messenger.send,
-            extraArgs=["do_back"],
-            pressEffect=1,
-        )
-        self.pg7646.setTransparency(0)
-
         self.lbl1 = DirectLabel(
             frameColor=(0.8, 0.8, 0.8, 0.0),
             frameSize=(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071),
@@ -241,10 +221,19 @@ class GUI:
             parent=rootParent,
         )
         self.lbl10.setTransparency(0)
+        self.wait = 0.3
+        self.task = base.task_mgr.add(self.update)
 
+    def update(self, task):
+        if self.wait < 0:
+            context = base.device_listener.read_context('player')
+            if context['move'] or context['accelerate'] or context["decelerate"]:
+                base.messenger.send("do_back")
+        else:
+            self.wait -= globalClock.get_dt()
+        return task.cont
 
     def show(self):
-        self.pg7646.show()
         self.lbl1.show()
         self.lbl2.show()
         self.lbl3.show()
@@ -257,7 +246,6 @@ class GUI:
         self.lbl10.show()
 
     def hide(self):
-        self.pg7646.hide()
         self.lbl1.hide()
         self.lbl2.hide()
         self.lbl3.hide()
@@ -270,7 +258,7 @@ class GUI:
         self.lbl10.hide()
 
     def destroy(self):
-        self.pg7646.destroy()
+        self.task.remove()
         self.lbl1.destroy()
         self.lbl2.destroy()
         self.lbl3.destroy()

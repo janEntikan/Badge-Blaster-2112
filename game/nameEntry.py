@@ -74,7 +74,7 @@ class NameEntry:
             snp.setHpr(90 + i * (360/len(self.items)), 0, 0)
 
             self.spinnerNode.reparentTo(render)
-        self.delay = 0.1
+        self.delay = 0.2
 
     def activate(self):
         if self.currentSign == 0:
@@ -160,7 +160,7 @@ class NameEntry:
     def rotateLeft(self):
         if self.ival is not None:
             self.ival.finish()
-        self.ival = LerpHprInterval(self.spinnerNode, 0.25, (self.spinnerNode.getH() + 360/len(self.items), 0, 0))
+        self.ival = LerpHprInterval(self.spinnerNode, 0.2, (self.spinnerNode.getH() + 360/len(self.items), 0, 0))
         self.ival.start()
         self.currentSign -= 1
         if self.currentSign < 0:
@@ -169,7 +169,7 @@ class NameEntry:
     def rotateRight(self):
         if self.ival is not None:
             self.ival.finish()
-        self.ival = LerpHprInterval(self.spinnerNode, 0.25, (self.spinnerNode.getH() - 360/len(self.items), 0, 0))
+        self.ival = LerpHprInterval(self.spinnerNode, 0.2, (self.spinnerNode.getH() - 360/len(self.items), 0, 0))
         self.ival.start()
         self.currentSign += 1
         if self.currentSign >= len(self.items):
