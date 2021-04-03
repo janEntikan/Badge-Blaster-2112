@@ -31,13 +31,27 @@
 
 
 [game]
-  [menu.select]
+  [game.move]
+  _type = "axis"
+  _device_order = ["gamepad", "keyboard"]
+  gamepad = "left_x"
+  keyboard = "arrow_left,arrow_right"
+
+  [game.select]
   _type = "trigger"
   _device_order = ["gamepad", "keyboard"]
   gamepad = "face_x"
-  keyboard = "z"
+  keyboard = "enter"
+
+  [game.backspace]
+  _type = "trigger"
+  _device_order = ["gamepad", "keyboard"]
+  gamepad = "face_y"
+  keyboard = "backspace"
 
   [game.quit]
-  _type = "button"
+  _type = "trigger"
   _device_order = ["keyboard"]
   keyboard = "escape"
+
+
