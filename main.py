@@ -292,7 +292,6 @@ class Base(ShowBase, FSM):
             self.bgm.play()
 
             self.game_over = True
-            self.request("NameEntry")
             return False
 
     def level_transition_evt(self, level):
