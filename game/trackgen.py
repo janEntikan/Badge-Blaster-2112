@@ -136,7 +136,11 @@ class TrackGenerator:
 
     def _add_track_part(self):
         new_next = self._next_part_y + TG_UNIT
-        if new_next <= self._car_position.y + TG_VISIBLE:
+        if hasattr(base, 'player'):
+            tilt = 1 + base.player.cam_tilt
+        else:
+            tilt = 1
+        if new_next <= self._car_position.y + TG_VISIBLE * tilt:
             part = self._select_part()
             self._next_variant -= 1
             start = self._qry_center_w(self._next_part_y)
@@ -353,7 +357,8 @@ class TrackGenerator:
 
     def _spawn_enemy(self):
         # FIXME: make spawning better
-        enemy_y = random.uniform(TG_MIN_SPAWN_DIST, TG_MAX_SPAWN_DIST)
+        tilt = 1 + base.player.cam_tilt
+        enemy_y = random.uniform(TG_MIN_SPAWN_DIST * tilt, TG_MAX_SPAWN_DIST * tilt)
         self._next_spawn += enemy_y * (4 - self._difficulty)
         enemy_y += self._car_position.y
         if self._y_trans_start <= enemy_y <= self._y_trans_end:

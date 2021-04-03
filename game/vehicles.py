@@ -440,6 +440,8 @@ class PlayerCar(Car):
         self.base_p = base.cam.get_p()
         self.base_fov = base.cam.node().get_lens().get_fov()[0]
         self.cam_tilt = 0
+        self.current_cam_tilt = 0
+        self.tilt_speed = 1
 
         self.hell = base.player_hell
         base.enemy_hell.add_collider(self.root, radius=0.8, callback=self.get_hit)
@@ -538,7 +540,11 @@ class PlayerCar(Car):
         base.gui.set_speed_counter(int((self.speed.y*2)-0.5)+1, color)
         base.trackgen.update(self.root.get_pos())
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
-        self.cam_tilt = (self.speed.y / self.max_speed_turbo) ** 5.5
+        self.lerp_cam()
+
+    def lerp_cam(self):
+        new_tilt = (self.speed.y / self.max_speed_turbo) ** 5.5
+        self.cam_tilt += (new_tilt - self.cam_tilt) * base.dt * self.tilt_speed
         base.cam.set_p(self.cam_tilt * 1.5 + self.base_p)
         base.cam.node().get_lens().set_fov(self.base_fov + self.cam_tilt * 8)
 
