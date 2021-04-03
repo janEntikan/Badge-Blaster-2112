@@ -16,7 +16,7 @@ void main() {
     v_color = p3d_Color;
     float f = (i_len - (i_ymax - p3d_Vertex.y)) / i_len;
     float s = (f - 0.5f) * (i_hskew * 2.0f);
-    vec4 v_pos = p3d_Vertex;
+    v_pos = p3d_Vertex;
     v_pos.x *= (i_scale.y - i_scale.x) * f + i_scale.x;
     v_pos.x += s;
 	gl_Position = p3d_ModelViewProjectionMatrix * v_pos;
