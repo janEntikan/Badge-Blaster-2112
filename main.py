@@ -72,6 +72,14 @@ def child_dict(model):
 class Base(ShowBase, FSM):
     def __init__(self):
         ShowBase.__init__(self)
+
+        # Scale window size based on DPI
+        default_props = core.WindowProperties.default
+        zoom = base.pipe.display_zoom
+        x_size = int(round(default_props.get_x_size() * zoom))
+        y_size = int(round(default_props.get_y_size() * zoom))
+        self.win.request_properties(core.WindowProperties(size=(x_size, y_size)))
+
         self.disable_mouse()
 
         # panda3d_keybindings needs this
