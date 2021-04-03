@@ -20,7 +20,7 @@ class NameEntry:
         self.currentFrameID = 0
         self.currentFrame = None
 
-        self.repeating = False
+        self.repeating = 0
 
         self.spinnerNode = NodePath("spinner")
         self.spinnerNode.setPos(0, 3, -0.2)
@@ -90,17 +90,19 @@ class NameEntry:
             if context["move"]>0.2:
                 self.rotateRight()
                 if self.repeating:
-                    self.delay = 0.15
+                    self.delay = 0.15 * (0.95 ** self.repeating)
+                    self.repeating += 1
                 else:
                     self.delay = 0.3
-                    self.repeating = True
+                    self.repeating = 1
             elif context['move']<-0.2:
                 self.rotateLeft()
                 if self.repeating:
-                    self.delay = 0.15
+                    self.delay = 0.15 * (0.95 ** self.repeating)
+                    self.repeating += 1
                 else:
                     self.delay = 0.3
-                    self.repeating = True
+                    self.repeating = 1
             elif context["accelerate"]:
                 self.addSign()
                 self.delay = 0.3
