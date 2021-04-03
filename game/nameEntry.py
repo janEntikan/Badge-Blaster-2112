@@ -22,7 +22,6 @@ class NameEntry:
         base.cam.set_pos(0,0,0)
         base.cam.set_hpr(0,0,0)
 
-        self.ival = None
         self.currentSign = 0
         self.currentFrameID = 0
         self.currentFrame = None
@@ -94,21 +93,32 @@ class NameEntry:
             context = base.device_listener.read_context('player')
             if context["move"]>0.2:
                 self.rotateRight()
-                self.delay = 0.2
+                self.delay = 0.1
             elif context['move']<-0.2:
                 self.rotateLeft()
-                self.delay = 0.2
+                self.delay = 0.1
             elif context["accelerate"]:
                 self.addSign()
                 self.delay = 0.2
             elif context["decelerate"]:
                 self.removeSign()
                 self.delay = 0.2
+            else:
+                self.delay = 0.2
+
+        if self.spinnerNode:
+            desired_h = -self.currentSign * 360/len(self.items) - 90
+            current_h = self.spinnerNode.get_h()
+            diff = (((desired_h - current_h) + 180) % 360) - 180
+            delta = diff * globalClock.dt * 10
+            if abs(delta) > abs(diff):
+                delta = diff
+            self.spinnerNode.set_h(current_h + delta)
         return task.cont
 
     def destroy(self):
-        self.spinnerNode.removeNode()
         self.task.remove()
+        self.spinnerNode.removeNode()
         if not self.menu:
             self.first.destroy()
             self.second.destroy()
@@ -158,19 +168,11 @@ class NameEntry:
         return "{}{}{}".format(self.first["text"], self.second["text"], self.third["text"])
 
     def rotateLeft(self):
-        if self.ival is not None:
-            self.ival.finish()
-        self.ival = LerpHprInterval(self.spinnerNode, 0.2, (self.spinnerNode.getH() + 360/len(self.items), 0, 0))
-        self.ival.start()
         self.currentSign -= 1
         if self.currentSign < 0:
             self.currentSign = len(self.items)-1
 
     def rotateRight(self):
-        if self.ival is not None:
-            self.ival.finish()
-        self.ival = LerpHprInterval(self.spinnerNode, 0.2, (self.spinnerNode.getH() - 360/len(self.items), 0, 0))
-        self.ival.start()
         self.currentSign += 1
         if self.currentSign >= len(self.items):
             self.currentSign = 0
