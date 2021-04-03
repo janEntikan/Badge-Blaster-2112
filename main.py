@@ -51,7 +51,8 @@ class Base(ShowBase, FSM):
         ShowBase.__init__(self)
         self.device_listener = DeviceListener(SinglePlayerAssigner())
         FSM.__init__(self, "FSM-Game")
-        self.set_background_color(20/255, 16/255, 16/255, 1)
+        self.set_background_color(0,0,0)
+        #self.set_background_color(20/255, 16/255, 16/255, 1)
 
         self.font = loader.loadFont("assets/fonts/computerspeak.ttf")
         self.font.set_pixels_per_unit(100)
@@ -95,6 +96,12 @@ class Base(ShowBase, FSM):
         self.accept("do_highscore", self.request, ["Highscore"])
         self.accept("do_quit", sys.exit)
         self.mainMenu = NameEntry(["< START >", "< HIGHSCORE >", "< QUIT GAME >"], True)
+        self.background = loader.load_model("assets/models/menuBack.bam")
+        set_faux_lights(self.background)
+        self.background.reparent_to(render)
+        self.bgm = loader.load_music("assets/music/title.ogg")
+        self.bgm.set_loop(True)
+        self.bgm.play()
 
     def exitMainMenu(self):
         print("Exiting state MainMenu")
@@ -102,6 +109,9 @@ class Base(ShowBase, FSM):
         self.ignore("do_highscore")
         self.ignore("do_quit")
         self.mainMenu.destroy()
+        self.background.detach_node()
+        self.background = None
+
 
     def enterHighscore(self):
         print("Entering state Highscore")
@@ -244,7 +254,8 @@ class Base(ShowBase, FSM):
 
     def enterNameEntry(self):
         print("Entering state NameEntry")
-        self.set_background_color(20/255, 16/255, 16/255, 1)
+        self.set_background_color(0,0,0)
+        #self.set_background_color(20/255, 16/255, 16/255, 1)
         self.accept("nameEntryDone", self.request, ["Highscore"])
         self.ne = NameEntry()
 
