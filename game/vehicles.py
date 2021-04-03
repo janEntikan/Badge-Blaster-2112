@@ -61,7 +61,7 @@ def distance(car1, car2):
 class CooldownTimer():
     def __init__(self,a, b=0, repeat=0):
         self.a, self.b = a, b
-        self.time = 0
+        self.time = a/2
         self.repeats = repeat
         self.repeat = repeat
         self.rate_multiplier = 1.0
@@ -157,7 +157,7 @@ class Gun():
             velocity.y -= randint(10,20)
             expand_speed = 10
             rotation = randint(-20, 20)
-            car.hell.spawn_ring(type, 6, pos, velocity, expand_speed, 160 + rotation, 240 + rotation)
+            car.hell.spawn_ring(type, 3, pos, velocity, expand_speed, 160 + rotation, 240 + rotation)
 
     def rocket(self, car):
         if self.timer.ready():
@@ -252,6 +252,10 @@ class Car():
         if (self.slipping < 2 and self.slipping > -2) or self.slipping < -360 or self.slipping > 360:
             self.slipping = 0
         self.model.set_h(self.slipping)
+
+        spark_pos = self.root.get_pos()
+        spark_pos.y -= 2
+        base.specialfx.spawn_single(SpecialType.SPARKS, spark_pos + Vec3(random() - 0.5, random() - 0.5, random() - 0.5))
 
     def steer(self, x):
         if self.speed.y > 0:
@@ -528,7 +532,7 @@ class PlayerCar(Car):
             color = (1,1,1,0.8)
         elif self.speed.y > self.turbo_threshold:
             color = (0,1,0,0.8)
-        base.gui.set_speed_counter(int((self.speed.y*2)-0.5), color)
+        base.gui.set_speed_counter(int((self.speed.y*2)-0.5)+1, color)
         base.trackgen.update(self.root.get_pos())
         base.cam.set_pos(base.camx, -self.cam_height+self.root.get_y(), self.cam_height)
 
