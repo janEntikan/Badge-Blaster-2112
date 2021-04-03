@@ -489,10 +489,7 @@ class PlayerCar(Car):
 
     def handle_turbo(self, on=False):
         if on:
-            if self.speed.y > self.turbo_threshold:
-                self.max_speed = self.max_speed_turbo
-            else:
-                self.max_speed = self.max_speed_error
+            self.max_speed = self.max_speed_turbo
         else:
             self.max_speed = self.max_speed_normal
 
@@ -500,6 +497,7 @@ class PlayerCar(Car):
         if self.alive and not base.game_over:
             context = base.device_listener.read_context('player')
             if not self.slipping:
+                self.slidesound = False
                 base.sfx['slide'].stop()
                 self.handle_turbo(context['accelerate'])
                 if base.game_over:
@@ -518,10 +516,12 @@ class PlayerCar(Car):
                 if not base.game_over and (len(base.enemy_fleet.cars) > 0 or self.guns[0].timer.boosting):
                     self.fire_weapons()
             else:
-                if not base.sfx['slide'].status() == 0:
+                if not self.slidesound:
+                    base.sfx['slide'].set_loop(True)
+                    base.sfx['slide'].set_volume(0.3)
                     base.sfx['slide'].play()
+                    self.slidesound = True
                 self.slip(context['move'])
-
         last_y = self.root.get_y()
         self.update()
         base.add_score(self.root.get_y() - last_y)
