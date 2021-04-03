@@ -464,7 +464,7 @@ class PlayerCar(Car):
                 splode_type = choice((ExplosionType.SMALL, ExplosionType.MEDIUM, ExplosionType.LARGE))
                 base.explosions.spawn_single(splode_type, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, 0), self.speed)
                 await Wait(0.3 * random())
-            base.reset_game()
+            base.request("NameEntry")
             return
         base.sfx['explosion_1'].play()
         base.explosions.spawn_single(ExplosionType.SMALL, self.root.get_pos(), self.speed)

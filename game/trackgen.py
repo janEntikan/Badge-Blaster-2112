@@ -80,6 +80,40 @@ class TrackGenerator:
 
         self.update(core.Vec3(0))
 
+    def destroy(self):
+        self._levels = list(base.levels)
+        random.shuffle(self._levels)
+        print("Level sequence", self._levels)
+        self._level = self._levels.pop(0)
+        self._next_variant = random.randint(*TG_PART_CHG_RNG)
+        self._variant = random.randrange(base.part_mgr.num_roads(self._level))
+        #self._next_level = random.randint(*TG_LEVEL_CHG_RNG)
+        self._next_level = -1
+        self._next_variant = -1
+        self._difficulty = 0.1
+        self._next_spawn = 1
+        self._next_part_y = 0
+        self._y_offset = 0
+        self._ymax = 0
+        self._level_trans_old = -2
+        self._level_trans_new = -2
+        self._level_after_trans = ''
+        self._y_trans_start = -1
+        self._y_trans_end = -1
+        self._level_event_sent = False
+        self._current_hue = random.uniform(0, pi)
+        self._next_hue = self._current_hue
+        self._part_mgr:part.PartMgr = base.part_mgr
+        self._first_piece = True
+        self._no_props = 0
+        self._dense_counter = 0
+        self._aabb = []
+
+        while self._parts:
+            self._parts.pop().remove_node()
+        self._track.clear()
+        self._width.clear()
+
     def update(self, car_position):
         self._car_position = car_position
         while car_position.y + TG_CHUNK_TRIGGER >= len(self._track) * TG_UNIT + self._y_offset:

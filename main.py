@@ -5,6 +5,7 @@ random.seed(s)
 print('Using seed: ', s)
 
 from direct.showbase.ShowBase import ShowBase
+from direct.fsm.FSM import FSM
 from panda3d import core
 from keybindings.device_listener import DeviceListener, SinglePlayerAssigner
 from game.gui import Gui
@@ -15,6 +16,10 @@ from game.util import set_faux_lights, spline_point
 from game.followcam import FollowCam
 from game.hell import BulletHell
 from game.common import DF_INC_PER_SEC, SND_BGM
+
+from game.nameEntry import NameEntry
+from game.mainMenu import GUI as MainMenu
+from game.highscore import GUI as Highscore
 
 core.load_prc_file(core.Filename.expand_from('$MAIN_DIR/settings.prc'))
 
@@ -33,9 +38,65 @@ def child_dict(model):
     return nodes
 
 
-class Base(ShowBase):
+class Base(ShowBase, FSM):
     def __init__(self):
         ShowBase.__init__(self)
+        FSM.__init__(self, "FSM-Game")
+        self.set_background_color(0.8, 0.2, 0.2, 1)
+
+        self.request("MainMenu")
+
+    def enterMainMenu(self):
+        self.accept("do_start", self.request, ["Game"])
+        self.accept("do_highscore", self.request, ["Highscore"])
+        self.accept("do_quit", sys.exit)
+        self.mainMenu = MainMenu()
+
+    def exitMainMenu(self):
+        self.ignore("do_start")
+        self.ignore("do_highscore")
+        self.ignore("do_quit")
+        self.mainMenu.destroy()
+
+    def enterHighscore(self):
+        self.accept("do_back", self.request, ["MainMenu"])
+        self.highScore = Highscore()
+        ival = self.highScore.lbl1.posInterval(1, self.highScore.lbl1.getPos(), (2, self.highScore.lbl1.getY(), self.highScore.lbl1.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl2.posInterval(1, self.highScore.lbl2.getPos(), (2, self.highScore.lbl2.getY(), self.highScore.lbl2.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl3.posInterval(1, self.highScore.lbl3.getPos(), (2, self.highScore.lbl3.getY(), self.highScore.lbl3.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl4.posInterval(1, self.highScore.lbl4.getPos(), (2, self.highScore.lbl4.getY(), self.highScore.lbl4.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl5.posInterval(1, self.highScore.lbl5.getPos(), (2, self.highScore.lbl5.getY(), self.highScore.lbl5.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl6.posInterval(1, self.highScore.lbl6.getPos(), (2, self.highScore.lbl6.getY(), self.highScore.lbl6.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl7.posInterval(1, self.highScore.lbl7.getPos(), (2, self.highScore.lbl7.getY(), self.highScore.lbl7.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl8.posInterval(1, self.highScore.lbl8.getPos(), (2, self.highScore.lbl8.getY(), self.highScore.lbl8.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl9.posInterval(1, self.highScore.lbl9.getPos(), (2, self.highScore.lbl9.getY(), self.highScore.lbl9.getZ()))
+        ival.start()
+
+        ival = self.highScore.lbl10.posInterval(1, self.highScore.lbl10.getPos(), (2, self.highScore.lbl10.getY(), self.highScore.lbl10.getZ()))
+        ival.start()
+
+    def exitHighscore(self):
+        self.ignore("do_back")
+        self.highScore.destroy()
+
+    def enterGame(self):
+
         # self.disable_mouse()  # FIXME: Uncomment before release
         self.device_listener = DeviceListener(SinglePlayerAssigner())
         self.gui = Gui()
@@ -43,6 +104,7 @@ class Base(ShowBase):
         self.camx = 0
         self.models = {}
         self.set_background_color(0, 0, 0, 0)
+
         # Load sounds
         filenames = [
             'bounce', 'engine', 'explosion_1', 'explosion_2',
@@ -109,6 +171,24 @@ class Base(ShowBase):
 
         self.accept('f12', self.screenshot)
         self.accept('r', self.reset_game)
+        self.accept('d', self.lose_life)
+
+        self.reset_game()
+
+    def exitGame(self):
+        taskMgr.remove('tick')
+        self.enemy_fleet.reset()
+        self.trackgen.destroy()
+        self.player.remove()
+        self.gui.destroy()
+
+    def enterNameEntry(self):
+        self.set_background_color(0.8, 0.2, 0.2, 1)
+        self.accept("nameEntryDone", self.request, ["Highscore"])
+        self.ne = NameEntry()
+
+    def exitNameEntry(self):
+        self.ne.destroy()
 
     def reset_game(self):
         self.num_lives = 3

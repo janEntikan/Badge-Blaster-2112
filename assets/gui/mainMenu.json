@@ -1,0 +1,81 @@
+{
+  "ProjectVersion": "0.2a",
+  "EditorConfig": {
+    "usePixel2D": false,
+    "canvasSize": "(-2, 2, -2, 2)"
+  },
+  "ComponentList": {
+    "btnStart": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(-1.63125, 1.7312501430511475, -0.21250001192092896, 0.8124999761581421)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.325, 0, 0.25)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'START'",
+        "text_align": "TextNode.A_center",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectButton",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {
+        "pressEffect": 1
+      }
+    },
+    "btnHighscore": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(-2.7499998569488526, 2.8874999046325684, -0.21250001192092896, 0.8124999761581421)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(0, 0, -0.025)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'HIGHSCORE'",
+        "text_align": "TextNode.A_center",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectButton",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {
+        "pressEffect": 1
+      }
+    },
+    "btnQuit": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(-0.049999999254941946, 2.487499809265137, -0.225, 0.8124999761581421)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(0.225, 0, -0.3)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'QUIT'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectButton",
+      "parent": "root",
+      "command": "exit",
+      "extraArgs": null,
+      "extraOptions": {
+        "pressEffect": 1
+      }
+    }
+  }
+}

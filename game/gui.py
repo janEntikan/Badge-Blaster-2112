@@ -9,7 +9,12 @@ from direct.gui.OnscreenText import OnscreenText
 class Gui():
     def __init__(self):
         self.font = loader.load_font("assets/fonts/computerspeak.ttf")
-        self.font.set_pixels_per_unit(100)
+        try:
+            self.font.set_pixels_per_unit(100)
+        except:
+            #HACK: somehow this results in an exception if it's called the second
+            # time the game is run
+            pass
         self.big_text = render2d.attach_new_node(TextNode('big text'))
         self.big_text.set_pos((0,0,0.1))
         self.big_text.set_scale(0.2)
@@ -42,6 +47,14 @@ class Gui():
         self.heart_tex = loader.load_texture('assets/gui/heart.png')
         self.heart_tex.set_minfilter(core.SamplerState.FT_nearest)
         self.heart_tex.set_magfilter(core.SamplerState.FT_nearest)
+
+    def destroy(self):
+        self.sequence.finish()
+        self.big_text.removeNode()
+        self.sub_text.removeNode()
+        self.hud.removeNode()
+        for live in self.lives:
+            live.destroy()
 
     def announce_level(self, num, name):
         text = OnscreenText(text='LEVEL ' + str(num), font=self.font, parent=base.aspect2d, pos=(0, 0.3), scale=0.1, fg=(1, 1, 1, 1))

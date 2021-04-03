@@ -1,0 +1,253 @@
+{
+  "ProjectVersion": "0.2a",
+  "EditorConfig": {
+    "usePixel2D": false,
+    "canvasSize": "(-2, 2, -2, 2)"
+  },
+  "ComponentList": {
+    "pg7646": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(-1.093750035762787, 1.268750047683716, -0.225, 0.8250000238418579)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.875, 0, -0.65)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'Back'",
+        "text_align": "TextNode.A_center",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectButton",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {
+        "pressEffect": 1
+      }
+    },
+    "lbl1": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.725, 0, 0.675)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'1 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl2": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.65, 0, 0.505)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'2 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl3": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.55, 0, 0.345)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'3 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl4": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.4, 0, 0.185)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'4 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl5": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.3, 0, 0.0649999)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'5 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl6": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.2, 0, -0.045)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'6 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl7": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(-0.1, 0, -0.155)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'7 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl8": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(0, 0, -0.265)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'8 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl9": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(0.1, 0, -0.375)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'9 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    },
+    "lbl10": {
+      "element": {
+        "frameColor": "(0.8, 0.8, 0.8, 0.0)",
+        "frameSize": "(0.03750000149011612, 3.3125, -0.11250001192092896, 0.699999988079071)",
+        "hpr": "LVecBase3f(0, 0, 0)",
+        "pos": "LPoint3f(0.21, 0, -0.475)",
+        "scale": "LVecBase3f(0.1, 0.1, 0.1)",
+        "text": "'10 - AAA'",
+        "text_align": "TextNode.A_left",
+        "text_scale": "(1, 1)",
+        "text_pos": "(0, 0)",
+        "text_fg": "LVecBase4f(0, 0, 0, 1)",
+        "text_bg": "LVecBase4f(0, 0, 0, 0)",
+        "text_wordwrap": "None",
+        "transparency": "0"
+      },
+      "type": "DirectLabel",
+      "parent": "root",
+      "command": null,
+      "extraArgs": null,
+      "extraOptions": {}
+    }
+  }
+}
