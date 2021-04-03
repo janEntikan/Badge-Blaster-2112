@@ -92,7 +92,7 @@ class Gun():
             self.timer = CooldownTimer(1,0,0)
             self.fire = self.single
         if 'rapid' in node.name:
-            self.timer = CooldownTimer(0.2,0,0)
+            self.timer = CooldownTimer(0.3,0,0)
             self.fire = self.single
         elif 'full_spread'in node.name:
             self.timer = CooldownTimer(2,0,0)
@@ -647,7 +647,10 @@ class EnemyFleet:
             c += randint(1, 2)
 
         if c == 0:
-            num_cars = int(3 + diff * 6)
+            if diff > 0.1:
+                num_cars = int(2 + diff * 8)
+            else:
+                num_cars = int(1 + diff * 2)
         elif c == 1:
             num_cars = int(1.5 + diff * 4)
         elif c == 2:
