@@ -37,7 +37,7 @@ class LeaderBoard:
         try:
             s.connect((self._addr, self._port))
             s.sendall(msg)
-            data = s.recv(100)
+            data = s.recv(1024)
             s.close()
         except (OSError, ConnectionAbortedError, ConnectionError, ConnectionRefusedError) as err:
             print(f'Something went wrong: {err}')
