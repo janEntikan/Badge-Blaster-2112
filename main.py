@@ -21,7 +21,7 @@ if pv < (1, 10, 9):
     print("")
     sys.exit(1)
 
-import sys
+import os
 import random
 s = random.randint(-(2**31), 2**31 - 1)
 random.seed(s)
@@ -73,6 +73,10 @@ class Base(ShowBase, FSM):
     def __init__(self):
         ShowBase.__init__(self)
         self.disable_mouse()
+
+        # panda3d_keybindings needs this
+        os.chdir(core.Filename(self.main_dir).to_os_specific())
+
         self.device_listener = DeviceListener(SinglePlayerAssigner())
         FSM.__init__(self, "FSM-Game")
         self.set_background_color(0,0,0)
