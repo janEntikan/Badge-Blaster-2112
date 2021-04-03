@@ -37,7 +37,7 @@ class NameEntry:
         z = 0.5
         if menu:
             self.spinnerNode.setScale(0.6)
-            self.spinnerNode.setZ(-0.3)
+            self.spinnerNode.setZ(-0.4)
         else:
             self.help = DirectLabel(text="left/right = Choose sign | up = Select sign | down = remove/back",
                 frameColor=(0,0,0,0),

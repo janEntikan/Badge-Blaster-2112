@@ -16,6 +16,11 @@ from panda3d.core import (
 
 class GUI:
     def __init__(self, rootParent=None):
+        base.bgm = loader.load_music("assets/music/highscore.ogg")
+        base.bgm.set_loop(True)
+        base.bgm.play()
+        self.background = loader.load_model("assets/models/highscoreBack.bam")
+        self.background.reparent_to(render)
 
         x = -0.8
         y = 0.8
@@ -221,6 +226,30 @@ class GUI:
             parent=rootParent,
         )
         self.lbl10.setTransparency(0)
+
+        credits = '''
+            hendrik-jan - Lead design & Audio
+            tizilogic - Procedural Generation
+            fireclaw - Graphics
+            rdb - Fireworks
+        '''
+        self.credits = DirectLabel(
+            frameColor=(0.8, 0.8, 0.8, 0.0),
+            hpr=LVecBase3f(0, 0, 0),
+            pos=LPoint3f(0, 0, 0),
+            scale=LVecBase3f(0.1, 0.1, 0.1),
+            text=credits,
+            text_align=0,#TextNode.A_left,
+            text_scale=(0.5, 0.5),
+            text_pos=(-4, 4),
+            text_fg=LVecBase4f(1, 1, 1, 1),
+            text_bg=LVecBase4f(0, 0, 0, 0),
+            text_wordwrap=None,
+            parent=rootParent,
+        )
+        self.credits.reparent_to(base.a2dBottomLeft)
+
+
         self.wait = 0.3
         self.task = base.task_mgr.add(self.update)
 
@@ -232,6 +261,8 @@ class GUI:
         else:
             self.wait -= globalClock.get_dt()
         return task.cont
+
+
 
     def show(self):
         self.lbl1.show()
@@ -259,6 +290,8 @@ class GUI:
 
     def destroy(self):
         self.task.remove()
+        self.credits.destroy()
+        self.background.detach_node()
         self.lbl1.destroy()
         self.lbl2.destroy()
         self.lbl3.destroy()
