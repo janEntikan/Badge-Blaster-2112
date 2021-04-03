@@ -10,13 +10,6 @@ SIGNS = list(string.ascii_uppercase) + ["end"]
 
 class NameEntry:
     def __init__(self):
-        self.font = loader.load_font("assets/fonts/computerspeak.ttf")
-        try:
-            self.font.setPixelsPerUnit(100)
-        except:
-            #HACK: somehow this results in an exception sometimes
-            pass
-
         base.cam.set_pos(0,0,0)
         base.cam.set_hpr(0,0,0)
 
@@ -39,9 +32,9 @@ class NameEntry:
             pos=(0,0,-0.8),
             scale=0.07)
 
-        self.first = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(-0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
-        self.second = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
-        self.third = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=self.font, text_align=TextNode.ACenter)
+        self.first = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(-0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=base.font, text_align=TextNode.ACenter)
+        self.second = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=base.font, text_align=TextNode.ACenter)
+        self.third = DirectFrame(text="", frameColor=(0,0,0,1), frameSize=size, pos=(0.4,0,z), text_scale=0.35, text_fg=(1,1,1,1), text_font=base.font, text_align=TextNode.ACenter)
 
         self.currentFrame = self.first
 
@@ -65,7 +58,7 @@ class NameEntry:
             s = TextNode(sign)
             s.setText(sign)
             s.setAlign(TextNode.ACenter)
-            s.setFont(self.font)
+            s.setFont(base.font)
             s.setTextColor(1,1,1,1)
 
             snp = self.spinnerNode.attachNewNode(s)
