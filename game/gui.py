@@ -9,12 +9,6 @@ from direct.gui.OnscreenText import OnscreenText
 class Gui():
     def __init__(self):
         self.font = loader.load_font("assets/fonts/computerspeak.ttf")
-        try:
-            self.font.set_pixels_per_unit(100)
-        except:
-            #HACK: somehow this results in an exception if it's called the second
-            # time the game is run
-            pass
         self.big_text = render2d.attach_new_node(TextNode('big text'))
         self.big_text.set_pos((0,0,0.1))
         self.big_text.set_scale(0.2)

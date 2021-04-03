@@ -52,7 +52,9 @@ class Base(ShowBase, FSM):
         FSM.__init__(self, "FSM-Game")
         self.set_background_color(20/100, 16/100, 16/100, 1)
 
-        DGG.setDefaultFont(loader.loadFont("assets/fonts/computerspeak.ttf"))
+        self.font = loader.loadFont("assets/fonts/computerspeak.ttf")
+        self.font.set_pixels_per_unit(100)
+        DGG.set_default_font(self.font)
 
         self.leaderboard = LeaderBoard()
 
@@ -67,6 +69,9 @@ class Base(ShowBase, FSM):
 
             thread.start_new_thread(asyncio.run, (server.main(),))
             self.leaderboard = LeaderBoard("")
+
+        else:
+            self.noConnection = core.NodePath("dummy")
 
         self.request("MainMenu")
 
