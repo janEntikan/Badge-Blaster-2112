@@ -9,6 +9,7 @@ except ImportError as ex:
     print("")
     print("  python -m pip install -r requirements.txt")
     print("")
+    print("The error was:", ex)
     sys.exit(1)
 
 
