@@ -18,6 +18,7 @@ setup(
                 'keybindings.toml',
                 'settings.prc',
                 'assets/cache/*',
+                'BoxArt.png',
             ],
             'gui_apps': {
                 'bdgeblst': 'main.py',
