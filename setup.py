@@ -23,6 +23,9 @@ setup(
             'gui_apps': {
                 'bdgeblst': 'main.py',
             },
+            'icons': {
+                'bdgeblst': ['icon.png'],
+            },
             'log_filename': '$USER_APPDATA/Badge Blaster/output.log',
             'log_append': False,
             'plugins': [
