@@ -47,13 +47,20 @@ class Server:
             if len(data) < 5:
                 reply = b'\0'
             else:
-                name = data[1:4].decode()
-                try:
-                    score = int(data[4:])
-                except ValueError:
-                    print(f'Did not get an int')
-                    reply = b'\0'
-                self._update_lb(name, score)
+                name = ''
+                next = 1
+                while 65 <= data[next] <= 90 and next <= 4:
+                    name += chr(data[next])
+                    next += 1
+                if len(name) < 3:
+                    name += ' ' * (3 - len(name))
+                if len(name) == 3 and len(name.strip()) > 0:
+                    try:
+                        score = int(data[next:])
+                    except ValueError:
+                        print(f'Did not get an int')
+                        reply = b'\0'
+                    self._update_lb(name, score)
 
         writer.write(reply)
         await writer.drain()
