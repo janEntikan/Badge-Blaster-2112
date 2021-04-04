@@ -1,7 +1,7 @@
 Badge Blaster
 =============
 
-Requires Python 3.6 or higher, and Panda3D 1.10.9 or higher.
+Requires Python 3.7 or higher, and Panda3D 1.10.9 or higher.
 
 To install the dependencies, use:
 
