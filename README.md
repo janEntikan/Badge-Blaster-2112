@@ -1,6 +1,8 @@
 Badge Blaster
 =============
 
+Made in one week for the PyWeek 31 challenge, themed "Cops".
+
 Running from source
 -------------------
 
@@ -28,3 +30,14 @@ If you wish to use keyboard controls, you should therefore UNPLUG any gamepad fi
 * Down arrow: slow down (useful for dodging bullets)
 
 Edit keybindings.toml to alter the controls.
+
+Credits
+-------
+
+All assets (except fonts) were created from scratch using open-source software.
+
+* Hendrik-jan - Lead Design & Audio
+* tizilogic - Procedural Generation
+* Fireclaw - Graphics
+* rdb - Fireworks
+* Schwarzbaer - Potato Lord
