@@ -227,7 +227,8 @@ class Car():
             base.specialfx.spawn_single(SpecialType.SPARKS, self.root.get_pos() + Vec3(random() - 0.5, random() - 0.5, random() - 0.5))
             if self.bump_time <= 0:
                 self.maybe_die()
-                self.root.set_x((self.track_left + self.track_right) * 0.5)
+                if self.root:
+                    self.root.set_x((self.track_left + self.track_right) * 0.5)
                 self.speed *= 0
             else:
                 if self.bump_time > 0.15:
